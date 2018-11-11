@@ -4,9 +4,11 @@ using DevExpress.Xpo.Metadata;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using System.Windows.Forms;
+using WeatherHistory;
 
-namespace Temperaure {
+namespace Temperature {
     static class Program {
         const string linesQuery = @"
 select device, date_add(makedate(year(time), DAYOFYEAR(time)), interval hour(time) HOUR) as date_hour, avg(Value) 
@@ -17,9 +19,7 @@ order by device, date_add(makedate(year(time), DAYOFYEAR(time)), interval hour(t
         const string totalQuery = @"select max(time), count(*) from weather.Temperature";
         static IDataLayer dataLayer;
         static IDataStore dataStore;
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
+
         [STAThread]
         static void Main() {
             Application.EnableVisualStyles();
@@ -44,13 +44,23 @@ order by device, date_add(makedate(year(time), DAYOFYEAR(time)), interval hour(t
                     }
                 }
             }
-            Application.Run(new Form1(indoor, outdoor, boiler, count, last));
+            var weatherService = new WeatherHistoryService(ConfigurationManager.AppSettings["HistoryService"]);
+            var historyData = weatherService.GetHistoryFrom(2018, 11, 03);
+            List<AverageValue> station = new List<AverageValue>();
+            List<AverageValue> overcast = new List<AverageValue>();
+            List<AverageValue> wind = new List<AverageValue>();
+            foreach(var row in historyData.OrderBy(item=>item.Date)) {
+                station.Add(new AverageValue { Hour = row.Date.ToLocalTime(), Value = row.EffectiveTemperature });
+                overcast.Add(new AverageValue { Hour = row.Date.ToLocalTime(), Value = row.Overcast });
+                wind.Add(new AverageValue { Hour = row.Date.ToLocalTime(), Value = row.WindSpeed });
+            }
+            Application.Run(new Form1(indoor, outdoor, boiler, count, last, station, overcast, wind));
         }
 
         static void InitDB() {
             dataStore = XpoDefault.GetConnectionProvider(ConfigurationManager.ConnectionStrings["Weather"].ConnectionString, AutoCreateOption.SchemaAlreadyExists);
             var dict = new ReflectionDictionary();
-            dict.CollectClassInfos(typeof(Temperature).Assembly);
+            dict.CollectClassInfos(typeof(TemperatureValue).Assembly);
             dataLayer = new ThreadSafeDataLayer(dict, dataStore);
         }
 

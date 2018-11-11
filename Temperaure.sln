@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2048
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Temperaure", "Temperaure\Temperaure.csproj", "{F79BB76A-F460-4F24-8090-343A72AB85FF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Temperature", "Temperaure\Temperature.csproj", "{F79BB76A-F460-4F24-8090-343A72AB85FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherHistory", "WeatherHistory\WeatherHistory.csproj", "{139614B9-A508-4A3B-B9E0-009275173D82}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.History", "Service.History\Service.History.csproj", "{139614B9-A508-4A3B-B9E0-009275173D82}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.Backup", "Service.Backup\Service.Backup.csproj", "{021B7CBA-6BA8-42B0-AB87-895083670AD0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{139614B9-A508-4A3B-B9E0-009275173D82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{139614B9-A508-4A3B-B9E0-009275173D82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{139614B9-A508-4A3B-B9E0-009275173D82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{021B7CBA-6BA8-42B0-AB87-895083670AD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{021B7CBA-6BA8-42B0-AB87-895083670AD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{021B7CBA-6BA8-42B0-AB87-895083670AD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{021B7CBA-6BA8-42B0-AB87-895083670AD0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

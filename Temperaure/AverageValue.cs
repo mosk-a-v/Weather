@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Temperaure {
+namespace Temperature {
     public class AverageValue {
         public DateTime Hour { get; set; } 
         public double Value { get; set; }

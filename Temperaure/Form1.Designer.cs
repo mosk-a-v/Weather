@@ -1,4 +1,4 @@
-﻿namespace Temperaure
+﻿namespace Temperature
 {
     partial class Form1
     {
@@ -33,6 +33,9 @@
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
@@ -49,19 +52,40 @@
             this.chart1.Name = "chart1";
             series1.ChartArea = "ChartArea1";
             series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series1.Color = System.Drawing.Color.Lime;
             series1.Legend = "Legend1";
             series1.Name = "Дома";
             series2.ChartArea = "ChartArea1";
             series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series2.Color = System.Drawing.Color.Blue;
             series2.Legend = "Legend1";
             series2.Name = "На улице";
             series3.ChartArea = "ChartArea1";
             series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series3.Color = System.Drawing.Color.Red;
             series3.Legend = "Legend1";
             series3.Name = "На котле";
+            series4.ChartArea = "ChartArea1";
+            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series4.Color = System.Drawing.Color.Aqua;
+            series4.Legend = "Legend1";
+            series4.Name = "Улица (м.с)";
+            series5.ChartArea = "ChartArea1";
+            series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series5.Color = System.Drawing.Color.Fuchsia;
+            series5.Legend = "Legend1";
+            series5.Name = "Облачность";
+            series6.ChartArea = "ChartArea1";
+            series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series6.Color = System.Drawing.Color.Aqua;
+            series6.Legend = "Legend1";
+            series6.Name = "Ветер";
             this.chart1.Series.Add(series1);
             this.chart1.Series.Add(series2);
             this.chart1.Series.Add(series3);
+            this.chart1.Series.Add(series4);
+            this.chart1.Series.Add(series5);
+            this.chart1.Series.Add(series6);
             this.chart1.Size = new System.Drawing.Size(930, 550);
             this.chart1.TabIndex = 0;
             this.chart1.Text = "chart1";
