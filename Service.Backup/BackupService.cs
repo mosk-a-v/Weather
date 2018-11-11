@@ -6,7 +6,7 @@ using DevExpress.Xpo.Metadata;
 using Temperature;
 using System.Linq;
 
-namespace Backup {
+namespace Service.Backup {
     public class BackupService {
         readonly IDataStore baseStore;
         readonly IDataStore backupStore;

@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace WeatherHistory {
+namespace Service.History {
     static class Program {
         static void Main() {
-            var service = new WeatherHistoryService("http://meteocenter.net/forecast/all.php");
+            var service = new HistoryService("http://meteocenter.net/forecast/all.php");
             /* 
              Сервис:
                 http://meteocenter.net/27719_fact.htm

@@ -1,12 +1,12 @@
 ﻿using DevExpress.Xpo;
 using DevExpress.Xpo.DB;
 using DevExpress.Xpo.Metadata;
+using Service.History;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Windows.Forms;
-using WeatherHistory;
 
 namespace Temperature {
     static class Program {
@@ -44,7 +44,7 @@ order by device, date_add(makedate(year(time), DAYOFYEAR(time)), interval hour(t
                     }
                 }
             }
-            var weatherService = new WeatherHistoryService(ConfigurationManager.AppSettings["HistoryService"]);
+            var weatherService = new HistoryService(ConfigurationManager.AppSettings["HistoryService"]);
             var historyData = weatherService.GetHistoryFrom(2018, 11, 03);
             List<AverageValue> station = new List<AverageValue>();
             List<AverageValue> overcast = new List<AverageValue>();

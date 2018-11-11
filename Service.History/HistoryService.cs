@@ -4,11 +4,11 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 
-namespace WeatherHistory {
-    public class WeatherHistoryService {
+namespace Service.History {
+    public class HistoryService {
         readonly Uri serviceUri;
         readonly Uri host;
-        public WeatherHistoryService(string serviceUrl) {
+        public HistoryService(string serviceUrl) {
             this.serviceUri = new Uri(serviceUrl);
             this.host = new Uri(serviceUri.GetLeftPart(UriPartial.Authority));
         }
