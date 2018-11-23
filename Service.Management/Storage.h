@@ -9,7 +9,7 @@
 #define HOST "tcp://192.168.10.14:3306"
 #define USER "root"
 #define PASSWORD "root_root"
-#define SCHEMA "Test"
+#define SCHEMA "weather"
 
 class Storage {
 private:

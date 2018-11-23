@@ -86,12 +86,15 @@ namespace Service.History {
                 return 0;
             } else if(value.Contains("-")) {
                 return Convert.ToInt32(Math.Round(value.Split('-')
-                    .Select(item => int.Parse(item))
+                    .Select(item => ParseWindGust(item))
                     .Average()));
             } else {
-                int additionalSymbol = value.IndexOf("{");
-                return additionalSymbol > 0 ? int.Parse(value.Substring(0, additionalSymbol)) : int.Parse(value);
+                return ParseWindGust(value);
             }
+        }
+        int ParseWindGust(string value) {
+            int additionalSymbol = value.IndexOf("{");
+            return additionalSymbol > 0 ? int.Parse(value.Substring(0, additionalSymbol)) : int.Parse(value);
         }
     }
 }

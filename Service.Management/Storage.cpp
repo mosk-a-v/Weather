@@ -35,7 +35,7 @@ void Storage::Connect() {
 void Storage::SaveInternal(const DeviceResponce & responce) {
     sql::Statement *stmt = connection->createStatement();
     stringstream ss;
-    ss << "INSERT INTO `Temperature_test` (`Time`, `Value`, `Device`) VALUES ('" << responce.Time 
+    ss << "INSERT INTO `Temperature` (`Time`, `Value`, `Device`) VALUES ('" << responce.Time 
         << "', " << responce.Value 
         << ", " << responce.Device 
         << ");";
