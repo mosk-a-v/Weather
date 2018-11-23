@@ -4,7 +4,14 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 
-namespace Service.History {
+namespace Temperature {
+    /* 
+             Сервис:
+                http://meteocenter.net/27719_fact.htm
+             формат ответа:
+                Время;Дата;Напр.ветра;Ск.ветра;Видим.;Явл.;Обл.;Форма обл.;Т;Тd;f;Тe;Pmin;dP;Po;Тmin;Tmax;R;s;Сост.почвы;
+    
+         */
     public class HistoryService {
         readonly Uri serviceUri;
         readonly Uri host;
@@ -12,19 +19,17 @@ namespace Service.History {
             this.serviceUri = new Uri(serviceUrl);
             this.host = new Uri(serviceUri.GetLeftPart(UriPartial.Authority));
         }
-        public List<HistoryData> GetHistoryFrom(int year, int month, int day) {
+        public GlobalHistoryDTO GetHistoryFrom(int year, int month, int day) {
             var response = GetResponse(year, month, day);
             var data = ExtractData(response);
-            return ParseData(data);
-            var globalHistoryData = weatherService.GetHistoryFrom(2018, 11, 03);
-            List<AverageValue> station = new List<AverageValue>();
-            List<AverageValue> overcast = new List<AverageValue>();
-            List<AverageValue> wind = new List<AverageValue>();
-            foreach(var row in globalHistoryData.OrderBy(item => item.Date)) {
-                station.Add(new AverageValue { Hour = row.Date.ToLocalTime(), Value = row.EffectiveTemperature });
-                overcast.Add(new AverageValue { Hour = row.Date.ToLocalTime(), Value = row.Overcast });
-                wind.Add(new AverageValue { Hour = row.Date.ToLocalTime(), Value = row.WindSpeed });
+            var parsedData = ParseData(data);
+            var result = new GlobalHistoryDTO();
+            foreach(var row in parsedData.OrderBy(item => item.Date)) {
+                result.Station.Add(new AverageValue { Hour = row.Date.ToLocalTime(), Value = row.EffectiveTemperature });
+                result.Overcast.Add(new AverageValue { Hour = row.Date.ToLocalTime(), Value = row.Overcast });
+                result.Wind.Add(new AverageValue { Hour = row.Date.ToLocalTime(), Value = row.WindSpeed });
             }
+            return result;
         }
         HttpResponseMessage GetResponse(int year, int month, int day) {
             var cookieContainer = new CookieContainer();
@@ -108,8 +113,23 @@ namespace Service.History {
     }
 
     public class GlobalHistoryDTO {
-        public List<AverageValue> station { get; private set; }
-        public List<AverageValue> overcast { get; private set; }
-        public List<AverageValue> wind { get; private set; }
+        public List<AverageValue> Station { get; set; }
+        public List<AverageValue> Overcast { get; set; }
+        public List<AverageValue> Wind { get; set; }
+
+        public GlobalHistoryDTO() {
+            this.Station = new List<AverageValue>();
+            this.Overcast = new List<AverageValue>();
+            this.Wind = new List<AverageValue>();
+        }
+    }
+
+    public class HistoryData {
+        public DateTime Date { get; set; }
+        public double Temperature { get; set; }
+        public double EffectiveTemperature { get; set; }
+        public int WindSpeed { get; set; }
+        public int Overcast { get; set; }
+        public int AtmospherePressure { get; set; }
     }
 }

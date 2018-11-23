@@ -4,17 +4,16 @@ using System.Windows.Forms;
 
 namespace Temperature {
     public partial class Form1 : Form {
-        public Form1(List<AverageValue> indoor, List<AverageValue> outdoor, List<AverageValue> boiler, int total, DateTime last,
-            List<AverageValue> station, List<AverageValue> overcast, List<AverageValue> wind) {
+        public Form1(LocalHistoryDTO localHistoryData, GlobalHistoryDTO globalHistoryData) {
             InitializeComponent();
-            indoor.ForEach(item => chart1.Series[0].Points.AddXY(item.Hour, item.Value));
-            outdoor.ForEach(item => chart1.Series[1].Points.AddXY(item.Hour, item.Value));
-            boiler.ForEach(item => chart1.Series[2].Points.AddXY(item.Hour, item.Value));
-            station.ForEach(item => chart1.Series[3].Points.AddXY(item.Hour, item.Value));
-            overcast.ForEach(item => chart1.Series[4].Points.AddXY(item.Hour,
+            localHistoryData.Indoor.ForEach(item => chart1.Series[0].Points.AddXY(item.Hour, item.Value));
+            localHistoryData.Outdoor.ForEach(item => chart1.Series[1].Points.AddXY(item.Hour, item.Value));
+            localHistoryData.Boiler.ForEach(item => chart1.Series[2].Points.AddXY(item.Hour, item.Value));
+            globalHistoryData.Station.ForEach(item => chart1.Series[3].Points.AddXY(item.Hour, item.Value));
+            globalHistoryData.Overcast.ForEach(item => chart1.Series[4].Points.AddXY(item.Hour,
                 item.Hour.TimeOfDay.Hours > 8 && item.Hour.TimeOfDay.Hours < 16 ? 10 - item.Value : 0));
-            wind.ForEach(item => chart1.Series[5].Points.AddXY(item.Hour, item.Value));
-            chart1.Titles[0].Text = $"Всего записей: {total}. Последняя: {last}. ";
+            globalHistoryData.Wind.ForEach(item => chart1.Series[5].Points.AddXY(item.Hour, item.Value));
+            chart1.Titles[0].Text = $"Всего записей: {localHistoryData.Count}. Последняя: {localHistoryData.Last}. ";
             chart1.Series[3].Enabled = false;
             //chart1.Series[4].Enabled = false;
             //chart1.Series[4].Enabled = false;
