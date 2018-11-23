@@ -11,7 +11,8 @@ namespace Temperature {
             outdoor.ForEach(item => chart1.Series[1].Points.AddXY(item.Hour, item.Value));
             boiler.ForEach(item => chart1.Series[2].Points.AddXY(item.Hour, item.Value));
             station.ForEach(item => chart1.Series[3].Points.AddXY(item.Hour, item.Value));
-            overcast.ForEach(item => chart1.Series[4].Points.AddXY(item.Hour, 10 - item.Value));
+            overcast.ForEach(item => chart1.Series[4].Points.AddXY(item.Hour,
+                item.Hour.TimeOfDay.Hours > 8 && item.Hour.TimeOfDay.Hours < 16 ? 10 - item.Value : 0));
             wind.ForEach(item => chart1.Series[5].Points.AddXY(item.Hour, item.Value));
             chart1.Titles[0].Text = $"Всего записей: {total}. Последняя: {last}. ";
             chart1.Series[3].Enabled = false;

@@ -74,7 +74,7 @@
             series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             series5.Color = System.Drawing.Color.Fuchsia;
             series5.Legend = "Legend1";
-            series5.Name = "Облачность";
+            series5.Name = "Солнце";
             series6.ChartArea = "ChartArea1";
             series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             series6.Color = System.Drawing.Color.Aqua;
