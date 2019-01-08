@@ -1,7 +1,7 @@
 ﻿using DevExpress.Xpo;
 using System;
 
-namespace Temperature {
+namespace Common {
     [Persistent("Temperature")]
     public class TemperatureValue : XPLiteObject {
         [Persistent("Id"), Key(true)]

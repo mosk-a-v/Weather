@@ -11,6 +11,22 @@
 #define PASSWORD "root_root"
 #define SCHEMA "weather"
 
+struct ControlValue {
+public:
+    short Sun;
+    short Wind;
+    float Indoor;
+    float Outdoor;
+    float Boiler;
+};
+
+struct SettingValue {
+public:
+    short WeekDay;
+    short Hour;
+    float Temperature;
+};
+
 class Storage {
 private:
     sql::Driver *driver;
@@ -22,5 +38,7 @@ public:
     Storage();
     ~Storage();
     void SaveResponce(const DeviceResponce& responce);
+    std::vector<ControlValue> ReadControlTable();
+    std::vector<SettingValue> ReadSettingsTable();
 };
 

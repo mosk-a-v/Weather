@@ -3,7 +3,7 @@ bool Input::Get(DeviceResponce& responce) {
     string inp_str;
     if(getline(cin, inp_str)) {
         auto js = json::parse(inp_str);
-        responce.Device = js.at("id");
+        responce.Sensor = js.at("id");
         responce.Value = js.at("temperature_C");
         responce.Time = js.at("time");
     } else {

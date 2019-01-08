@@ -6,13 +6,19 @@
 using json = nlohmann::json;
 using namespace std;
 
+enum SensorId {
+    Outdoor = 113,
+    Indoor = 150,
+    Boiler = 179
+};
+
 struct DeviceResponce {
 public:
     string Time;
-    int Device;
+    SensorId Sensor;
     float Value;
     bool operator==(const DeviceResponce& right) {
-        return Device == right.Device && Value == right.Value;
+        return Sensor == right.Sensor && Value == right.Value;
     }
 };
 

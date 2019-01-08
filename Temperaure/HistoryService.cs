@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -15,13 +16,22 @@ namespace Temperature {
     public class HistoryService {
         readonly Uri serviceUri;
         readonly Uri host;
-        public HistoryService(string serviceUrl) {
-            this.serviceUri = new Uri(serviceUrl);
+        readonly string fileName;
+        public HistoryService(Uri serviceUri) {
+            this.serviceUri = serviceUri;
             this.host = new Uri(serviceUri.GetLeftPart(UriPartial.Authority));
         }
+        public HistoryService(string fileName) {
+            this.fileName = fileName;
+        }
         public GlobalHistoryDTO GetHistoryFrom(int year, int month, int day) {
-            var response = GetResponse(year, month, day);
-            var data = ExtractData(response);
+            List<string> data;
+            if(serviceUri != null) {
+                var response = GetResponse(year, month, day);
+                data = ExtractData(response.Content.ReadAsStringAsync().Result);
+            } else {
+                data = ExtractData(File.ReadAllText(fileName));
+            }
             var parsedData = ParseData(data);
             var result = new GlobalHistoryDTO();
             foreach(var row in parsedData.OrderBy(item => item.Date)) {
@@ -44,13 +54,14 @@ namespace Temperature {
                 });
                 cookieContainer.Add(host, new Cookie("point[0]", "27719_fact"));
                 cookieContainer.Add(host, new Cookie("point[1]", "forecastall.php"));
+                cookieContainer.Add(host, new Cookie("csuid", "udP0UVwUFXEesAhmAy7bAg=="));
+                cookieContainer.Add(host, new Cookie("CSv", "0tTW1oLUh92FgYCBhtDQ3NHR1YLT0tTW0NfR0dLRgIc="));
                 var result = client.PostAsync(serviceUri, formContent).Result;
                 result.EnsureSuccessStatusCode();
                 return result;
             }
         }
-        List<string> ExtractData(HttpResponseMessage response) {
-            var content = response.Content.ReadAsStringAsync().Result;
+        List<string> ExtractData(string content) {
             int startPos = content.IndexOf("<pre>");
             int endPoss = content.IndexOf("</pre>");
             return startPos == 0 || endPoss == 0 ?

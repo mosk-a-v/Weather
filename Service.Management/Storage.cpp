@@ -14,6 +14,40 @@ void Storage::SaveResponce(const DeviceResponce& responce) {
     }
 }
 
+std::vector<ControlValue> Storage::ReadControlTable() {
+    std::vector<ControlValue> result;
+    sql::Statement *stmt = connection->createStatement();
+    sql::ResultSet *resultSet = stmt->executeQuery("SELECT Sun, Wind, Indoor, Outdoor, Boiler FROM ControlTable;");
+    while(resultSet->next()) {
+        ControlValue value;
+        value.Sun = resultSet->getInt("Sun");
+        value.Wind = resultSet->getInt("Wind");
+        value.Indoor = resultSet->getDouble("Indoor");
+        value.Outdoor = resultSet->getDouble("Outdoor");
+        value.Boiler = resultSet->getDouble("Boiler");
+        result.push_back(value);
+    }
+    delete resultSet;
+    delete stmt;
+    return result;
+}
+
+std::vector<SettingValue> Storage::ReadSettingsTable() {
+    std::vector<SettingValue> result;
+    sql::Statement *stmt = connection->createStatement();
+    sql::ResultSet *resultSet = stmt->executeQuery("SELECT WeekDay, Hour, Temperature FROM TemperatureSettings;");
+    while(resultSet->next()) {
+        SettingValue value;
+        value.WeekDay = resultSet->getInt("WeekDay");
+        value.Hour = resultSet->getInt("Hour");
+        value.Temperature = resultSet->getDouble("Temperature");
+        result.push_back(value);
+    }
+    delete resultSet;
+    delete stmt;
+    return result;
+}
+
 Storage::~Storage() {
     delete connection;
 }
@@ -35,9 +69,10 @@ void Storage::Connect() {
 void Storage::SaveInternal(const DeviceResponce & responce) {
     sql::Statement *stmt = connection->createStatement();
     stringstream ss;
-    ss << "INSERT INTO `Temperature` (`Time`, `Value`, `Device`) VALUES ('" << responce.Time 
-        << "', " << responce.Value 
-        << ", " << responce.Device 
+    ss << "INSERT INTO `Temperature` (`Time`, `Value`, `Device`) VALUES ('" << responce.Time
+        << "', " << responce.Value
+        << ", " << (int)responce.Sensor
         << ");";
     stmt->execute(ss.str());
+    delete stmt;
 }

@@ -1,4 +1,5 @@
-﻿using DevExpress.Xpo;
+﻿using Common;
+using DevExpress.Xpo;
 using DevExpress.Xpo.DB;
 using DevExpress.Xpo.Metadata;
 using System;
@@ -15,18 +16,14 @@ group by device, date_add(makedate(year(time), DAYOFYEAR(time)), interval hour(t
 order by device, date_add(makedate(year(time), DAYOFYEAR(time)), interval hour(time) HOUR)";
         const string totalQuery = @"select max(time), count(*) from weather.Temperature";
 
-        readonly IDataLayer dataLayer;
-        readonly IDataStore dataStore;
+        readonly DBProvider dBProvider;
 
-        public LocalHistoryService() {
-            dataStore = XpoDefault.GetConnectionProvider(ConfigurationManager.ConnectionStrings["Weather"].ConnectionString, AutoCreateOption.SchemaAlreadyExists);
-            var dict = new ReflectionDictionary();
-            dict.CollectClassInfos(typeof(TemperatureValue).Assembly);
-            dataLayer = new ThreadSafeDataLayer(dict, dataStore);
+        public LocalHistoryService(DBProvider dBProvider) {
+            this.dBProvider = dBProvider;
         }
         public LocalHistoryDTO GetLocalHistory() {
             var result = new LocalHistoryDTO();
-            using(var uow = GetSesion()) {
+            using(var uow = dBProvider.GetRaspperyUnitOwWork()) {
                 var selectResult = uow.ExecuteQuery(totalQuery).ResultSet[0].Rows[0].Values;
                 result.Last = Utils.GetDate(selectResult[0]);
                 result.Count = Convert.ToInt32((long)selectResult[1]);
@@ -41,9 +38,6 @@ order by device, date_add(makedate(year(time), DAYOFYEAR(time)), interval hour(t
                 }
             }
             return result;
-        }
-        UnitOfWork GetSesion() {
-            return new UnitOfWork(dataLayer);
         }
     }
 

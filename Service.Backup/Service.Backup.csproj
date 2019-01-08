@@ -59,6 +59,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{026598aa-6a87-4b2f-beb8-26a5a1395990}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Temperaure\Temperature.csproj">
       <Project>{f79bb76a-f460-4f24-8090-343a72ab85ff}</Project>
       <Name>Temperature</Name>
