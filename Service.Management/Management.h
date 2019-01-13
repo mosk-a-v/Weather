@@ -2,7 +2,8 @@
 #include "Input.h"
 #include "Storage.h"
 #define	PIN	17
-#define MAX_DEVIATION 6
+#define MAX_TEMPERATURE_DEVIATION 5
+#define MAX_DELTA_DEVIATION 100
 //#define TEST
 
 #pragma once

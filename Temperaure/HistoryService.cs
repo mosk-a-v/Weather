@@ -99,7 +99,7 @@ namespace Temperature {
             int fractionSymbol = value.IndexOf("/");
             if(fractionSymbol > 0) {
                 string val = value.Substring(0, fractionSymbol);
-                return val == "?" ? 10 : int.Parse(val);
+                return val == "?" || val == "�" ? 10 : int.Parse(val);
             }
             return 0;
         }

@@ -19,9 +19,9 @@ namespace Temperature {
         const int SunHihg = 10;
         const int WindLover = 0;
         const int WindHigh = 20;
-        const float K_Free = 0.65F;
-        const float K_Indoor = 0.105F;
-        const float K_Outdoor = -0.415F;
+        const float K_Free = 0.64F;
+        const float K_Indoor = 0.06F;
+        const float K_Outdoor = -0.3F;
         const float K_Sun = 0;
         const float K_Wind = 0;
 
@@ -30,7 +30,7 @@ namespace Temperature {
                 var oldValues = new XPQuery<ControlValue>(uow).ToList();
                 oldValues.ForEach(v => v.Delete());
                 uow.CommitChanges();
-                for(int indoor = IndoorLover; indoor <= IndoorHight; indoor++) {
+                for(int indoor = IndoorLover; indoor <= IndoorHight + 1; indoor++) {
                     for(int outdoor = OutdoorLover; outdoor <= OutdoorHight; outdoor++) {
                         //for(int sun = SunLover; sun <= SunHihg; sun++) {
                         //    for(int wind = WindLover; wind <= WindHigh; wind++) {

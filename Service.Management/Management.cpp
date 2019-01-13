@@ -40,16 +40,21 @@ void Management::ProcessResponce(const DeviceResponce& responce) {
 }
 void Management::ManageBoiler(float actualilerTemperature, std::time_t now) {
     float requiredIndoorTemperature = GetRequiredIndoorTemperature();
-    float preuseIndoorTemperature = requiredIndoorTemperature + 6 * (requiredIndoorTemperature - indoorTemperature);
+    float preuseIndoorTemperature = requiredIndoorTemperature + 2 * (requiredIndoorTemperature - indoorTemperature);
     float requiredBoilerTemperature = GetRequiredBoilerTemperature(sun, wind, outdoorTemperature, preuseIndoorTemperature);
     delta += CalclateDelta(actualilerTemperature, requiredBoilerTemperature, now);
+    if(delta < -MAX_DELTA_DEVIATION) {
+        delta = -MAX_DELTA_DEVIATION;
+    }
+    if(delta > MAX_DELTA_DEVIATION) {
+        delta = MAX_DELTA_DEVIATION;cat    }
     if(isBoilerOn) {
-        if(delta > 0 || actualilerTemperature > (requiredBoilerTemperature + MAX_DEVIATION)) {
+        if(delta > 0 || actualilerTemperature > (requiredBoilerTemperature + MAX_TEMPERATURE_DEVIATION)) {
             isBoilerOn = false;
             delta = 0;
         }
     } else {
-        if(delta < 0 || actualilerTemperature < (requiredBoilerTemperature - MAX_DEVIATION)) {
+        if(delta < 0 || actualilerTemperature < (requiredBoilerTemperature - MAX_TEMPERATURE_DEVIATION)) {
             isBoilerOn = true;
             delta = 0;
         }
@@ -132,6 +137,18 @@ float Management::GetRequiredBoilerTemperature(short sun, short wind, float outd
     return C * fR1 + D * fR2;
 }
 float Management::GetControlValue(short sun, short wind, float outdoorTemperature, float indoorTemperature) {
+    if(outdoorTemperature > maxOutdoorTemperature) {
+        outdoorTemperature = maxOutdoorTemperature;
+    }
+    if(outdoorTemperature < minOutdoorTemperature) {
+        outdoorTemperature = minOutdoorTemperature;
+    }
+    if(indoorTemperature > maxIndoorTemperature) {
+        indoorTemperature = maxIndoorTemperature;
+    }
+    if(indoorTemperature < minIndoorTemperature) {
+        indoorTemperature = minIndoorTemperature;
+    }
     auto result = std::find_if(controlTable->begin(), controlTable->end(),
                                [sun, wind, outdoorTemperature, indoorTemperature](const ControlValue& c) -> bool {
         return c.Sun == sun && c.Wind == wind && c.Outdoor == outdoorTemperature && c.Indoor == indoorTemperature; });

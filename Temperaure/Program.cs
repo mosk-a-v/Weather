@@ -11,7 +11,7 @@ namespace Temperature {
     static class Program {
         [STAThread]
         static void Main() {
-            const bool WriteMatrix = true;
+            const bool WriteMatrix = false;
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             var dBProvider = new DBProvider();
@@ -30,7 +30,7 @@ namespace Temperature {
             var localHistoryData = localHistory.GetLocalHistory();
             var globalHistoryData = weatherService.GetHistoryFrom(2018, 11, 03);
             MatrixGenerator.OutToCSVFile(localHistoryData, globalHistoryData);
-            Application.Run(new Form1(localHistoryData, null));
+            Application.Run(new Form1(localHistoryData, globalHistoryData));
         }
 
     }
