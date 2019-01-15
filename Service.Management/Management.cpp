@@ -47,7 +47,8 @@ void Management::ManageBoiler(float actualilerTemperature, std::time_t now) {
         delta = -MAX_DELTA_DEVIATION;
     }
     if(delta > MAX_DELTA_DEVIATION) {
-        delta = MAX_DELTA_DEVIATION;cat    }
+        delta = MAX_DELTA_DEVIATION;
+    }
     if(isBoilerOn) {
         if(delta > 0 || actualilerTemperature > (requiredBoilerTemperature + MAX_TEMPERATURE_DEVIATION)) {
             isBoilerOn = false;

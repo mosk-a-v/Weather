@@ -1,7 +1,7 @@
 #include <wiringPi.h>
 #include "Input.h"
 #include "Storage.h"
-#define	PIN	17
+#define	PIN	27
 #define MAX_TEMPERATURE_DEVIATION 5
 #define MAX_DELTA_DEVIATION 100
 //#define TEST
