@@ -104,7 +104,8 @@
       <LibraryDependencies>mysqlcppconn;wiringPi;%(LibraryDependencies)</LibraryDependencies>
     </Link>
     <RemotePostBuildEvent>
-      <Command>gpio export 27 out</Command>
+      <Command>
+      </Command>
     </RemotePostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

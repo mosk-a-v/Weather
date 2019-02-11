@@ -12,11 +12,18 @@ Management::Management(const std::vector<ControlValue>& controlTable, const std:
     this->minOutdoorTemperature = min_max_outdoor.first->Outdoor;
     this->maxOutdoorTemperature = min_max_outdoor.second->Outdoor;
 #ifndef TEST
-    wiringPiSetupSys();
+    wiringPiSetupGpio();
+    pinMode(PIN, OUTPUT);
     digitalWrite(PIN, !(this->isBoilerOn));
+    std::ifstream templateStream(TEMPLATE_FILE_NAME);
+    if(!templateStream) {
+        cerr << "Error reading " << TEMPLATE_FILE_NAME << endl;
+        this->statusTemplate = "";
+    } else {
+        templateStream >> statusTemplate;
+        templateStream.close();
+    }
 #endif
-    this->indoorTemperature = GetRequiredIndoorTemperature();
-    this->boilerTemperature = GetRequiredBoilerTemperature(this->sun, this->wind, this->outdoorTemperature, this->indoorTemperature);
     this->lastBoilerResponseTime = GetTime();
 }
 
@@ -39,10 +46,13 @@ void Management::ProcessResponce(const DeviceResponce& responce) {
     }
 }
 void Management::ManageBoiler(float actualilerTemperature, std::time_t now) {
+    if(indoorTemperature == DEFAULT_TEMPERATURE || outdoorTemperature == DEFAULT_TEMPERATURE) {
+        return;
+    }
     float requiredIndoorTemperature = GetRequiredIndoorTemperature();
-    float preuseIndoorTemperature = requiredIndoorTemperature + 2 * (requiredIndoorTemperature - indoorTemperature);
-    float requiredBoilerTemperature = GetRequiredBoilerTemperature(sun, wind, outdoorTemperature, preuseIndoorTemperature);
-    delta += CalclateDelta(actualilerTemperature, requiredBoilerTemperature, now);
+    float requiredBoilerTemperature = GetRequiredBoilerTemperature(sun, wind, outdoorTemperature, requiredIndoorTemperature);
+    float adjustBoilerTemperature = GetAdjustBoilerTemperature(requiredBoilerTemperature, requiredIndoorTemperature);
+    delta += CalclateDelta(actualilerTemperature, adjustBoilerTemperature, now);
     if(delta < -MAX_DELTA_DEVIATION) {
         delta = -MAX_DELTA_DEVIATION;
     }
@@ -61,7 +71,7 @@ void Management::ManageBoiler(float actualilerTemperature, std::time_t now) {
         }
     }
 #ifndef TEST
-    cout << "InA:" << indoorTemperature << "; InP: " << preuseIndoorTemperature << "; Out: " << outdoorTemperature << "; BA: " << boilerTemperature << "; BR: " << requiredBoilerTemperature << "; Delta:  " << delta << "; Status: " << isBoilerOn << endl;
+    WriteCurrentStatus(requiredIndoorTemperature, requiredBoilerTemperature, adjustBoilerTemperature);
     digitalWrite(PIN, !isBoilerOn);
 #endif
 }
@@ -100,7 +110,7 @@ float Management::GetRequiredIndoorTemperature() {
         return s.Hour == now->tm_hour && s.WeekDay == ((now->tm_wday + 6) % 7 + 1);
     });
     if(result == settingsTable->end()) {
-        cout << "Wrong Now. Hour: " << now->tm_hour << "; WeekDay:" << now->tm_wday << endl;
+        cerr << "Wrong Now. Hour: " << now->tm_hour << "; WeekDay:" << now->tm_wday << endl;
         return 20;
     } else {
         return result->Temperature;
@@ -154,11 +164,78 @@ float Management::GetControlValue(short sun, short wind, float outdoorTemperatur
                                [sun, wind, outdoorTemperature, indoorTemperature](const ControlValue& c) -> bool {
         return c.Sun == sun && c.Wind == wind && c.Outdoor == outdoorTemperature && c.Indoor == indoorTemperature; });
     if(result == controlTable->end()) {
-        cout << "Wrong Temperature. Sun: " << sun << "; Wind:" << wind << "; Outdoor:" << outdoorTemperature << "; Indoor:" << indoorTemperature << endl;
+        cerr << "Wrong Temperature. Sun: " << sun << "; Wind:" << wind << "; Outdoor:" << outdoorTemperature << "; Indoor:" << indoorTemperature << endl;
         return 40;
     } else {
         return result->Boiler;
     }
+}
+float Management::GetAdjustBoilerTemperature(float requiredBoilerTemperature, float requiredIndoorTemperature) {
+    if(indoorTemperature < requiredIndoorTemperature - 2)
+        return requiredBoilerTemperature + 4;
+    else if(indoorTemperature < requiredIndoorTemperature - 1)
+        return requiredBoilerTemperature + 3;
+    else if(indoorTemperature < requiredIndoorTemperature - 0.2)
+        return requiredBoilerTemperature + 2;
+    else if(indoorTemperature < requiredIndoorTemperature + 0.2)
+        return requiredBoilerTemperature;
+    else if(indoorTemperature < requiredIndoorTemperature + 1)
+        return requiredBoilerTemperature - 2;
+    else if(indoorTemperature < requiredIndoorTemperature + 2)
+        return requiredBoilerTemperature - 3;
+    return requiredBoilerTemperature - 4;
+}
+void Management::WriteCurrentStatus(float requiredIndoorTemperature, float requiredBoilerTemperature, float adjustBoilerTemperature) {
+
+    std::ofstream statusStream(OUTPUT_FILE_NAME);
+    if(!statusStream) {
+        cerr << "Error writing to " << OUTPUT_FILE_NAME << endl;
+    } else {
+        if(statusTemplate.length() < 10) {
+            statusStream << "InA:" << indoorTemperature << "; Out: " << outdoorTemperature << "; BA: " << boilerTemperature <<
+                "; BR: " << requiredBoilerTemperature << "; AdjustBoilerTemperature: " << adjustBoilerTemperature <<
+                "; Delta: " << delta << "; Status: " << isBoilerOn << endl;
+        } else {
+            ApplyTemplateAndWrite(statusStream, requiredBoilerTemperature, adjustBoilerTemperature);
+        }
+        statusStream.close();
+    }
+}
+void Management::ApplyTemplateAndWrite(std::ostream &stream, float requiredBoilerTemperature, float adjustBoilerTemperature) {
+    std::string indoorName = "indoor";
+    std::string outdoorName = "outdoor";
+    std::string boilerName = "boiler";
+    std::string requiredBoilerName = "requiredBoiler";
+    std::string adjustBoilerName = "adjustBoiler";
+    std::string deltaName = "delta";
+    std::string stateName = "state";
+
+    std::size_t paramStart = statusTemplate.find("%");
+    std::size_t paramEnd = -1;
+    while(paramStart != std::string::npos) {
+        stream << statusTemplate.substr(paramEnd + 1, paramStart - paramEnd - 1);
+        paramEnd = statusTemplate.find("%", paramStart + 1);
+        if(paramEnd == std::string::npos)  break;
+        string paramName = statusTemplate.substr(paramStart + 1, paramEnd - paramStart - 1);
+        if(paramName == indoorName)
+            stream << indoorTemperature;
+        else if(paramName == outdoorName)
+            stream << outdoorTemperature;
+        else if(paramName == boilerName)
+            stream << boilerTemperature;
+        else if(paramName == requiredBoilerName)
+            stream << requiredBoilerTemperature;
+        else if(paramName == adjustBoilerName)
+            stream << adjustBoilerTemperature;
+        else if(paramName == deltaName)
+            stream << delta;
+        else if(paramName == stateName)
+            stream << isBoilerOn;
+        else
+            stream << "Wrong Parameter Name";
+        paramStart = statusTemplate.find("%", paramEnd + 1);
+    }
+    stream << statusTemplate.substr(paramEnd + 1, statusTemplate.length() - paramEnd - 1);
 }
 std::time_t Management::GetTime() {
     return std::time(0);
