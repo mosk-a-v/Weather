@@ -15,13 +15,16 @@ Management::Management(const std::vector<ControlValue>& controlTable, const std:
     wiringPiSetupGpio();
     pinMode(PIN, OUTPUT);
     digitalWrite(PIN, !(this->isBoilerOn));
-    std::ifstream templateStream(TEMPLATE_FILE_NAME);
-    if(!templateStream) {
-        cerr << "Error reading " << TEMPLATE_FILE_NAME << endl;
-        this->statusTemplate = "";
-    } else {
-        templateStream >> statusTemplate;
+    try {
+        std::ifstream templateStream;
+        templateStream.open(TEMPLATE_FILE_NAME);
+        std::stringstream buffer;
+        buffer << templateStream.rdbuf();
+        statusTemplate = buffer.str();
         templateStream.close();
+    } catch(exception e) {
+        statusTemplate = "";
+        cerr << "Template read exception." << endl;
     }
 #endif
     this->lastBoilerResponseTime = GetTime();
@@ -186,11 +189,9 @@ float Management::GetAdjustBoilerTemperature(float requiredBoilerTemperature, fl
     return requiredBoilerTemperature - 4;
 }
 void Management::WriteCurrentStatus(float requiredIndoorTemperature, float requiredBoilerTemperature, float adjustBoilerTemperature) {
-
-    std::ofstream statusStream(OUTPUT_FILE_NAME);
-    if(!statusStream) {
-        cerr << "Error writing to " << OUTPUT_FILE_NAME << endl;
-    } else {
+    try {
+        std::ofstream statusStream;
+        statusStream.open(OUTPUT_FILE_NAME, std::ofstream::out | std::ofstream::trunc);
         if(statusTemplate.length() < 10) {
             statusStream << "InA:" << indoorTemperature << "; Out: " << outdoorTemperature << "; BA: " << boilerTemperature <<
                 "; BR: " << requiredBoilerTemperature << "; AdjustBoilerTemperature: " << adjustBoilerTemperature <<
@@ -199,6 +200,8 @@ void Management::WriteCurrentStatus(float requiredIndoorTemperature, float requi
             ApplyTemplateAndWrite(statusStream, requiredBoilerTemperature, adjustBoilerTemperature);
         }
         statusStream.close();
+    } catch(exception e) {
+        cerr << "Status write exception." << endl;
     }
 }
 void Management::ApplyTemplateAndWrite(std::ostream &stream, float requiredBoilerTemperature, float adjustBoilerTemperature) {
@@ -209,6 +212,7 @@ void Management::ApplyTemplateAndWrite(std::ostream &stream, float requiredBoile
     std::string adjustBoilerName = "adjustBoiler";
     std::string deltaName = "delta";
     std::string stateName = "state";
+    std::string timeName = "time";
 
     std::size_t paramStart = statusTemplate.find("%");
     std::size_t paramEnd = -1;
@@ -231,6 +235,11 @@ void Management::ApplyTemplateAndWrite(std::ostream &stream, float requiredBoile
             stream << delta;
         else if(paramName == stateName)
             stream << isBoilerOn;
+        else if(paramName == timeName) {
+            std::tm tm = *std::localtime(&lastBoilerResponseTime);
+            stream.imbue(std::locale("ru_RU.utf8"));
+            stream << std::put_time(&tm, "%c %Z");
+        }
         else
             stream << "Wrong Parameter Name";
         paramStart = statusTemplate.find("%", paramEnd + 1);

@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <TITLE>Текущее состояние котла</TITLE>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 600px;
+        }
+        table, td, th {
+            border: 1px solid black;
+            padding: 15px;
+            text-align: center;
+        }
+        .description {
+            text-align: left;
+        }
+    </style>
+</head>
+<body onload="onLoadBody()">
+    <h2>Параметры отопления на %time%</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Название</th>
+                <th>Значение</th>
+            </tr>
+        </thead>
+        <tr>
+            <td class="description">На улице</td>
+            <td>%outdoor%</td>
+        </tr>
+        <tr>
+            <td class="description">Дома</td>
+            <td>%indoor%</td>
+        </tr>
+        <tr>
+            <td class="description">Котел</td>
+            <td>%boiler%</td>
+        </tr>
+        <tr>
+            <td class="description">Требуется на котле по таблице</td>
+            <td>%requiredBoiler%</td>
+        </tr>
+        <tr>
+            <td class="description">Требуется на котле из-за отклонения</td>
+            <td>%adjustBoiler%</td>
+        </tr>
+        <tr>
+            <td class="description">Котел включен</td>
+            <td><input type="checkbox" id="boiler_status" /> </td>
+        </tr>
+        <tr>
+            <td class="description">Накопленная разность</td>
+            <td>%delta%</td>
+        </tr>
+    </table>
+    <script>
+        function onLoadBody() {
+            var x = document.getElementById("boiler_status");
+            x.checked = (%state% === 1);
+        }
+    </script>
+</body>
+</html>

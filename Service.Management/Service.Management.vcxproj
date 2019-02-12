@@ -90,6 +90,11 @@
     <ClInclude Include="Storage.h" />
     <ClInclude Include="TestManagement.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="boiler_status.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+  </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <Link>
       <LibraryDependencies>mysqlcppconn;%(LibraryDependencies)</LibraryDependencies>

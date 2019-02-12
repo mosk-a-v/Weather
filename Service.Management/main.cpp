@@ -9,7 +9,7 @@ int main(void) {
 #ifdef TEST
     TestAll();
 #else
-    freopen("output.log", "w", stderr);
+    freopen("/home/kotel/output.log", "w", stderr);
     DeviceResponce deviceResponce;
     DeviceResponce prevDeviceResponce;
     Storage *storage = new Storage();

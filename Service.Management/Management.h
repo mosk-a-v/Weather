@@ -6,7 +6,7 @@
 #define	PIN	17
 #define MAX_TEMPERATURE_DEVIATION 6
 #define MAX_DELTA_DEVIATION 100
-#define TEST
+//#define TEST
 #define DEFAULT_TEMPERATURE -100
 #define OUTPUT_FILE_NAME "/var/www/html/index.html"
 #define TEMPLATE_FILE_NAME "/var/www/html/boiler_status.html"
