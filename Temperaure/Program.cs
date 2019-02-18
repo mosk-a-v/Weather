@@ -11,7 +11,7 @@ namespace Temperature {
     static class Program {
         [STAThread]
         static void Main() {
-            const bool WriteMatrix = false;
+            const bool WriteMatrix = true;
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             var dBProvider = new DBProvider();

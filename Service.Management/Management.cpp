@@ -12,24 +12,10 @@ Management::Management(const std::vector<ControlValue>& controlTable, const std:
     this->minOutdoorTemperature = min_max_outdoor.first->Outdoor;
     this->maxOutdoorTemperature = min_max_outdoor.second->Outdoor;
 #ifndef TEST
-    wiringPiSetupGpio();
-    pinMode(PIN, OUTPUT);
-    digitalWrite(PIN, !(this->isBoilerOn));
-    try {
-        std::ifstream templateStream;
-        templateStream.open(TEMPLATE_FILE_NAME);
-        std::stringstream buffer;
-        buffer << templateStream.rdbuf();
-        statusTemplate = buffer.str();
-        templateStream.close();
-    } catch(exception e) {
-        statusTemplate = "";
-        cerr << "Template read exception." << endl;
-    }
+    SetupGPIO();
+    ReadTemplate();
 #endif
-    this->lastBoilerResponseTime = GetTime();
 }
-
 void Management::ProcessResponce(const DeviceResponce& responce) {
     std::time_t now = GetTime();
     switch(responce.Sensor) {
@@ -47,6 +33,7 @@ void Management::ProcessResponce(const DeviceResponce& responce) {
         default:
             break;
     }
+    SetGPIOValues();
 }
 void Management::ManageBoiler(float actualilerTemperature, std::time_t now) {
     if(indoorTemperature == DEFAULT_TEMPERATURE || outdoorTemperature == DEFAULT_TEMPERATURE) {
@@ -55,7 +42,8 @@ void Management::ManageBoiler(float actualilerTemperature, std::time_t now) {
     float requiredIndoorTemperature = GetRequiredIndoorTemperature();
     float requiredBoilerTemperature = GetRequiredBoilerTemperature(sun, wind, outdoorTemperature, requiredIndoorTemperature);
     float adjustBoilerTemperature = GetAdjustBoilerTemperature(requiredBoilerTemperature, requiredIndoorTemperature);
-    delta += CalclateDelta(actualilerTemperature, adjustBoilerTemperature, now);
+    deltaForLastPeriod = CalclateDeltaForLastPeriod(actualilerTemperature, adjustBoilerTemperature, now);
+    delta += deltaForLastPeriod;
     if(delta < -MAX_DELTA_DEVIATION) {
         delta = -MAX_DELTA_DEVIATION;
     }
@@ -63,23 +51,23 @@ void Management::ManageBoiler(float actualilerTemperature, std::time_t now) {
         delta = MAX_DELTA_DEVIATION;
     }
     if(isBoilerOn) {
-        if(delta > 0 || actualilerTemperature > (requiredBoilerTemperature + MAX_TEMPERATURE_DEVIATION)) {
+        if(delta > 0 || actualilerTemperature > (adjustBoilerTemperature + MAX_TEMPERATURE_DEVIATION)) {
             isBoilerOn = false;
-            delta = 0;
         }
     } else {
-        if(delta < 0 || actualilerTemperature < (requiredBoilerTemperature - MAX_TEMPERATURE_DEVIATION)) {
+        if(delta < 0 || actualilerTemperature < (adjustBoilerTemperature - MAX_TEMPERATURE_DEVIATION)) {
             isBoilerOn = true;
-            delta = 0;
         }
     }
 #ifndef TEST
     WriteCurrentStatus(requiredIndoorTemperature, requiredBoilerTemperature, adjustBoilerTemperature);
-    digitalWrite(PIN, !isBoilerOn);
 #endif
 }
-float Management::CalclateDelta(float actualilerTemperature, float requiredBoilerTemperature, std::time_t now) {
+float Management::CalclateDeltaForLastPeriod(float actualilerTemperature, float requiredBoilerTemperature, std::time_t now) {
     float result = 0;
+    if(lastBoilerResponseTime == DEFAULT_TIME) {
+        return result;
+    }
     if(boilerTemperature < actualilerTemperature) {
         if(actualilerTemperature <= requiredBoilerTemperature) {
             result -= (actualilerTemperature - boilerTemperature) * (now - lastBoilerResponseTime) / 2;
@@ -175,18 +163,18 @@ float Management::GetControlValue(short sun, short wind, float outdoorTemperatur
 }
 float Management::GetAdjustBoilerTemperature(float requiredBoilerTemperature, float requiredIndoorTemperature) {
     if(indoorTemperature < requiredIndoorTemperature - 2)
-        return requiredBoilerTemperature + 4;
+        return requiredBoilerTemperature + 6;
     else if(indoorTemperature < requiredIndoorTemperature - 1)
-        return requiredBoilerTemperature + 3;
+        return requiredBoilerTemperature + 5;
     else if(indoorTemperature < requiredIndoorTemperature - 0.2)
-        return requiredBoilerTemperature + 2;
+        return requiredBoilerTemperature + 4;
     else if(indoorTemperature < requiredIndoorTemperature + 0.2)
         return requiredBoilerTemperature;
     else if(indoorTemperature < requiredIndoorTemperature + 1)
-        return requiredBoilerTemperature - 2;
+        return requiredBoilerTemperature - 4;
     else if(indoorTemperature < requiredIndoorTemperature + 2)
-        return requiredBoilerTemperature - 3;
-    return requiredBoilerTemperature - 4;
+        return requiredBoilerTemperature - 5;
+    return requiredBoilerTemperature - 6;
 }
 void Management::WriteCurrentStatus(float requiredIndoorTemperature, float requiredBoilerTemperature, float adjustBoilerTemperature) {
     try {
@@ -234,11 +222,11 @@ void Management::ApplyTemplateAndWrite(std::ostream &stream, float requiredBoile
         else if(paramName == deltaName)
             stream << delta;
         else if(paramName == stateName)
-            stream << isBoilerOn;
+            stream << boilerStatus;
         else if(paramName == timeName) {
             std::tm tm = *std::localtime(&lastBoilerResponseTime);
             stream.imbue(std::locale("ru_RU.utf8"));
-            stream << std::put_time(&tm, "%c %Z");
+            stream << std::put_time(&tm, "%c");
         }
         else
             stream << "Wrong Parameter Name";
@@ -252,6 +240,41 @@ std::time_t Management::GetTime() {
 std::tm* Management::GetDate() {
     std::time_t t = GetTime();
     return std::localtime(&t);
+}
+void Management::SetupGPIO() {
+    wiringPiSetupGpio();
+    pinMode(PIN, OUTPUT);
+    digitalWrite(PIN, !(this->isBoilerOn));
+}
+void Management::SetGPIOValues() {
+    if(isBoilerOn) {
+        if(delta < 0 && delta > -latency && deltaForLastPeriod > 0) {
+            boilerStatus = false;
+        } else {
+            boilerStatus = true;
+        }
+    } else {
+        if(delta > 0 && delta < latency && deltaForLastPeriod < 0) {
+            boilerStatus = true;
+        } else {
+            boilerStatus = false;
+        }
+    }
+    bool pinValue = !boilerStatus;
+    digitalWrite(PIN, pinValue);
+}
+void Management::ReadTemplate() {
+    try {
+        std::ifstream templateStream;
+        templateStream.open(TEMPLATE_FILE_NAME);
+        std::stringstream buffer;
+        buffer << templateStream.rdbuf();
+        statusTemplate = buffer.str();
+        templateStream.close();
+    } catch(exception e) {
+        statusTemplate = "";
+        cerr << "Template read exception." << endl;
+    }
 }
 
 Management::~Management() {

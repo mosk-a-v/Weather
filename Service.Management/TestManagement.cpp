@@ -121,23 +121,23 @@ void TestTemplate() {
 void TestAdjustment() {
     TestManagement *testManagement = IninManagement();
     testManagement->SetIndoorTemperature(17);
-    if(testManagement->GetAdjustBoilerTemperatureWrapper(40, 20) != 44) throw new exception();
+    if(testManagement->GetAdjustBoilerTemperatureWrapper(40, 20) != 46) throw new exception();
     testManagement->SetIndoorTemperature(18);
-    if(testManagement->GetAdjustBoilerTemperatureWrapper(40, 20) != 43) throw new exception();
+    if(testManagement->GetAdjustBoilerTemperatureWrapper(40, 20) != 45) throw new exception();
     testManagement->SetIndoorTemperature(19);
-    if(testManagement->GetAdjustBoilerTemperatureWrapper(40, 20) != 42) throw new exception();
+    if(testManagement->GetAdjustBoilerTemperatureWrapper(40, 20) != 44) throw new exception();
     testManagement->SetIndoorTemperature(19.82);
     if(testManagement->GetAdjustBoilerTemperatureWrapper(40, 20) != 40) throw new exception();
     testManagement->SetIndoorTemperature(20.18);
     if(testManagement->GetAdjustBoilerTemperatureWrapper(40, 20) != 40) throw new exception();
     testManagement->SetIndoorTemperature(20.8);
-    if(testManagement->GetAdjustBoilerTemperatureWrapper(40, 20) != 38) throw new exception();
-    testManagement->SetIndoorTemperature(21);
-    if(testManagement->GetAdjustBoilerTemperatureWrapper(40, 20) != 37) throw new exception();
-    testManagement->SetIndoorTemperature(21.8);
-    if(testManagement->GetAdjustBoilerTemperatureWrapper(40, 20) != 37) throw new exception();
-    testManagement->SetIndoorTemperature(22);
     if(testManagement->GetAdjustBoilerTemperatureWrapper(40, 20) != 36) throw new exception();
+    testManagement->SetIndoorTemperature(21);
+    if(testManagement->GetAdjustBoilerTemperatureWrapper(40, 20) != 35) throw new exception();
+    testManagement->SetIndoorTemperature(21.8);
+    if(testManagement->GetAdjustBoilerTemperatureWrapper(40, 20) != 35) throw new exception();
+    testManagement->SetIndoorTemperature(22);
+    if(testManagement->GetAdjustBoilerTemperatureWrapper(40, 20) != 34) throw new exception();
 }
 void TestAll() {
     TestGetRequiredIndoorTemperature();
@@ -209,7 +209,7 @@ float TestManagement::GetRequiredBoilerTemperatureWrapper(float outdoorTemperatu
     return GetRequiredBoilerTemperature(0, 0, outdoorTemperature, indoorTemperature);
 }
 float TestManagement::CalclateDeltaWrapper(float actualilerTemperature, float requiredBoilerTemperature) {
-    return CalclateDelta(actualilerTemperature, requiredBoilerTemperature, GetTime());
+    return CalclateDeltaForLastPeriod(actualilerTemperature, requiredBoilerTemperature, GetTime());
 }
 void TestManagement::SetBoilerTemperature(float temperature) {
     boilerTemperature = temperature;
