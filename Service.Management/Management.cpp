@@ -11,18 +11,17 @@ Management::Management(const std::vector<ControlValue>& controlTable, const std:
     this->maxIndoorTemperature = min_max_indoor.second->Indoor;
     this->minOutdoorTemperature = min_max_outdoor.first->Outdoor;
     this->maxOutdoorTemperature = min_max_outdoor.second->Outdoor;
+    this->heatingCycleSwitchTime = GetTime();
 #ifndef TEST
     SetupGPIO();
     ReadTemplate();
 #endif
 }
 void Management::ProcessResponce(const DeviceResponce& responce) {
-    std::time_t now = GetTime();
     switch(responce.Sensor) {
         case Boiler:
-            ManageBoiler(responce.Value, now);
+            ManageBoiler(responce.Value, GetTime());
             boilerTemperature = responce.Value;
-            lastBoilerResponseTime = now;
             break;
         case Indoor:
             indoorTemperature = responce.Value;
@@ -42,6 +41,29 @@ void Management::ManageBoiler(float actualilerTemperature, std::time_t now) {
     float requiredIndoorTemperature = GetRequiredIndoorTemperature();
     float requiredBoilerTemperature = GetRequiredBoilerTemperature(sun, wind, outdoorTemperature, requiredIndoorTemperature);
     float adjustBoilerTemperature = GetAdjustBoilerTemperature(requiredBoilerTemperature, requiredIndoorTemperature);
+    CalculateDelta(actualilerTemperature, adjustBoilerTemperature, now);
+    if(actualilerTemperature > (adjustBoilerTemperature + MAX_TEMPERATURE_DEVIATION)) {
+        isHeating = false;
+        BeginNewCycle(now);
+    } else if(actualilerTemperature < (adjustBoilerTemperature - MAX_TEMPERATURE_DEVIATION)) {
+        isHeating = true;
+        BeginNewCycle(now);
+    } else if(now - heatingCycleSwitchTime > MIN_CYCLE_TIME) {
+        if(isHeating && delta > 0) {
+            isHeating = false;
+            BeginNewCycle(now);
+        } else if(!isHeating && delta < 0) {
+            isHeating = true;
+            BeginNewCycle(now);
+        }
+        DetectLatency();
+    }
+    lastBoilerResponseTime = now;
+#ifndef TEST
+    WriteCurrentStatus(requiredIndoorTemperature, requiredBoilerTemperature, adjustBoilerTemperature);
+#endif
+}
+void Management::CalculateDelta(float actualilerTemperature, float adjustBoilerTemperature, const time_t &now) {
     deltaForLastPeriod = CalclateDeltaForLastPeriod(actualilerTemperature, adjustBoilerTemperature, now);
     delta += deltaForLastPeriod;
     if(delta < -MAX_DELTA_DEVIATION) {
@@ -50,18 +72,23 @@ void Management::ManageBoiler(float actualilerTemperature, std::time_t now) {
     if(delta > MAX_DELTA_DEVIATION) {
         delta = MAX_DELTA_DEVIATION;
     }
-    if(isBoilerOn) {
-        if(delta > 0 || actualilerTemperature > (adjustBoilerTemperature + MAX_TEMPERATURE_DEVIATION)) {
-            isBoilerOn = false;
+}
+void Management::DetectLatency() {
+    isLatencyPeriod = false;
+    if(isHeating) {
+        if(delta > -latency && deltaForLastPeriod > 0) {
+            isLatencyPeriod = true;
         }
     } else {
-        if(delta < 0 || actualilerTemperature < (adjustBoilerTemperature - MAX_TEMPERATURE_DEVIATION)) {
-            isBoilerOn = true;
+        if(delta < latency && deltaForLastPeriod < 0) {
+            isLatencyPeriod = true;
         }
     }
-#ifndef TEST
-    WriteCurrentStatus(requiredIndoorTemperature, requiredBoilerTemperature, adjustBoilerTemperature);
-#endif
+}
+void Management::BeginNewCycle(const time_t &now) {
+    delta = 0;
+    heatingCycleSwitchTime = now;
+    isLatencyPeriod = false;
 }
 float Management::CalclateDeltaForLastPeriod(float actualilerTemperature, float requiredBoilerTemperature, std::time_t now) {
     float result = 0;
@@ -163,18 +190,22 @@ float Management::GetControlValue(short sun, short wind, float outdoorTemperatur
 }
 float Management::GetAdjustBoilerTemperature(float requiredBoilerTemperature, float requiredIndoorTemperature) {
     if(indoorTemperature < requiredIndoorTemperature - 2)
-        return requiredBoilerTemperature + 6;
+        return requiredBoilerTemperature + 7;
     else if(indoorTemperature < requiredIndoorTemperature - 1)
-        return requiredBoilerTemperature + 5;
+        return requiredBoilerTemperature + 6;
     else if(indoorTemperature < requiredIndoorTemperature - 0.2)
+        return requiredBoilerTemperature + 5;
+    else if(indoorTemperature < requiredIndoorTemperature - 0.05)
         return requiredBoilerTemperature + 4;
-    else if(indoorTemperature < requiredIndoorTemperature + 0.2)
+    else if(indoorTemperature < requiredIndoorTemperature + 0.05)
         return requiredBoilerTemperature;
-    else if(indoorTemperature < requiredIndoorTemperature + 1)
+    else if(indoorTemperature < requiredIndoorTemperature + 0.2)
         return requiredBoilerTemperature - 4;
-    else if(indoorTemperature < requiredIndoorTemperature + 2)
+    else if(indoorTemperature < requiredIndoorTemperature + 1)
         return requiredBoilerTemperature - 5;
-    return requiredBoilerTemperature - 6;
+    else if(indoorTemperature < requiredIndoorTemperature + 2)
+        return requiredBoilerTemperature - 6;
+    return requiredBoilerTemperature - 7;
 }
 void Management::WriteCurrentStatus(float requiredIndoorTemperature, float requiredBoilerTemperature, float adjustBoilerTemperature) {
     try {
@@ -183,7 +214,7 @@ void Management::WriteCurrentStatus(float requiredIndoorTemperature, float requi
         if(statusTemplate.length() < 10) {
             statusStream << "InA:" << indoorTemperature << "; Out: " << outdoorTemperature << "; BA: " << boilerTemperature <<
                 "; BR: " << requiredBoilerTemperature << "; AdjustBoilerTemperature: " << adjustBoilerTemperature <<
-                "; Delta: " << delta << "; Status: " << isBoilerOn << endl;
+                "; Delta: " << delta << "; Status: " << isHeating << endl;
         } else {
             ApplyTemplateAndWrite(statusStream, requiredBoilerTemperature, adjustBoilerTemperature);
         }
@@ -220,15 +251,14 @@ void Management::ApplyTemplateAndWrite(std::ostream &stream, float requiredBoile
         else if(paramName == adjustBoilerName)
             stream << adjustBoilerTemperature;
         else if(paramName == deltaName)
-            stream << delta;
+            stream << delta << " (" << lastBoilerResponseTime - heatingCycleSwitchTime << ")";
         else if(paramName == stateName)
             stream << boilerStatus;
         else if(paramName == timeName) {
             std::tm tm = *std::localtime(&lastBoilerResponseTime);
             stream.imbue(std::locale("ru_RU.utf8"));
             stream << std::put_time(&tm, "%c");
-        }
-        else
+        } else
             stream << "Wrong Parameter Name";
         paramStart = statusTemplate.find("%", paramEnd + 1);
     }
@@ -244,22 +274,10 @@ std::tm* Management::GetDate() {
 void Management::SetupGPIO() {
     wiringPiSetupGpio();
     pinMode(PIN, OUTPUT);
-    digitalWrite(PIN, !(this->isBoilerOn));
+    SetGPIOValues();
 }
 void Management::SetGPIOValues() {
-    if(isBoilerOn) {
-        if(delta < 0 && delta > -latency && deltaForLastPeriod > 0) {
-            boilerStatus = false;
-        } else {
-            boilerStatus = true;
-        }
-    } else {
-        if(delta > 0 && delta < latency && deltaForLastPeriod < 0) {
-            boilerStatus = true;
-        } else {
-            boilerStatus = false;
-        }
-    }
+    boilerStatus = isLatencyPeriod ? !isHeating : isHeating;
     bool pinValue = !boilerStatus;
     digitalWrite(PIN, pinValue);
 }

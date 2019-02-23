@@ -6,6 +6,7 @@
 #define	PIN	17
 #define MAX_TEMPERATURE_DEVIATION 4
 #define MAX_DELTA_DEVIATION 100
+#define MIN_CYCLE_TIME 60
 //#define TEST
 #define DEFAULT_TEMPERATURE -100
 #define DEFAULT_LATENCY 20
@@ -26,9 +27,11 @@ private:
     float minOutdoorTemperature;
 protected:
     std::time_t lastBoilerResponseTime = DEFAULT_TIME;
+    std::time_t heatingCycleSwitchTime = DEFAULT_TIME;
     string statusTemplate;
-    bool isBoilerOn = false;
+    bool isHeating = false;
     bool boilerStatus = false;
+    bool isLatencyPeriod = false;
     float boilerTemperature = 0;
     float outdoorTemperature = DEFAULT_TEMPERATURE;
     float indoorTemperature = DEFAULT_TEMPERATURE;
@@ -45,11 +48,14 @@ protected:
     void ApplyTemplateAndWrite(std::ostream &stream, float requiredBoilerTemperature, float adjustBoilerTemperature);
     float CalclateDeltaForLastPeriod(float actualilerTemperature, float requiredBoilerTemperature, std::time_t now);
     void ManageBoiler(float actualilerTemperature, std::time_t now);
+    void CalculateDelta(float actualilerTemperature, float adjustBoilerTemperature, const time_t &now);
+    void DetectLatency();
+    void BeginNewCycle(const time_t &now);
+    void SetupGPIO();
+    void SetGPIOValues();
 public:
     void ProcessResponce(const DeviceResponce& responce);
-    void SetGPIOValues();
     Management(const std::vector<ControlValue>& controlTable, const std::vector<SettingValue>& settingsTable);
-    void SetupGPIO();
     void ReadTemplate();
     ~Management();
 };

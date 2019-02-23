@@ -221,7 +221,7 @@ float TestManagement::GetBoilerTemperature() {
     return boilerTemperature;
 }
 bool TestManagement::GetBoilerStatus() {
-    return isBoilerOn;
+    return isHeating;
 }
 void TestManagement::SetBoilerResponseTime(std::time_t time) {
     lastBoilerResponseTime = time;
