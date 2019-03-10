@@ -3,6 +3,7 @@
 #include <iostream>
 #include "Input.h"
 #include "Storage.h"
+
 #define	PIN	17
 #define MAX_TEMPERATURE_DEVIATION 4
 #define MAX_DELTA_DEVIATION 100
@@ -19,6 +20,7 @@ class Management {
 private:
     std::vector<ControlValue> *controlTable;
     std::vector<SettingValue> *settingsTable;
+    GlobalWeather *globalWeatherSystem;
     short sun = 0;
     short wind = 0;
     float maxIndoorTemperature;
@@ -55,7 +57,7 @@ protected:
     void SetGPIOValues();
 public:
     void ProcessResponce(const DeviceResponce& responce);
-    Management(const std::vector<ControlValue>& controlTable, const std::vector<SettingValue>& settingsTable);
+    Management(const std::vector<ControlValue>& controlTable, const std::vector<SettingValue>& settingsTable, GlobalWeather *globalWeatherSystem);
     void ReadTemplate();
     ~Management();
 };

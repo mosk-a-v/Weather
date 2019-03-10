@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include "nlohmann/json.hpp"
+#include "GlobalWeather.h"
 
 using json = nlohmann::json;
 using namespace std;

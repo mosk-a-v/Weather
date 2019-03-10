@@ -78,6 +78,8 @@
     <IncludePath>/usr/include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemGroup>
+    <ClCompile Include="CycleInfo.cpp" />
+    <ClCompile Include="GlobalWeather.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Management.cpp" />
@@ -85,6 +87,8 @@
     <ClCompile Include="TestManagement.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CycleInfo.h" />
+    <ClInclude Include="GlobalWeather.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Management.h" />
     <ClInclude Include="Storage.h" />
@@ -106,12 +110,16 @@
       </AdditionalOptions>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
-      <LibraryDependencies>mysqlcppconn;wiringPi;%(LibraryDependencies)</LibraryDependencies>
+      <LibraryDependencies>mysqlcppconn;wiringPi;curl;%(LibraryDependencies)</LibraryDependencies>
     </Link>
     <RemotePostBuildEvent>
       <Command>
       </Command>
     </RemotePostBuildEvent>
+    <ClCompile>
+      <AdditionalOptions>
+      </AdditionalOptions>
+    </ClCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

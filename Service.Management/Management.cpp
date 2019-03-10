@@ -1,8 +1,9 @@
 #include "Management.h"
 
-Management::Management(const std::vector<ControlValue>& controlTable, const std::vector<SettingValue>& settingsTable) {
+Management::Management(const std::vector<ControlValue>& controlTable, const std::vector<SettingValue>& settingsTable, GlobalWeather *globalWeatherSystem) {
     this->controlTable = new std::vector<ControlValue>(controlTable);
     this->settingsTable = new std::vector<SettingValue>(settingsTable);
+    this->globalWeatherSystem = globalWeatherSystem;
     auto min_max_indoor = std::minmax_element(this->controlTable->begin(), this->controlTable->end(),
                                               [](const ControlValue &c1, const ControlValue &c2) -> bool { return c1.Indoor < c2.Indoor; });
     auto min_max_outdoor = std::minmax_element(this->controlTable->begin(), this->controlTable->end(),
