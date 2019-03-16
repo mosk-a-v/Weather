@@ -55,7 +55,7 @@ public:
     float GetAverageOutdoorTemperature();
     float GetBoilerTemperture();
     float GetIndoorTemperature();
-    float GetOutdoorTemperater();
+    float GetOutdoorTemperature();
     bool IsBoilerOn();
     bool IsCycleEnd();
     void WriteCurrentStatus(const time_t& now);

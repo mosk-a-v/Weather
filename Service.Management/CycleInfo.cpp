@@ -1,4 +1,4 @@
-#include "CycleInfo.h"
+﻿#include "CycleInfo.h"
 
 void CycleInfo::CalculateDelta(float boilerTemperature, const time_t& now) {
     deltaForLastPeriod = CalclateDeltaForLastPeriod(boilerTemperature, now);
@@ -97,7 +97,7 @@ void CycleInfo::ApplyTemplateAndWrite(std::ostream &stream, const time_t& now) {
         if(paramName == indoorName)
             stream << GetIndoorTemperature();
         else if(paramName == outdoorName)
-            stream << GetOutdoorTemperater();
+            stream << GetOutdoorTemperature();
         else if(paramName == boilerName)
             stream << GetBoilerTemperture();
         else if(paramName == requiredBoilerName)
@@ -115,7 +115,7 @@ void CycleInfo::ApplyTemplateAndWrite(std::ostream &stream, const time_t& now) {
         else if(paramName == outdoorAvgName)
             stream << GetAverageOutdoorTemperature();
         else if(paramName == periodTypeName)
-            stream << IsStartingMode() ? "Starting" : (isHeating ? "Heating" : "Cooling");
+            stream << (IsStartingMode() ? "Starting" : (isHeating ? "Нагрев" : "Охлаждение"));
         else if(paramName == additionalTemplateParameterName)
             stream << additionalTemplateParameterValue;
         else
@@ -139,6 +139,7 @@ void CycleInfo::AddBoilerTemperatue(float value, const time_t& now) {
     lastBoilerTemperature = value;
     lastBoilerResponseTime = now;
     lastDeviceResponceTime = now;
+    WriteCurrentStatus(now);
 }
 void CycleInfo::ProcessBoilerTemperature(float value, const time_t& now) {
     if(requiredBoilerTemperature == DEFAULT_TEMPERATURE || isCycleEnd) {
@@ -159,7 +160,7 @@ void CycleInfo::ProcessBoilerTemperature(float value, const time_t& now) {
     }
 }
 bool CycleInfo::IsStartingMode() {
-    return lastBoilerTemperature == DEFAULT_TEMPERATURE || lastIndoorTemperature == DEFAULT_TEMPERATURE || lastOutdoorTemperature == DEFAULT_TEMPERATURE;
+    return requiredBoilerTemperature == DEFAULT_TEMPERATURE;
 }
 void CycleInfo::AddIndoorTemperature(float value, const time_t& now) {
     if(value == DEFAULT_TEMPERATURE) {
@@ -176,6 +177,7 @@ void CycleInfo::AddIndoorTemperature(float value, const time_t& now) {
     }
     lastDeviceResponceTime = now;
     lastIndoorResponceTime = now;
+    WriteCurrentStatus(now);
 }
 void CycleInfo::AddOutdoorTemperature(float value, const time_t& now) {
     if(value == DEFAULT_TEMPERATURE) {
@@ -192,6 +194,7 @@ void CycleInfo::AddOutdoorTemperature(float value, const time_t& now) {
     }
     lastDeviceResponceTime = now;
     lastOutdoorResponceTime = now;
+    WriteCurrentStatus(now);
 }
 float CycleInfo::GetAverageIndoorTemperature() {
     return averageIndoorTemperature / (lastIndoorResponceTime - cycleStartTime);
@@ -205,10 +208,13 @@ float CycleInfo::GetBoilerTemperture() {
 float CycleInfo::GetIndoorTemperature() {
     return lastIndoorTemperature;
 }
-float CycleInfo::GetOutdoorTemperater() {
+float CycleInfo::GetOutdoorTemperature() {
     return lastOutdoorTemperature;
 }
 bool CycleInfo::IsBoilerOn() {
+    if(IsStartingMode()) {
+        return false;
+    }
     boilerStatus = isLatencyPeriod ? !isHeating : isHeating;
     return boilerStatus;
 }

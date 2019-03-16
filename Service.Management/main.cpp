@@ -13,10 +13,6 @@ int main(void) {
     DeviceResponce prevDeviceResponce;
     Storage *storage = new Storage();
     GlobalWeather *gw = new GlobalWeather();
-
-    CurrentWeather weather;
-    gw->GetWeather(weather);
-
     Management *management = new Management(storage->ReadControlTable(), storage->ReadSettingsTable(), gw);
     while(true) {
         if(Input::Get(deviceResponce)) {

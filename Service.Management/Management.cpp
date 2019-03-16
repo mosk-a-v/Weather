@@ -44,14 +44,24 @@ void Management::ManageBoiler(float actualilerTemperature, std::time_t now) {
 void Management::BeginNewCycle(const time_t &now) {
     CurrentWeather weather;
     globalWeatherSystem->GetWeather(weather);
+    float lastCycleIndoor = cycleInfo->GetIndoorTemperature();
+    float lastCycleOutdoor = cycleInfo->GetOutdoorTemperature();
+    float lastCycleAvgIndoor = cycleInfo->GetAverageIndoorTemperature();
+    float lastCycleAvgOutdoor = cycleInfo->GetAverageOutdoorTemperature();
+    float lastcycleBoiler = cycleInfo->GetBoilerTemperture();
     float requiredIndoorTemperature = GetRequiredIndoorTemperature();
-    float requiredBoilerTemperature = GetRequiredBoilerTemperature(weather.GetSun(), weather.GetWind(), cycleInfo->GetAverageOutdoorTemperature(), requiredIndoorTemperature);
-    float adjustBoilerTemperature = GetAdjustBoilerTemperature(cycleInfo->GetAverageIndoorTemperature(), requiredIndoorTemperature, requiredBoilerTemperature);
+    float requiredBoilerTemperature = GetRequiredBoilerTemperature(weather.GetSun(), weather.GetWind(), lastCycleAvgOutdoor, requiredIndoorTemperature);
+    float adjustBoilerTemperature = GetAdjustBoilerTemperature(lastCycleAvgIndoor, requiredIndoorTemperature, requiredBoilerTemperature);
     bool newCycleWillHeating = cycleInfo->GetBoilerTemperture() <= adjustBoilerTemperature;
-    std::stringstream additionalInfoStream;
-    additionalInfoStream << "Ветер: " << weather.GetWind() << "; Солнце: " << weather.GetSun() << ". Прошлый цикл (" << cycleInfo->GetCycleLength() << "c, " << (cycleInfo->IsCycleHeating() ? "нагрев" : "охлаждение") << "). ";
+    stringstream additionalInfoStream;
+    additionalInfoStream << "Ветер: " << weather.GetWind() << "; Солнце: " << weather.GetSun() <<
+        ". Прошлый цикл (" << cycleInfo->GetCycleLength() << "c, " << (cycleInfo->IsCycleHeating() ? "нагрев" : "охлаждение") << 
+        ",  " << lastCycleAvgIndoor << ", " << lastCycleAvgOutdoor << ").";
     delete cycleInfo;
     cycleInfo = new CycleInfo(newCycleWillHeating, adjustBoilerTemperature, now, statusTemplate, additionalInfoStream.str());
+    cycleInfo->AddIndoorTemperature(lastCycleIndoor, now);
+    cycleInfo->AddOutdoorTemperature(lastCycleOutdoor, now);
+    cycleInfo->AddBoilerTemperatue(lastcycleBoiler, now);
 }
 float Management::GetAdjustBoilerTemperature(float indoorTemperature, float requiredIndoorTemperature, float requiredBoilerTemperature) {
     if(indoorTemperature < requiredIndoorTemperature - 2)
@@ -104,10 +114,10 @@ float Management::GetRequiredBoilerTemperature(int sun, int wind, float outdoorT
             o1 = o2 - 1;
         }
     }
-    float f11 = GetControlValue(sun, wind, o1, i1);
-    float f12 = GetControlValue(sun, wind, o1, i2);
-    float f21 = GetControlValue(sun, wind, o2, i1);
-    float f22 = GetControlValue(sun, wind, o2, i2);
+    float f11 = GetControlValue(0, 0, o1, i1);
+    float f12 = GetControlValue(0, 0, o1, i2);
+    float f21 = GetControlValue(0, 0, o2, i1);
+    float f22 = GetControlValue(0, 0, o2, i2);
     float A = (o2 - outdoorTemperature) / (o2 - o1);
     float B = (outdoorTemperature - o1) / (o2 - o1);
     float C = (i2 - indoorTemperature) / (i2 - i1);
@@ -172,7 +182,7 @@ std::tm* Management::GetDate() {
 void Management::SetupGPIO() {
     wiringPiSetupGpio();
     pinMode(PIN, OUTPUT);
-    SetGPIOValues();
+    digitalWrite(PIN, true);
 }
 void Management::SetGPIOValues() {
     bool pinValue = !cycleInfo->IsBoilerOn();
