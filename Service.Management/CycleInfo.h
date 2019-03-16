@@ -46,6 +46,7 @@ class CycleInfo {
     void EndCycle(const time_t& now);
     void ProcessBoilerTemperature(float value, const time_t & now);
     bool IsStartingMode();
+    void DetectComplitingStartMode(const time_t & now);
 public:
     CycleInfo(bool isHeating, float requiredBoilerTemperature, const time_t& now, string statusTemplate, string additionalTemplateParameterValue);
     void AddBoilerTemperatue(float value, const time_t& now);
