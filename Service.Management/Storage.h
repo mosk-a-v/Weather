@@ -13,8 +13,8 @@
 
 struct ControlValue {
 public:
-    short Sun;
-    short Wind;
+    int Sun;
+    int Wind;
     float Indoor;
     float Outdoor;
     float Boiler;

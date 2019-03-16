@@ -1,26 +1,32 @@
 #include "GlobalWeather.h"
 
 void GlobalWeather::GetWeather(CurrentWeather& weather) {
-    std::string serviceResponce = DownloadJSON(API_URL);
-    auto js = json::parse(serviceResponce);
-    
-    auto wind = js.at("wind");
-    auto main = js.at("main");
-    auto clouds = js.at("clouds");
-    auto sys = js.at("sys");
+    weather.IsServiceError = false;
+    weather.ResponceTime = std::time(0);
+    try {
+        std::string serviceResponce = DownloadJSON(API_URL);
+        auto js = json::parse(serviceResponce);
 
-    weather.Clouds = clouds.at("all");
-    long t;
-    t = sys.at("sunrise");
-    weather.SunRise = t;
-    t = sys.at("sunset");
-    weather.SunSet = t;
-    t = js.at("dt");
-    weather.LastUpdateTime = t;
-    weather.TemperatureMax = main.at("temp_max");
-    weather.TemperatureMin = main.at("temp_min");
-    weather.TemperatureValue = main.at("temp");
-    weather.WindSpeed = wind.at("speed");
+        auto wind = js.at("wind");
+        auto main = js.at("main");
+        auto clouds = js.at("clouds");
+        auto sys = js.at("sys");
+
+        weather.Clouds = clouds.at("all");
+        long t;
+        t = sys.at("sunrise");
+        weather.SunRise = t;
+        t = sys.at("sunset");
+        weather.SunSet = t;
+        t = js.at("dt");
+        weather.LastUpdateTime = t;
+        weather.TemperatureMax = main.at("temp_max");
+        weather.TemperatureMin = main.at("temp_min");
+        weather.TemperatureValue = main.at("temp");
+        weather.WindSpeed = wind.at("speed");
+    } catch(...) {
+        weather.IsServiceError = true;
+    }
 }
 std::string GlobalWeather::DownloadJSON(std::string URL) {
     CURL *curl;
@@ -48,6 +54,7 @@ std::string GlobalWeather::DownloadJSON(std::string URL) {
         }
     }
     curl_slist_free_all(headers);
+    return "";
 }
 int GlobalWeather::Writer(char *data, size_t size, size_t nmemb, std::string *buffer_in) {
     if(buffer_in != NULL) {

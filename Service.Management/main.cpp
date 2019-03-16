@@ -9,7 +9,6 @@ int main(void) {
 #ifdef TEST
     TestAll();
 #else
-    freopen("/home/kotel/output.log", "w", stderr);
     DeviceResponce deviceResponce;
     DeviceResponce prevDeviceResponce;
     Storage *storage = new Storage();
@@ -19,11 +18,17 @@ int main(void) {
     gw->GetWeather(weather);
 
     Management *management = new Management(storage->ReadControlTable(), storage->ReadSettingsTable(), gw);
-    while(Input::Get(deviceResponce)) {
-        if(prevDeviceResponce == deviceResponce) continue;
-        storage->SaveResponce(deviceResponce);
-        prevDeviceResponce = deviceResponce;
-        management->ProcessResponce(deviceResponce);
+    while(true) {
+        if(Input::Get(deviceResponce)) {
+            if(prevDeviceResponce == deviceResponce) continue;
+            storage->SaveResponce(deviceResponce);
+            prevDeviceResponce = deviceResponce;
+            try {
+                management->ProcessResponce(deviceResponce);
+            } catch(...) {
+                cout << "ProcessResponce error" << endl;
+            }
+        }
     }
     storage->~Storage();
     return EXIT_SUCCESS;

@@ -6,10 +6,12 @@
 #include <ostream>
 #include <string>
 #include <sstream>
+#include <math.h> 
 #include <curl/curl.h>
 #include "nlohmann/json.hpp"
 
 #define API_URL "https://api.openweathermap.org/data/2.5/weather?id=480562&units=metric&appid=a626320fe32f14e991091b0839149783"
+#define HALF_LIGHT_TIME 3000
 
 using json = nlohmann::json;
 
@@ -18,11 +20,32 @@ public:
     std::time_t SunRise;
     std::time_t SunSet;
     std::time_t LastUpdateTime;
+    std::time_t ResponceTime;
     float TemperatureValue;
     float TemperatureMin;
     float TemperatureMax;
-    float WindSpeed;
+    float WindSpeed = 0;
     int Clouds;
+    bool IsServiceError;
+    int GetSun() {
+        if(IsServiceError) {
+            return 0;
+        } else {
+            std::time_t currentTime = std::time(0);
+            if(currentTime > (SunRise + HALF_LIGHT_TIME) && currentTime < (SunRise - HALF_LIGHT_TIME)) {
+                return 100 - Clouds;
+            } else {
+                return 0;
+            }
+        }
+    }
+    int GetWind() {
+        if(IsServiceError) {
+            return 0;
+        } else {
+            return round(WindSpeed);
+        }
+    }
 };
 
 class GlobalWeather {
