@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 
 using namespace std;
 
@@ -17,12 +18,12 @@ using namespace std;
 #define OUTPUT_FILE_NAME "/var/www/html/index.html"
 
 class CycleInfo {
-    time_t cycleStartTime;
-    time_t cycleEndTime;
-    time_t lastDeviceResponceTime;
-    time_t lastIndoorResponceTime;
-    time_t lastOutdoorResponceTime;
-    time_t lastBoilerResponseTime;
+    time_t cycleStartTime = DEFAULT_TIME;
+    time_t cycleEndTime = DEFAULT_TIME;
+    time_t lastDeviceResponceTime = DEFAULT_TIME;
+    time_t lastIndoorResponceTime = DEFAULT_TIME;
+    time_t lastOutdoorResponceTime = DEFAULT_TIME;
+    time_t lastBoilerResponseTime = DEFAULT_TIME;
     bool isHeating = false;
     bool boilerStatus = false;
     bool isLatencyPeriod = false;
@@ -47,6 +48,7 @@ class CycleInfo {
     void ProcessBoilerTemperature(float value, const time_t & now);
     bool IsStartingMode();
     void DetectComplitingStartMode(const time_t & now);
+    string FormatTime(const time_t& time);
 public:
     CycleInfo(bool isHeating, float requiredBoilerTemperature, const time_t& now, string statusTemplate, string additionalTemplateParameterValue);
     void AddBoilerTemperatue(float value, const time_t& now);
@@ -57,6 +59,7 @@ public:
     float GetBoilerTemperture();
     float GetIndoorTemperature();
     float GetOutdoorTemperature();
+    float GetRequiredBoilerTemperature();
     bool IsBoilerOn();
     bool IsCycleEnd();
     void WriteCurrentStatus(const time_t& now);

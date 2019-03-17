@@ -24,7 +24,7 @@ void CycleInfo::DetectLatency() {
 }
 float CycleInfo::CalclateDeltaForLastPeriod(float boilerTemperature, const time_t& now) {
     float result = 0;
-    if(lastBoilerResponseTime == DEFAULT_TIME || lastBoilerTemperature == DEFAULT_TEMPERATURE) {
+    if(lastBoilerResponseTime == DEFAULT_TIME || lastBoilerTemperature == DEFAULT_TEMPERATURE || requiredBoilerTemperature == DEFAULT_TEMPERATURE) {
         return result;
     }
     if(lastBoilerTemperature < boilerTemperature) {
@@ -87,6 +87,9 @@ void CycleInfo::ApplyTemplateAndWrite(std::ostream &stream, const time_t& now) {
     string periodTypeName = "periodType";
     string additionalTemplateParameterName = "additionalTemplateParameter";
 
+    stream << fixed;
+    stream.precision(1);
+
     size_t paramStart = statusTemplate.find("%");
     size_t paramEnd = -1;
     while(paramStart != std::string::npos) {
@@ -98,19 +101,19 @@ void CycleInfo::ApplyTemplateAndWrite(std::ostream &stream, const time_t& now) {
             if(GetIndoorTemperature() == DEFAULT_TEMPERATURE) {
                 stream << "---";
             } else {
-                stream << GetIndoorTemperature();
+                stream << GetIndoorTemperature() << " (" << FormatTime(lastIndoorResponceTime) << ")";
             }
         } else if(paramName == outdoorName) {
             if(GetOutdoorTemperature() == DEFAULT_TEMPERATURE) {
                 stream << "---";
             } else {
-                stream << GetOutdoorTemperature();
+                stream << GetOutdoorTemperature() << " (" << FormatTime(lastOutdoorResponceTime) << ")";
             }
         } else if(paramName == boilerName) {
             if(GetBoilerTemperture() == DEFAULT_TEMPERATURE) {
                 stream << "---";
             } else {
-                stream << GetBoilerTemperture();
+                stream << GetBoilerTemperture() << " (" << FormatTime(lastBoilerResponseTime) << ")";
             }
         } else if(paramName == requiredBoilerName) {
             if(requiredBoilerTemperature == DEFAULT_TEMPERATURE) {
@@ -118,29 +121,33 @@ void CycleInfo::ApplyTemplateAndWrite(std::ostream &stream, const time_t& now) {
             } else {
                 stream << requiredBoilerTemperature;
             }
-        } else if(paramName == deltaName)
+        } else if(paramName == deltaName) {
             stream << delta << " (" << now - cycleStartTime << ")";
-        else if(paramName == stateName)
+        } else if(paramName == stateName) {
             stream << boilerStatus;
-        else if(paramName == timeName) {
+        } else if(paramName == timeName) {
             tm tm = *localtime(&lastDeviceResponceTime);
             stream.imbue(locale("ru_RU.utf8"));
             stream << put_time(&tm, "%c");
-        } else if(paramName == indoorAvgName)
+        } else if(paramName == indoorAvgName) {
             stream << GetAverageIndoorTemperature();
-        else if(paramName == outdoorAvgName)
+        } else if(paramName == outdoorAvgName) {
             stream << GetAverageOutdoorTemperature();
-        else if(paramName == periodTypeName)
-            stream << (IsStartingMode() ? "Starting" : (isHeating ? "Нагрев" : "Охлаждение"));
-        else if(paramName == additionalTemplateParameterName)
+        } else if(paramName == periodTypeName) {
+            stream << (IsStartingMode() ? "Запуск" : (isHeating ? "Нагрев" : "Охлаждение"));
+        } else if(paramName == additionalTemplateParameterName) {
             stream << additionalTemplateParameterValue;
-        else
+        } else {
             stream << "Wrong Parameter Name";
+        }
         paramStart = statusTemplate.find("%", paramEnd + 1);
     }
     stream << statusTemplate.substr(paramEnd + 1, statusTemplate.length() - paramEnd - 1);
 }
 void CycleInfo::EndCycle(const time_t & now) {
+    if(isCycleEnd) {
+        return;
+    }
     cycleEndTime = now;
     isCycleEnd = true;
 }
@@ -184,6 +191,13 @@ void CycleInfo::DetectComplitingStartMode(const time_t & now) {
             EndCycle(now);
         }
     }
+}
+string CycleInfo::FormatTime(const time_t& time) {
+    stringstream buffer;
+    tm tm = *localtime(&time);
+    buffer.imbue(locale("ru_RU.utf8"));
+    buffer << put_time(&tm, "%T");
+    return buffer.str();
 }
 void CycleInfo::AddIndoorTemperature(float value, const time_t& now) {
     if(value == DEFAULT_TEMPERATURE) {
@@ -231,6 +245,9 @@ float CycleInfo::GetIndoorTemperature() {
 }
 float CycleInfo::GetOutdoorTemperature() {
     return lastOutdoorTemperature;
+}
+float CycleInfo::GetRequiredBoilerTemperature() {
+    return requiredBoilerTemperature;
 }
 bool CycleInfo::IsBoilerOn() {
     if(IsStartingMode()) {

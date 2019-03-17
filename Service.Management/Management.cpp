@@ -48,20 +48,25 @@ void Management::BeginNewCycle(const time_t &now) {
     float lastCycleOutdoor = cycleInfo->GetOutdoorTemperature();
     float lastCycleAvgIndoor = cycleInfo->GetAverageIndoorTemperature();
     float lastCycleAvgOutdoor = cycleInfo->GetAverageOutdoorTemperature();
-    float lastcycleBoiler = cycleInfo->GetBoilerTemperture();
+    float lastCycleBoiler = cycleInfo->GetBoilerTemperture();
+    float lastCycleBoilerRequired = cycleInfo->GetRequiredBoilerTemperature();
     float requiredIndoorTemperature = GetRequiredIndoorTemperature();
     float requiredBoilerTemperature = GetRequiredBoilerTemperature(weather.GetSun(), weather.GetWind(), lastCycleAvgOutdoor, requiredIndoorTemperature);
     float adjustBoilerTemperature = GetAdjustBoilerTemperature(lastCycleAvgIndoor, requiredIndoorTemperature, requiredBoilerTemperature);
-    bool newCycleWillHeating = cycleInfo->GetBoilerTemperture() <= adjustBoilerTemperature;
+    bool newCycleWillHeating = lastCycleBoiler <= adjustBoilerTemperature;
     stringstream additionalInfoStream;
+    additionalInfoStream << fixed;
+    additionalInfoStream.precision(1);
     additionalInfoStream << "Ветер: " << weather.GetWind() << "; Солнце: " << weather.GetSun() <<
-        ". Прошлый цикл (" << cycleInfo->GetCycleLength() << "c, " << (cycleInfo->IsCycleHeating() ? "нагрев" : "охлаждение") << 
-        ",  " << lastCycleAvgIndoor << ", " << lastCycleAvgOutdoor << ").";
+        ". Прошлый цикл (" << cycleInfo->GetCycleLength() << "c, " << (cycleInfo->IsCycleHeating() ? "нагрев" : "охлаждение") <<
+        ",  " << lastCycleAvgIndoor << ", " << lastCycleAvgOutdoor <<
+        //", " << requiredBoilerTemperature << ", " << adjustBoilerTemperature <<
+        ", " << lastCycleBoilerRequired << ").";
     delete cycleInfo;
     cycleInfo = new CycleInfo(newCycleWillHeating, adjustBoilerTemperature, now, statusTemplate, additionalInfoStream.str());
     cycleInfo->AddIndoorTemperature(lastCycleIndoor, now);
     cycleInfo->AddOutdoorTemperature(lastCycleOutdoor, now);
-    cycleInfo->AddBoilerTemperatue(lastcycleBoiler, now);
+    cycleInfo->AddBoilerTemperatue(lastCycleBoiler, now);
 }
 float Management::GetAdjustBoilerTemperature(float indoorTemperature, float requiredIndoorTemperature, float requiredBoilerTemperature) {
     if(indoorTemperature < requiredIndoorTemperature - 2)
