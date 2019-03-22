@@ -5,6 +5,7 @@ void GlobalWeather::GetWeather(CurrentWeather& weather) {
     weather.ResponceTime = std::time(0);
     try {
         std::string serviceResponce = DownloadJSON(API_URL);
+        //sd_journal_print(LOG_INFO, serviceResponce.c_str());
         auto js = json::parse(serviceResponce);
 
         auto wind = js.at("wind");
@@ -24,8 +25,11 @@ void GlobalWeather::GetWeather(CurrentWeather& weather) {
         weather.TemperatureMin = main.at("temp_min");
         weather.TemperatureValue = main.at("temp");
         weather.WindSpeed = wind.at("speed");
-    } catch(...) {
+    } catch(const std::exception &e) {
         weather.IsServiceError = true;
+        std::stringstream ss;
+        ss << "Openweathermap responce read exception." << e.what();
+        sd_journal_print(LOG_ERR, ss.str().c_str());
     }
 }
 std::string GlobalWeather::DownloadJSON(std::string URL) {
@@ -33,6 +37,7 @@ std::string GlobalWeather::DownloadJSON(std::string URL) {
     CURLcode res;
     struct curl_slist *headers = NULL;
     std::ostringstream oss;
+    Response.clear();
     headers = curl_slist_append(headers, "Accept: application/json");
     headers = curl_slist_append(headers, "Content-Type: application/json");
     headers = curl_slist_append(headers, "charsets: utf-8");
@@ -51,6 +56,10 @@ std::string GlobalWeather::DownloadJSON(std::string URL) {
             res = curl_easy_getinfo(curl, CURLINFO_CONTENT_TYPE, &ct);
             if((CURLE_OK == res) && ct)
                 return Response;
+        } else {
+            std::stringstream ss;
+            ss << "Curl error" << res;
+            sd_journal_print(LOG_ERR, ss.str().c_str());
         }
     }
     curl_slist_free_all(headers);

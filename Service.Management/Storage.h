@@ -5,6 +5,7 @@
 #include <cppconn/resultset.h>
 #include <cppconn/statement.h>
 #include "Input.h"
+#include "CycleInfo.h"
 
 #define HOST "tcp://192.168.10.14:3306"
 #define USER "root"
@@ -33,12 +34,14 @@ private:
     sql::Connection *connection;
     void LogException(sql::SQLException &e);
     void Connect();
-    void SaveInternal(const DeviceResponce& responce);
+    void SaveResponceInternal(const DeviceResponce& responce);
+    void SaveCycleStatisticsInternal(CycleStatictics *cycleStat);
 public:
     Storage();
     ~Storage();
     void SaveResponce(const DeviceResponce& responce);
-    std::vector<ControlValue> ReadControlTable();
-    std::vector<SettingValue> ReadSettingsTable();
+    void SaveCycleStatistics(CycleStatictics *cycleStat);
+    std::vector<ControlValue> *ReadControlTable();
+    std::vector<SettingValue> *ReadSettingsTable();
 };
 

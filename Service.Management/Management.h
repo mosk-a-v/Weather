@@ -6,8 +6,6 @@
 #include "CycleInfo.h"
 
 #define	PIN	17
-#define MAX_TEMPERATURE_DEVIATION 4
-#define MIN_CYCLE_TIME 60
 //#define TEST
 #define TEMPLATE_FILE_NAME "/var/www/html/boiler_status.html"
 
@@ -17,6 +15,7 @@ private:
     std::vector<ControlValue> *controlTable;
     std::vector<SettingValue> *settingsTable;
     GlobalWeather *globalWeatherSystem;
+    Storage *storage;
     float maxIndoorTemperature;
     float minIndoorTemperature;
     float maxOutdoorTemperature;
@@ -38,7 +37,7 @@ protected:
     float GetWindAdjust(int sun);
 public:
     void ProcessResponce(const DeviceResponce& responce);
-    Management(const std::vector<ControlValue>& controlTable, const std::vector<SettingValue>& settingsTable, GlobalWeather *globalWeatherSystem);
+    Management(Storage *storage, GlobalWeather *globalWeatherSystem);
     void ReadTemplate();
     ~Management();
 };

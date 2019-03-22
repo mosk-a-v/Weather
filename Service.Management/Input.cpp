@@ -12,7 +12,8 @@ bool Input::Get(DeviceResponce& responce) {
             return false;
         }
     } catch(...) {
-        cout << "Read stream error" << endl;
-        return false;
+        string message = "Read input stream error. {" + inp_str + "}";
+        sd_journal_print(LOG_ERR, message.c_str());
+        return true;
     }
 }

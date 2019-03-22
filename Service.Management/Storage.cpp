@@ -6,7 +6,7 @@ Storage::Storage() {
 
 void Storage::SaveResponce(const DeviceResponce& responce) {
     try {
-        SaveInternal(responce);
+        SaveResponceInternal(responce);
     } catch(sql::SQLException &e) {
         LogException(e);
         delete connection;
@@ -14,8 +14,18 @@ void Storage::SaveResponce(const DeviceResponce& responce) {
     }
 }
 
-std::vector<ControlValue> Storage::ReadControlTable() {
-    std::vector<ControlValue> result;
+void Storage::SaveCycleStatistics(CycleStatictics *cycleStat) {
+    try {
+        SaveCycleStatisticsInternal(cycleStat);
+    } catch(sql::SQLException &e) {
+        LogException(e);
+        delete connection;
+        Connect();
+    }
+}
+
+std::vector<ControlValue>* Storage::ReadControlTable() {
+    std::vector<ControlValue> *result = new std::vector<ControlValue>();
     sql::Statement *stmt = connection->createStatement();
     sql::ResultSet *resultSet = stmt->executeQuery("SELECT Sun, Wind, Indoor, Outdoor, Boiler FROM ControlTable;");
     while(resultSet->next()) {
@@ -25,15 +35,15 @@ std::vector<ControlValue> Storage::ReadControlTable() {
         value.Indoor = resultSet->getDouble("Indoor");
         value.Outdoor = resultSet->getDouble("Outdoor");
         value.Boiler = resultSet->getDouble("Boiler");
-        result.push_back(value);
+        result->push_back(value);
     }
     delete resultSet;
     delete stmt;
     return result;
 }
 
-std::vector<SettingValue> Storage::ReadSettingsTable() {
-    std::vector<SettingValue> result;
+std::vector<SettingValue>* Storage::ReadSettingsTable() {
+    std::vector<SettingValue> *result = new std::vector<SettingValue>();
     sql::Statement *stmt = connection->createStatement();
     sql::ResultSet *resultSet = stmt->executeQuery("SELECT WeekDay, Hour, Temperature FROM TemperatureSettings;");
     while(resultSet->next()) {
@@ -41,7 +51,7 @@ std::vector<SettingValue> Storage::ReadSettingsTable() {
         value.WeekDay = resultSet->getInt("WeekDay");
         value.Hour = resultSet->getInt("Hour");
         value.Temperature = resultSet->getDouble("Temperature");
-        result.push_back(value);
+        result->push_back(value);
     }
     delete resultSet;
     delete stmt;
@@ -53,11 +63,13 @@ Storage::~Storage() {
 }
 
 void Storage::LogException(sql::SQLException &e) {
-    cout << "# ERR: SQLException in " << __FILE__;
-    cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
-    cout << "# ERR: " << e.what();
-    cout << " (MySQL error code: " << e.getErrorCode();
-    cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+    stringstream ss;
+    ss << "# ERR: SQLException in " << __FILE__;
+    ss << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
+    ss << "# ERR: " << e.what();
+    ss << " (MySQL error code: " << e.getErrorCode();
+    ss << ", SQLState: " << e.getSQLState() << " )" << endl;
+    sd_journal_print(LOG_ERR, ss.str().c_str());
 }
 
 void Storage::Connect() {
@@ -66,13 +78,40 @@ void Storage::Connect() {
     connection->setSchema(SCHEMA);
 }
 
-void Storage::SaveInternal(const DeviceResponce & responce) {
+void Storage::SaveResponceInternal(const DeviceResponce & responce) {
     sql::Statement *stmt = connection->createStatement();
     stringstream ss;
-    ss << "INSERT INTO `Temperature` (`Time`, `Value`, `Device`) VALUES ('" << responce.Time
-        << "', " << responce.Value
-        << ", " << (int)responce.Sensor
-        << ");";
+    ss << "INSERT INTO `Temperature` (`Time`, `Value`, `Device`) VALUES ('" <<
+        responce.Time << "', " <<
+        responce.Value << ", " <<
+        (int)responce.Sensor << ");";
+    stmt->execute(ss.str());
+    delete stmt;
+}
+
+void Storage::SaveCycleStatisticsInternal(CycleStatictics * cycleStat) {
+    sql::Statement *stmt = connection->createStatement();
+    stringstream ss;
+    time_t lt = cycleStat->CycleStart;
+    auto local_field = *std::gmtime(&lt);
+    local_field.tm_isdst = -1;
+    time_t utc = std::mktime(&local_field);
+
+    ss << "INSERT INTO `CycleStatistics` (`CycleStart`, `AvgIndoor`, `AvgOutdoor`, `AvgBoiler`, `Wind`, `Sun`, `BoilerRequired`, " <<
+        "`IsHeating`, `CycleLength`, `LastIndoor`, `LastOutdoor`, `LastBoiler`)" <<
+        " VALUES (" <<
+        "FROM_UNIXTIME(" << utc << "), " <<
+        cycleStat->AvgIndoor << ", " <<
+        cycleStat->AvgOutdoor << ", " <<
+        cycleStat->AvgBoiler << ", " <<
+        cycleStat->Wind << ", " <<
+        cycleStat->Sun << ", " <<
+        cycleStat->BoilerRequired << ", " <<
+        cycleStat->IsHeating << ", " <<
+        cycleStat->CycleLength << ", " <<
+        cycleStat->LastIndoor << ", " <<
+        cycleStat->LastOutdoor << ", " <<
+        cycleStat->LastBoiler << ");";
     stmt->execute(ss.str());
     delete stmt;
 }

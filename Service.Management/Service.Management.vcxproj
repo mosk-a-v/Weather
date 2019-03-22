@@ -110,7 +110,7 @@
       </AdditionalOptions>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
-      <LibraryDependencies>mysqlcppconn;wiringPi;curl;%(LibraryDependencies)</LibraryDependencies>
+      <LibraryDependencies>mysqlcppconn;wiringPi;curl;systemd%(LibraryDependencies)</LibraryDependencies>
     </Link>
     <RemotePostBuildEvent>
       <Command>
