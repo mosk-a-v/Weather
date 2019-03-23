@@ -24,7 +24,6 @@ private:
     CycleInfo *cycleInfo = nullptr;
 protected:
     virtual std::time_t GetTime();
-    virtual std::tm* GetDate();
     float GetRequiredIndoorTemperature();
     float GetRequiredBoilerTemperature(int sun, int wind, float outdoorTemperature, float indoorTemperature);
     static float GetAdjustBoilerTemperature(float indoorTemperature, float requiredIndoorTemperature, float requiredBoilerTemperature);

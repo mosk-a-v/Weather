@@ -74,31 +74,36 @@ void Management::BeginNewCycle(const time_t &now) {
 }
 float Management::GetAdjustBoilerTemperature(float indoorTemperature, float requiredIndoorTemperature, float requiredBoilerTemperature) {
     if(indoorTemperature < requiredIndoorTemperature - 2)
-        return requiredBoilerTemperature + 8;
-    else if(indoorTemperature < requiredIndoorTemperature - 1)
-        return requiredBoilerTemperature + 7;
-    else if(indoorTemperature < requiredIndoorTemperature - 0.2)
-        return requiredBoilerTemperature + 6;
-    else if(indoorTemperature < requiredIndoorTemperature - 0.05)
         return requiredBoilerTemperature + 5;
+    else if(indoorTemperature < requiredIndoorTemperature - 1)
+        return requiredBoilerTemperature + 4;
+    else if(indoorTemperature < requiredIndoorTemperature - 0.2)
+        return requiredBoilerTemperature + 3;
+    else if(indoorTemperature < requiredIndoorTemperature - 0.05)
+        return requiredBoilerTemperature + 2;
     else if(indoorTemperature < requiredIndoorTemperature + 0.05)
         return requiredBoilerTemperature;
     else if(indoorTemperature < requiredIndoorTemperature + 0.2)
-        return requiredBoilerTemperature - 5;
+        return requiredBoilerTemperature - 2;
     else if(indoorTemperature < requiredIndoorTemperature + 1)
-        return requiredBoilerTemperature - 6;
+        return requiredBoilerTemperature - 3;
     else if(indoorTemperature < requiredIndoorTemperature + 2)
-        return requiredBoilerTemperature - 7;
-    return requiredBoilerTemperature - 8;
+        return requiredBoilerTemperature - 4;
+    return requiredBoilerTemperature - 5;
 }
 float Management::GetRequiredIndoorTemperature() {
-    std::tm *now = GetDate();
+    const long TwoHourSeconds = 60 * 60 * 2;
+    std::time_t t = GetTime() + TwoHourSeconds;
+    std::tm *requiredDateTime = std::localtime(&t);
+
     std::vector<SettingValue>::iterator result = std::find_if(settingsTable->begin(), settingsTable->end(),
-                                                              [now](const SettingValue& s) -> bool {
-        return s.Hour == now->tm_hour && s.WeekDay == ((now->tm_wday + 6) % 7 + 1);
+                                                              [requiredDateTime](const SettingValue& s) -> bool {
+        return s.Hour == requiredDateTime->tm_hour && s.WeekDay == ((requiredDateTime->tm_wday + 6) % 7 + 1);
     });
     if(result == settingsTable->end()) {
-        cerr << "Wrong Now. Hour: " << now->tm_hour << "; WeekDay:" << now->tm_wday << endl;
+        stringstream message_stream;
+        message_stream << "Wrong Now. Hour: " << requiredDateTime->tm_hour << "; WeekDay:" << requiredDateTime->tm_wday << endl;
+        sd_journal_print(LOG_INFO, message_stream.str().c_str());
         return 20;
     } else {
         return result->Temperature;
@@ -142,15 +147,15 @@ float Management::GetSunAdjust(int sun) {
     if(sun < 30)
         return 0;
     else if(sun < 50)
-        return 2;
+        return 1;
     else if(sun < 70)
-        return 3;
+        return 2;
     else if(sun < 80)
-        return 4;
+        return 2;
     else if(sun < 90)
-        return 5;
+        return 3;
     else
-        return 6;
+        return 3;
 }
 float Management::GetWindAdjust(int wind) {
     if(wind < 10)
@@ -189,10 +194,6 @@ float Management::GetControlValue(int sun, int wind, float outdoorTemperature, f
 }
 std::time_t Management::GetTime() {
     return std::time(0);
-}
-std::tm* Management::GetDate() {
-    std::time_t t = GetTime();
-    return std::localtime(&t);
 }
 void Management::SetupGPIO() {
     wiringPiSetupGpio();
