@@ -98,7 +98,7 @@ void Storage::SaveCycleStatisticsInternal(CycleStatictics * cycleStat) {
     time_t utc = std::mktime(&local_field);
 
     ss << "INSERT INTO `CycleStatistics` (`CycleStart`, `AvgIndoor`, `AvgOutdoor`, `AvgBoiler`, `Wind`, `Sun`, `BoilerRequired`, " <<
-        "`IsHeating`, `CycleLength`, `LastIndoor`, `LastOutdoor`, `LastBoiler`)" <<
+        "`IsHeating`, `CycleLength`, `LastIndoor`, `LastOutdoor`, `LastBoiler`, `Result`)" <<
         " VALUES (" <<
         "FROM_UNIXTIME(" << utc << "), " <<
         cycleStat->AvgIndoor << ", " <<
@@ -111,7 +111,8 @@ void Storage::SaveCycleStatisticsInternal(CycleStatictics * cycleStat) {
         cycleStat->CycleLength << ", " <<
         cycleStat->LastIndoor << ", " <<
         cycleStat->LastOutdoor << ", " <<
-        cycleStat->LastBoiler << ");";
+        cycleStat->LastBoiler << ", " <<
+        (short)cycleStat->Result << ");";
     stmt->execute(ss.str());
     delete stmt;
 }

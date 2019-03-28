@@ -54,16 +54,14 @@ void Management::BeginNewCycle(const time_t &now) {
     additionalInfoStream << "Ветер: " << weather.GetWind() << "; Солнце: " << weather.GetSun() <<
         ". Прошлый цикл (" << lastCycleStat->CycleLength << "c, " << (lastCycleStat->IsHeating ? "нагрев" : "охлаждение") <<
         ",  " << lastCycleStat->AvgIndoor << ", " << lastCycleStat->AvgOutdoor << ", " << lastCycleStat->AvgBoiler <<
-        //", " << requiredBoilerTemperature << ", " << adjustBoilerTemperature <<
         ", " << lastCycleStat->BoilerRequired << ").";
     delete cycleInfo;
     float requiredIndoorTemperature = GetRequiredIndoorTemperature();
     float requiredBoilerTemperature = GetRequiredBoilerTemperature(weather.GetSun(), weather.GetWind(), lastCycleStat->AvgOutdoor, requiredIndoorTemperature);
     float adjustBoilerTemperature = GetAdjustBoilerTemperature(lastCycleStat->AvgIndoor, requiredIndoorTemperature, requiredBoilerTemperature);
-    if(lastCycleStat->BoilerRequired != DEFAULT_TEMPERATURE) {
+    if(lastCycleStat->Result == Normal) {
         adjustBoilerTemperature += (lastCycleStat->BoilerRequired - lastCycleStat->AvgBoiler);
     }
-    adjustBoilerTemperature -= 3; //ToDo
     bool newCycleWillHeating = lastCycleStat->LastBoiler <= adjustBoilerTemperature;
     cycleInfo = new CycleInfo(newCycleWillHeating, adjustBoilerTemperature, weather, now, statusTemplate, additionalInfoStream.str());
     cycleInfo->AddIndoorTemperature(lastCycleStat->LastIndoor, now);
@@ -110,24 +108,29 @@ float Management::GetRequiredIndoorTemperature() {
     }
 }
 float Management::GetRequiredBoilerTemperature(int sun, int wind, float outdoorTemperature, float indoorTemperature) {
-    float i1 = std::max(minIndoorTemperature, round(indoorTemperature - 0.49f));
-    float i2 = std::min(maxIndoorTemperature, round(indoorTemperature + 0.49f));
+    float i1 = std::max(minIndoorTemperature, round((indoorTemperature - 0.9999f) / 2.0f) * 2.0f);
+    float i2 = std::min(maxIndoorTemperature, round((indoorTemperature + 0.9999f) / 2.0f) * 2.0f);
     if(i1 == i2) {
         if(i1 == minIndoorTemperature) {
-            i2 = i1 + 1;
+            i2 = i1 + 2;
         } else {
-            i1 = i2 - 1;
+            i1 = i2 - 2;
         }
     }
-    float o1 = std::max(minOutdoorTemperature, round(outdoorTemperature - 0.49f));
-    float o2 = std::min(maxOutdoorTemperature, round(outdoorTemperature + 0.49f));
+    float o1 = std::max(minOutdoorTemperature, round((outdoorTemperature - 4.9999f) / 10.0f) * 10.0f);
+    float o2 = std::min(maxOutdoorTemperature, round((outdoorTemperature + 4.9999f) / 10.0f) * 10.0f);
     if(o1 == o2) {
         if(o1 == minOutdoorTemperature) {
-            o2 = o1 + 1;
+            o2 = o1 + 10;
         } else {
-            o1 = o2 - 1;
+            o1 = o2 - 10;
         }
     }
+    /*
+    stringstream message_stream;
+    message_stream << "i1: " << i1 << "; i2:" << i2 << "; o1:" << o1 << "; o2:" << o2;
+    sd_journal_print(LOG_INFO, message_stream.str().c_str());
+    */
     float f11 = GetControlValue(0, 0, o1, i1);
     float f12 = GetControlValue(0, 0, o1, i2);
     float f21 = GetControlValue(0, 0, o2, i1);

@@ -20,6 +20,13 @@ using namespace std;
 
 #define OUTPUT_FILE_NAME "/var/www/html/index.html"
 
+enum CycleResult {
+    Starting = 0,
+    Normal = 1,
+    TimeOut = 2,
+    TemperatureLimit = 3
+};
+
 struct CycleStatictics {
 public:
     time_t CycleStart;
@@ -34,6 +41,7 @@ public:
     float LastIndoor;
     float LastOutdoor;
     float LastBoiler;
+    CycleResult Result;
 };
 
 class CycleInfo {
@@ -43,7 +51,7 @@ class CycleInfo {
     time_t lastIndoorResponceTime = DEFAULT_TIME;
     time_t lastOutdoorResponceTime = DEFAULT_TIME;
     time_t lastBoilerResponseTime = DEFAULT_TIME;
-    
+
     bool isLatencyPeriod = false;
     bool isCycleEnd = false;
     float lastBoilerTemperature = DEFAULT_TEMPERATURE;
@@ -55,6 +63,7 @@ class CycleInfo {
     float delta = 0;
     float deltaForLastPeriod = 0;
     float latency = DEFAULT_LATENCY;
+    CycleResult result;
 
     bool isHeating = false;
     float requiredBoilerTemperature = DEFAULT_TEMPERATURE;
@@ -67,7 +76,7 @@ class CycleInfo {
     void CalculateDelta(float boilerTemperature, const time_t& now);
     float CalclateDeltaForLastPeriod(float boilerTemperature, const time_t& now);
     void ApplyTemplateAndWrite(std::ostream & stream, const time_t& now);
-    void EndCycle(const time_t& now);
+    void EndCycle(CycleResult result, const time_t& now);
     void ProcessBoilerTemperature(float value, const time_t & now);
     bool IsStartingMode();
     void DetectComplitingStartMode(const time_t & now);

@@ -140,12 +140,13 @@ void CycleInfo::ApplyTemplateAndWrite(std::ostream &stream, const time_t& now) {
     }
     stream << statusTemplate.substr(paramEnd + 1, statusTemplate.length() - paramEnd - 1);
 }
-void CycleInfo::EndCycle(const time_t & now) {
-    if(isCycleEnd) {
+void CycleInfo::EndCycle(CycleResult result, const time_t & now) {
+    if(this->isCycleEnd) {
         return;
     }
-    cycleEndTime = now;
-    isCycleEnd = true;
+    this->cycleEndTime = now;
+    this->isCycleEnd = true;
+    this->result = result;
 }
 void CycleInfo::AddBoilerTemperatue(float value, const time_t& now) {
     if(value == DEFAULT_TEMPERATURE) {
@@ -172,18 +173,18 @@ void CycleInfo::ProcessBoilerTemperature(float value, const time_t& now) {
         return;
     }
     if(now - cycleStartTime > MAX_CYCLE_TIME) {
-        EndCycle(now);
+        EndCycle(TimeOut, now);
         return;
     }
     if(value > (requiredBoilerTemperature + MAX_TEMPERATURE_DEVIATION) && IsBoilerOn()) {
-        EndCycle(now);
+        EndCycle(TemperatureLimit, now);
     } else if(value < (requiredBoilerTemperature - MAX_TEMPERATURE_DEVIATION) && !IsBoilerOn()) {
-        EndCycle(now);
+        EndCycle(TemperatureLimit, now);
     } else {
         if(isHeating && delta >= 0) {
-            EndCycle(now);
+            EndCycle(Normal, now);
         } else if(!isHeating && delta <= 0) {
-            EndCycle(now);
+            EndCycle(Normal, now);
         } else {
             DetectLatency();
         }
@@ -197,7 +198,7 @@ void CycleInfo::DetectComplitingStartMode(const time_t & now) {
         if(lastBoilerTemperature != DEFAULT_TEMPERATURE &&
            lastOutdoorTemperature != DEFAULT_TEMPERATURE &&
            lastIndoorTemperature != DEFAULT_TEMPERATURE) {
-            EndCycle(now);
+            EndCycle(Starting, now);
         }
     }
 }
@@ -273,6 +274,7 @@ CycleStatictics* CycleInfo::GetStatictics() {
     result->LastBoiler = lastBoilerTemperature;
     result->Sun = sun;
     result->Wind = wind;
+    result->Result = this->result;
     return result;
 }
 CycleInfo::CycleInfo(bool isHeating, float requiredBoilerTemperature, CurrentWeather weather, const time_t& now, string statusTemplate, string additionalTemplateParameterValue) {
