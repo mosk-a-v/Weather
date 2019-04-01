@@ -59,9 +59,9 @@ void Management::BeginNewCycle(const time_t &now) {
     float requiredIndoorTemperature = GetRequiredIndoorTemperature();
     float requiredBoilerTemperature = GetRequiredBoilerTemperature(weather.GetSun(), weather.GetWind(), lastCycleStat->AvgOutdoor, requiredIndoorTemperature);
     float adjustBoilerTemperature = GetAdjustBoilerTemperature(lastCycleStat->AvgIndoor, requiredIndoorTemperature, requiredBoilerTemperature);
-    if(lastCycleStat->Result == Normal) {
+    /*if(lastCycleStat->Result == Normal) {
         adjustBoilerTemperature += (lastCycleStat->BoilerRequired - lastCycleStat->AvgBoiler);
-    }
+    }*/
     bool newCycleWillHeating = lastCycleStat->LastBoiler <= adjustBoilerTemperature;
     cycleInfo = new CycleInfo(newCycleWillHeating, adjustBoilerTemperature, weather, now, statusTemplate, additionalInfoStream.str());
     cycleInfo->AddIndoorTemperature(lastCycleStat->LastIndoor, now);
@@ -72,11 +72,11 @@ void Management::BeginNewCycle(const time_t &now) {
 }
 float Management::GetAdjustBoilerTemperature(float indoorTemperature, float requiredIndoorTemperature, float requiredBoilerTemperature) {
     if(indoorTemperature < requiredIndoorTemperature - 2)
-        return requiredBoilerTemperature + 5;
+        return requiredBoilerTemperature + 8;
     else if(indoorTemperature < requiredIndoorTemperature - 1)
-        return requiredBoilerTemperature + 4;
+        return requiredBoilerTemperature + 6;
     else if(indoorTemperature < requiredIndoorTemperature - 0.2)
-        return requiredBoilerTemperature + 3;
+        return requiredBoilerTemperature + 4;
     else if(indoorTemperature < requiredIndoorTemperature - 0.05)
         return requiredBoilerTemperature + 2;
     else if(indoorTemperature < requiredIndoorTemperature + 0.05)
@@ -84,10 +84,10 @@ float Management::GetAdjustBoilerTemperature(float indoorTemperature, float requ
     else if(indoorTemperature < requiredIndoorTemperature + 0.2)
         return requiredBoilerTemperature - 2;
     else if(indoorTemperature < requiredIndoorTemperature + 1)
-        return requiredBoilerTemperature - 3;
-    else if(indoorTemperature < requiredIndoorTemperature + 2)
         return requiredBoilerTemperature - 4;
-    return requiredBoilerTemperature - 5;
+    else if(indoorTemperature < requiredIndoorTemperature + 2)
+        return requiredBoilerTemperature - 6;
+    return requiredBoilerTemperature - 8;
 }
 float Management::GetRequiredIndoorTemperature() {
     const long TwoHourSeconds = 60 * 60 * 2;
@@ -150,15 +150,15 @@ float Management::GetSunAdjust(int sun) {
     if(sun < 30)
         return 0;
     else if(sun < 50)
-        return 1;
+        return 2;
     else if(sun < 70)
-        return 2;
+        return 4;
     else if(sun < 80)
-        return 2;
+        return 6;
     else if(sun < 90)
-        return 3;
+        return 7;
     else
-        return 3;
+        return 7;
 }
 float Management::GetWindAdjust(int wind) {
     if(wind < 10)
