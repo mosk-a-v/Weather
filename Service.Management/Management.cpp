@@ -71,9 +71,9 @@ void Management::BeginNewCycle(const time_t &now) {
     delete lastCycleStat;
 }
 float Management::GetAdjustBoilerTemperature(float indoorTemperature, float requiredIndoorTemperature, float requiredBoilerTemperature) {
-    if(indoorTemperature < requiredIndoorTemperature - 2)
+    if(indoorTemperature < requiredIndoorTemperature - 0.6)
         return requiredBoilerTemperature + 8;
-    else if(indoorTemperature < requiredIndoorTemperature - 1)
+    else if(indoorTemperature < requiredIndoorTemperature - 0.4)
         return requiredBoilerTemperature + 6;
     else if(indoorTemperature < requiredIndoorTemperature - 0.2)
         return requiredBoilerTemperature + 4;
@@ -83,9 +83,9 @@ float Management::GetAdjustBoilerTemperature(float indoorTemperature, float requ
         return requiredBoilerTemperature;
     else if(indoorTemperature < requiredIndoorTemperature + 0.2)
         return requiredBoilerTemperature - 2;
-    else if(indoorTemperature < requiredIndoorTemperature + 1)
+    else if(indoorTemperature < requiredIndoorTemperature + 0.4)
         return requiredBoilerTemperature - 4;
-    else if(indoorTemperature < requiredIndoorTemperature + 2)
+    else if(indoorTemperature < requiredIndoorTemperature + 0.6)
         return requiredBoilerTemperature - 6;
     return requiredBoilerTemperature - 8;
 }
@@ -126,11 +126,7 @@ float Management::GetRequiredBoilerTemperature(int sun, int wind, float outdoorT
             o1 = o2 - 10;
         }
     }
-    /*
-    stringstream message_stream;
-    message_stream << "i1: " << i1 << "; i2:" << i2 << "; o1:" << o1 << "; o2:" << o2;
-    sd_journal_print(LOG_INFO, message_stream.str().c_str());
-    */
+    
     float f11 = GetControlValue(0, 0, o1, i1);
     float f12 = GetControlValue(0, 0, o1, i2);
     float f21 = GetControlValue(0, 0, o2, i1);
@@ -141,24 +137,29 @@ float Management::GetRequiredBoilerTemperature(int sun, int wind, float outdoorT
     float D = (indoorTemperature - i1) / (i2 - i1);
     float fR1 = A * f11 + B * f21;
     float fR2 = A * f12 + B * f22;
-    float result = C * fR1 + D * fR2;
-    result -= GetSunAdjust(sun);
-    result += GetWindAdjust(wind);
-    return result;
+    float t = C * fR1 + D * fR2;
+    float sa = GetSunAdjust(sun);
+    float wa = GetWindAdjust(wind);
+    /*
+    stringstream message_stream;
+    message_stream << "t: " << t << "; wa:" << wa << "; sa:" << sa;
+    sd_journal_print(LOG_INFO, message_stream.str().c_str());
+    */
+    return t + wa - sa;
 }
 float Management::GetSunAdjust(int sun) {
     if(sun < 30)
         return 0;
     else if(sun < 50)
-        return 2;
+        return 1;
     else if(sun < 70)
-        return 4;
+        return 2;
     else if(sun < 80)
-        return 6;
+        return 3;
     else if(sun < 90)
-        return 7;
+        return 4;
     else
-        return 7;
+        return 5;
 }
 float Management::GetWindAdjust(int wind) {
     if(wind < 10)
