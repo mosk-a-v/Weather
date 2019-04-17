@@ -78,7 +78,10 @@
     <IncludePath>/usr/include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemGroup>
+    <ClCompile Include="CurrentWeather.cpp" />
     <ClCompile Include="CycleInfo.cpp" />
+    <ClCompile Include="DirectConnectedInput.cpp" />
+    <ClCompile Include="DS18B20Interface.cpp" />
     <ClCompile Include="GlobalWeather.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
@@ -87,7 +90,10 @@
     <ClCompile Include="TestManagement.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CurrentWeather.h" />
     <ClInclude Include="CycleInfo.h" />
+    <ClInclude Include="DirectConnectedInput.h" />
+    <ClInclude Include="DS18B20Interface.h" />
     <ClInclude Include="GlobalWeather.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Management.h" />
@@ -110,7 +116,7 @@
       </AdditionalOptions>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
-      <LibraryDependencies>mysqlcppconn;wiringPi;curl;systemd%(LibraryDependencies)</LibraryDependencies>
+      <LibraryDependencies>mysqlcppconn;wiringPi;curl;systemd;pthread%(LibraryDependencies)</LibraryDependencies>
     </Link>
     <RemotePostBuildEvent>
       <Command>

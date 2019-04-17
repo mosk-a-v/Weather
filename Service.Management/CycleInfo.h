@@ -12,9 +12,9 @@ using namespace std;
 
 #define DEFAULT_TEMPERATURE -100
 #define DEFAULT_LATENCY 25
-#define MAX_DELTA_DEVIATION 100
+#define MAX_DELTA_DEVIATION 300
 #define MIN_CYCLE_TIME 90
-#define MAX_CYCLE_TIME 3000
+#define MAX_CYCLE_TIME 2000
 #define DEFAULT_TIME 0
 #define MAX_TEMPERATURE_DEVIATION 4
 
@@ -33,6 +33,7 @@ public:
     float AvgIndoor;
     float AvgOutdoor;
     float AvgBoiler;
+    float AvgDirectBoiler;
     int Wind;
     int Sun;
     float BoilerRequired;
@@ -42,6 +43,8 @@ public:
     float LastOutdoor;
     float LastBoiler;
     CycleResult Result;
+    bool HasIndoorResponse;
+    bool HasOutdoorResponse;
 };
 
 class CycleInfo {
@@ -51,15 +54,18 @@ class CycleInfo {
     time_t lastIndoorResponceTime = DEFAULT_TIME;
     time_t lastOutdoorResponceTime = DEFAULT_TIME;
     time_t lastBoilerResponseTime = DEFAULT_TIME;
+    time_t lastDirectBoilerResponseTime = DEFAULT_TIME;
 
     bool isLatencyPeriod = false;
     bool isCycleEnd = false;
+    float lastDirectBoilerTemperature = DEFAULT_TEMPERATURE;
     float lastBoilerTemperature = DEFAULT_TEMPERATURE;
     float lastOutdoorTemperature = DEFAULT_TEMPERATURE;
     float lastIndoorTemperature = DEFAULT_TEMPERATURE;
     float averageOutdoorTemperature = DEFAULT_TEMPERATURE;
     float averageIndoorTemperature = DEFAULT_TEMPERATURE;
     float averageBoilerTemperature = DEFAULT_TEMPERATURE;
+    float averageDirectBoilerTemperature = DEFAULT_TEMPERATURE;
     float delta = 0;
     float deltaForLastPeriod = 0;
     float latency = DEFAULT_LATENCY;
@@ -71,6 +77,7 @@ class CycleInfo {
     string additionalTemplateParameterValue;
     int sun;
     int wind;
+    float globalTemperature;
 
     void DetectLatency();
     void CalculateDelta(float boilerTemperature, const time_t& now);
@@ -85,11 +92,13 @@ class CycleInfo {
     float GetAverageIndoorTemperature();
     float GetAverageOutdoorTemperature();
     float GetAverageBoilerTemperature();
+    float GetAverageDirectBoilerTemperature();
 public:
     CycleInfo(bool isHeating, float requiredBoilerTemperature, CurrentWeather weather, const time_t& now, string statusTemplate, string additionalTemplateParameterValue);
     void AddBoilerTemperatue(float value, const time_t& now);
     void AddIndoorTemperature(float value, const time_t& now);
     void AddOutdoorTemperature(float value, const time_t& now);
+    void AddDirectBoilerTemperature(float value, const time_t& now);
     bool IsBoilerOn();
     bool IsCycleEnd();
     CycleStatictics* GetStatictics();

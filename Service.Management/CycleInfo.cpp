@@ -109,7 +109,8 @@ void CycleInfo::ApplyTemplateAndWrite(std::ostream &stream, const time_t& now) {
             if(lastBoilerTemperature == DEFAULT_TEMPERATURE) {
                 stream << "---";
             } else {
-                stream << lastBoilerTemperature << " (" << FormatTime(lastBoilerResponseTime) << ")";
+                stream << lastBoilerTemperature << " (" << FormatTime(lastBoilerResponseTime) << ")"
+                    << " [" << lastDirectBoilerTemperature << " (" << FormatTime(lastDirectBoilerResponseTime) << ")]";
             }
         } else if(paramName == requiredBoilerName) {
             if(requiredBoilerTemperature == DEFAULT_TEMPERATURE) {
@@ -239,6 +240,21 @@ void CycleInfo::AddOutdoorTemperature(float value, const time_t& now) {
     lastOutdoorResponceTime = now;
     WriteCurrentStatus(now);
 }
+void CycleInfo::AddDirectBoilerTemperature(float value, const time_t & now) {
+    if(value == DEFAULT_TEMPERATURE) {
+        return;
+    }
+    //DetectComplitingStartMode(now);
+    lastDirectBoilerTemperature = value;
+    if(averageDirectBoilerTemperature == DEFAULT_TEMPERATURE) {
+        averageDirectBoilerTemperature = (now - cycleStartTime) * value;
+    } else {
+        averageDirectBoilerTemperature += (now - lastDirectBoilerResponseTime) * value;
+    }
+    lastDeviceResponceTime = now;
+    lastDirectBoilerResponseTime = now;
+    WriteCurrentStatus(now);
+}
 float CycleInfo::GetAverageIndoorTemperature() {
     return (lastIndoorResponceTime == cycleStartTime) ?
         lastIndoorTemperature : averageIndoorTemperature / (lastIndoorResponceTime - cycleStartTime);
@@ -250,6 +266,10 @@ float CycleInfo::GetAverageOutdoorTemperature() {
 float CycleInfo::GetAverageBoilerTemperature() {
     return (lastBoilerResponseTime == cycleStartTime) ?
         lastBoilerTemperature : averageBoilerTemperature / (lastBoilerResponseTime - cycleStartTime);
+}
+float CycleInfo::GetAverageDirectBoilerTemperature() {
+    return (lastDirectBoilerResponseTime == cycleStartTime) ?
+        lastDirectBoilerTemperature : averageDirectBoilerTemperature / (lastDirectBoilerResponseTime - cycleStartTime);
 }
 bool CycleInfo::IsBoilerOn() {
     if(IsStartingMode()) {
@@ -265,6 +285,7 @@ CycleStatictics* CycleInfo::GetStatictics() {
     result->AvgIndoor = GetAverageIndoorTemperature();
     result->AvgOutdoor = GetAverageOutdoorTemperature();
     result->AvgBoiler = GetAverageBoilerTemperature();
+    result->AvgDirectBoiler = GetAverageDirectBoilerTemperature();
     result->BoilerRequired = requiredBoilerTemperature;
     result->CycleLength = cycleEndTime - cycleStartTime;
     result->CycleStart = cycleStartTime;
@@ -285,4 +306,5 @@ CycleInfo::CycleInfo(bool isHeating, float requiredBoilerTemperature, CurrentWea
     this->additionalTemplateParameterValue = additionalTemplateParameterValue;
     this->sun = weather.GetSun();
     this->wind = weather.GetWind();
+    this->globalTemperature = weather.GetTemperature();
 }

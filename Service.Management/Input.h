@@ -11,7 +11,8 @@ using namespace std;
 enum SensorId {
     Outdoor = 113,
     Indoor = 150,
-    Boiler = 179
+    Boiler = 179,
+    DirectBoiler = 180
 };
 
 struct DeviceResponce {

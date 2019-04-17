@@ -22,6 +22,8 @@ Management::Management(Storage *storage, GlobalWeather *globalWeatherSystem) {
     cycleInfo = new CycleInfo(false, DEFAULT_TEMPERATURE, weather, GetTime(), statusTemplate, "Starting");
 }
 void Management::ProcessResponce(const DeviceResponce& responce) {
+    std::lock_guard<std::mutex> lock(mu);
+
     time_t now = GetTime();
     switch(responce.Sensor) {
         case Boiler:
@@ -33,12 +35,15 @@ void Management::ProcessResponce(const DeviceResponce& responce) {
         case Outdoor:
             cycleInfo->AddOutdoorTemperature(responce.Value, now);
             break;
+        case DirectBoiler:
+            cycleInfo->AddDirectBoilerTemperature(responce.Value, now);
+            break;
         default:
             break;
     }
-    ManageBoiler(responce.Value, now);
+    ManageBoiler(now);
 }
-void Management::ManageBoiler(float actualilerTemperature, std::time_t now) {
+void Management::ManageBoiler(std::time_t now) {
     if(cycleInfo->IsCycleEnd()) {
         BeginNewCycle(now);
     }

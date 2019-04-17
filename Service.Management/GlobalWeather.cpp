@@ -1,12 +1,16 @@
 #include "GlobalWeather.h"
 
-void GlobalWeather::GetWeather(CurrentWeather& weather) {
+std::string GlobalWeather::Response;
+
+bool GlobalWeather::GetWeather(CurrentWeather& weather) {
     weather.IsServiceError = false;
     weather.ResponceTime = std::time(0);
     try {
-        std::string serviceResponce = DownloadJSON(API_URL);
+        if(!DownloadJSON(API_URL)) {
+            return false;
+        }
         //sd_journal_print(LOG_INFO, serviceResponce.c_str());
-        auto js = json::parse(serviceResponce);
+        auto js = json::parse(Response);
 
         auto wind = js.at("wind");
         auto main = js.at("main");
@@ -25,18 +29,21 @@ void GlobalWeather::GetWeather(CurrentWeather& weather) {
         weather.TemperatureMin = main.at("temp_min");
         weather.TemperatureValue = main.at("temp");
         weather.WindSpeed = wind.at("speed");
+        return true;
     } catch(const std::exception &e) {
         weather.IsServiceError = true;
         std::stringstream ss;
         ss << "Openweathermap responce read exception." << e.what();
         sd_journal_print(LOG_ERR, ss.str().c_str());
+        return false;
     }
 }
-std::string GlobalWeather::DownloadJSON(std::string URL) {
+bool GlobalWeather::DownloadJSON(std::string URL) {
     CURL *curl;
     CURLcode res;
     struct curl_slist *headers = NULL;
     std::ostringstream oss;
+    bool result;
     Response.clear();
     headers = curl_slist_append(headers, "Accept: application/json");
     headers = curl_slist_append(headers, "Content-Type: application/json");
@@ -50,20 +57,22 @@ std::string GlobalWeather::DownloadJSON(std::string URL) {
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Writer);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &Response);
         res = curl_easy_perform(curl);
-
+        curl_slist_free_all(headers);
+        headers = NULL;
         if(CURLE_OK == res) {
             char *ct;
             res = curl_easy_getinfo(curl, CURLINFO_CONTENT_TYPE, &ct);
             if((CURLE_OK == res) && ct)
-                return Response;
+                result = true;
         } else {
             std::stringstream ss;
             ss << "Curl error" << res;
             sd_journal_print(LOG_ERR, ss.str().c_str());
+            result = false;
         }
+        curl_easy_cleanup(curl);
     }
-    curl_slist_free_all(headers);
-    return "";
+    return result;
 }
 int GlobalWeather::Writer(char *data, size_t size, size_t nmemb, std::string *buffer_in) {
     if(buffer_in != NULL) {
