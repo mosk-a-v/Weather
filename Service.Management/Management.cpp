@@ -13,86 +13,42 @@ Management::Management(Storage *storage, GlobalWeather *globalWeatherSystem) {
     this->maxIndoorTemperature = min_max_indoor.second->Indoor;
     this->minOutdoorTemperature = min_max_outdoor.first->Outdoor;
     this->maxOutdoorTemperature = min_max_outdoor.second->Outdoor;
+    this->sensorValues = new SensorValues();
+    this->cycleInfo = new CycleInfo(false, DEFAULT_TEMPERATURE, DEFAULT_TEMPERATURE, GetTime());
 #ifndef TEST
     SetupGPIO();
     ReadTemplate();
+    StoreGlobalWeather();
 #endif
-    CurrentWeather weather;
-    globalWeatherSystem->GetWeather(weather);
-    cycleInfo = new CycleInfo(false, DEFAULT_TEMPERATURE, weather, GetTime(), statusTemplate, "Starting");
 }
 void Management::ProcessResponce(const DeviceResponce& responce) {
     std::lock_guard<std::mutex> lock(mu);
-
     time_t now = GetTime();
-    switch(responce.Sensor) {
-        case Boiler:
-            cycleInfo->AddBoilerTemperatue(responce.Value, now);
-            break;
-        case Indoor:
-            cycleInfo->AddIndoorTemperature(responce.Value, now);
-            break;
-        case Outdoor:
-            cycleInfo->AddOutdoorTemperature(responce.Value, now);
-            break;
-        case DirectBoiler:
-            cycleInfo->AddDirectBoilerTemperature(responce.Value, now);
-            break;
-        default:
-            break;
+    sensorValues->AddSensorValue(responce.Sensor, responce.Value, now);
+    if(responce.Sensor == GetBoilerSensorId()) {
+        cycleInfo->ProcessBoilerTemperature(responce.Value, now);
     }
-    ManageBoiler(now);
-}
-void Management::ManageBoiler(std::time_t now) {
     if(cycleInfo->IsCycleEnd()) {
         BeginNewCycle(now);
     }
     SetGPIOValues();
+    TemplateUtils::WriteCurrentStatus(sensorValues, cycleInfo, statusTemplate, now);
 }
 void Management::BeginNewCycle(const time_t &now) {
-    CurrentWeather weather;
-    globalWeatherSystem->GetWeather(weather);
     CycleStatictics *lastCycleStat = cycleInfo->GetStatictics();
-    stringstream additionalInfoStream;
-    additionalInfoStream << fixed;
-    additionalInfoStream.precision(1);
-    additionalInfoStream << "Ветер: " << weather.GetWind() << "; Солнце: " << weather.GetSun() <<
-        ". Прошлый цикл (" << lastCycleStat->CycleLength << "c, " << (lastCycleStat->IsHeating ? "нагрев" : "охлаждение") <<
-        ",  " << lastCycleStat->AvgIndoor << ", " << lastCycleStat->AvgOutdoor << ", " << lastCycleStat->AvgBoiler <<
-        ", " << lastCycleStat->BoilerRequired << ").";
-    delete cycleInfo;
+    SensorValues *lastSensorValues = sensorValues;
+    sensorValues = new SensorValues();
+    StoreGlobalWeather();
     float requiredIndoorTemperature = GetRequiredIndoorTemperature();
-    float requiredBoilerTemperature = GetRequiredBoilerTemperature(weather.GetSun(), weather.GetWind(), lastCycleStat->AvgOutdoor, requiredIndoorTemperature);
-    float adjustBoilerTemperature = GetAdjustBoilerTemperature(lastCycleStat->AvgIndoor, requiredIndoorTemperature, requiredBoilerTemperature);
-    /*if(lastCycleStat->Result == Normal) {
-        adjustBoilerTemperature += (lastCycleStat->BoilerRequired - lastCycleStat->AvgBoiler);
-    }*/
-    bool newCycleWillHeating = lastCycleStat->LastBoiler <= adjustBoilerTemperature;
-    cycleInfo = new CycleInfo(newCycleWillHeating, adjustBoilerTemperature, weather, now, statusTemplate, additionalInfoStream.str());
-    cycleInfo->AddIndoorTemperature(lastCycleStat->LastIndoor, now);
-    cycleInfo->AddOutdoorTemperature(lastCycleStat->LastOutdoor, now);
-    cycleInfo->AddBoilerTemperatue(lastCycleStat->LastBoiler, now);
-    storage->SaveCycleStatistics(lastCycleStat);
+    float requiredBoilerTemperature = GetRequiredBoilerTemperature(sensorValues->GetLastSensorValue(GlobalSun), sensorValues->GetLastSensorValue(GlobalWind), GetAvgOutdoorTemperature(), requiredIndoorTemperature);
+    float adjustBoilerTemperature = Utils::GetAdjustBoilerTemperature(GetAvgIndoorTemperature(), requiredIndoorTemperature, requiredBoilerTemperature);
+    float boilerTemperature = lastSensorValues->GetLastSensorValue(GetBoilerSensorId());
+    bool newCycleWillHeating = boilerTemperature <= adjustBoilerTemperature;
+    delete cycleInfo;
+    cycleInfo = new CycleInfo(newCycleWillHeating, adjustBoilerTemperature, boilerTemperature, now);
+    storage->SaveCycleStatistics(lastCycleStat, lastSensorValues);
     delete lastCycleStat;
-}
-float Management::GetAdjustBoilerTemperature(float indoorTemperature, float requiredIndoorTemperature, float requiredBoilerTemperature) {
-    if(indoorTemperature < requiredIndoorTemperature - 0.6)
-        return requiredBoilerTemperature + 8;
-    else if(indoorTemperature < requiredIndoorTemperature - 0.4)
-        return requiredBoilerTemperature + 6;
-    else if(indoorTemperature < requiredIndoorTemperature - 0.2)
-        return requiredBoilerTemperature + 4;
-    else if(indoorTemperature < requiredIndoorTemperature - 0.05)
-        return requiredBoilerTemperature + 2;
-    else if(indoorTemperature < requiredIndoorTemperature + 0.05)
-        return requiredBoilerTemperature;
-    else if(indoorTemperature < requiredIndoorTemperature + 0.2)
-        return requiredBoilerTemperature - 2;
-    else if(indoorTemperature < requiredIndoorTemperature + 0.4)
-        return requiredBoilerTemperature - 4;
-    else if(indoorTemperature < requiredIndoorTemperature + 0.6)
-        return requiredBoilerTemperature - 6;
-    return requiredBoilerTemperature - 8;
+    delete lastSensorValues;
 }
 float Management::GetRequiredIndoorTemperature() {
     const long TwoHourSeconds = 60 * 60 * 2;
@@ -104,8 +60,8 @@ float Management::GetRequiredIndoorTemperature() {
         return s.Hour == requiredDateTime->tm_hour && s.WeekDay == ((requiredDateTime->tm_wday + 6) % 7 + 1);
     });
     if(result == settingsTable->end()) {
-        stringstream message_stream;
-        message_stream << "Wrong Now. Hour: " << requiredDateTime->tm_hour << "; WeekDay:" << requiredDateTime->tm_wday << endl;
+        std::stringstream message_stream;
+        message_stream << "Wrong Now. Hour: " << requiredDateTime->tm_hour << "; WeekDay:" << requiredDateTime->tm_wday << std::endl;
         sd_journal_print(LOG_INFO, message_stream.str().c_str());
         return 20;
     } else {
@@ -131,7 +87,7 @@ float Management::GetRequiredBoilerTemperature(int sun, int wind, float outdoorT
             o1 = o2 - 10;
         }
     }
-    
+
     float f11 = GetControlValue(0, 0, o1, i1);
     float f12 = GetControlValue(0, 0, o1, i2);
     float f21 = GetControlValue(0, 0, o2, i1);
@@ -143,38 +99,9 @@ float Management::GetRequiredBoilerTemperature(int sun, int wind, float outdoorT
     float fR1 = A * f11 + B * f21;
     float fR2 = A * f12 + B * f22;
     float t = C * fR1 + D * fR2;
-    float sa = GetSunAdjust(sun);
-    float wa = GetWindAdjust(wind);
-    /*
-    stringstream message_stream;
-    message_stream << "t: " << t << "; wa:" << wa << "; sa:" << sa;
-    sd_journal_print(LOG_INFO, message_stream.str().c_str());
-    */
+    float sa = Utils::GetSunAdjust(sun);
+    float wa = Utils::GetWindAdjust(wind);
     return t + wa - sa;
-}
-float Management::GetSunAdjust(int sun) {
-    if(sun < 30)
-        return 0;
-    else if(sun < 50)
-        return 1;
-    else if(sun < 70)
-        return 2;
-    else if(sun < 80)
-        return 3;
-    else if(sun < 90)
-        return 4;
-    else
-        return 5;
-}
-float Management::GetWindAdjust(int wind) {
-    if(wind < 10)
-        return 0;
-    else if(wind < 20)
-        return 2;
-    else if(wind < 30)
-        return 3;
-    else
-        return 4;
 }
 float Management::GetControlValue(int sun, int wind, float outdoorTemperature, float indoorTemperature) {
     if(outdoorTemperature > maxOutdoorTemperature) {
@@ -193,7 +120,7 @@ float Management::GetControlValue(int sun, int wind, float outdoorTemperature, f
                                [sun, wind, outdoorTemperature, indoorTemperature](const ControlValue& c) -> bool {
         return c.Sun == sun && c.Wind == wind && c.Outdoor == outdoorTemperature && c.Indoor == indoorTemperature; });
     if(result == controlTable->end()) {
-        stringstream message_stream;
+        std::stringstream message_stream;
         message_stream << "Wrong Temperature. Sun: " << sun << "; Wind:" << wind << "; Outdoor:" << outdoorTemperature << "; Indoor:" << indoorTemperature;
         sd_journal_print(LOG_INFO, message_stream.str().c_str());
         return 40;
@@ -223,10 +150,30 @@ void Management::ReadTemplate() {
         templateStream.close();
     } catch(const std::exception &e) {
         statusTemplate = "";
-        stringstream ss;
+        std::stringstream ss;
         ss << "Template read exception." << e.what();
         sd_journal_print(LOG_ERR, ss.str().c_str());
     }
+}
+void Management::StoreGlobalWeather() {
+    time_t now = GetTime();
+    CurrentWeather *weather;
+    weather = globalWeatherSystem->GetWeather();
+    sensorValues->AddSensorValue(GlobalSun, weather->GetSun(), now);
+    sensorValues->AddSensorValue(GlobalWind, weather->GetWind(), now);
+    delete weather;
+}
+
+SensorId Management::GetBoilerSensorId() {
+    return RadioBoiler;
+}
+
+float Management::GetAvgIndoorTemperature() {
+    return 0.0f;
+}
+
+float Management::GetAvgOutdoorTemperature() {
+    return 0.0f;
 }
 
 Management::~Management() {

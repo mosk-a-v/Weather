@@ -2,41 +2,39 @@
 
 std::string GlobalWeather::Response;
 
-bool GlobalWeather::GetWeather(CurrentWeather& weather) {
-    weather.IsServiceError = false;
-    weather.ResponceTime = std::time(0);
+CurrentWeather* GlobalWeather::GetWeather() {
+    CurrentWeather *weather = new CurrentWeather();
+    weather->IsServiceError = true;
+    weather->ResponceTime = std::time(0);
     try {
         if(!DownloadJSON(API_URL)) {
-            return false;
+            return weather;
         }
-        //sd_journal_print(LOG_INFO, serviceResponce.c_str());
         auto js = json::parse(Response);
-
         auto wind = js.at("wind");
         auto main = js.at("main");
         auto clouds = js.at("clouds");
         auto sys = js.at("sys");
 
-        weather.Clouds = clouds.at("all");
+        weather->Clouds = clouds.at("all");
         long t;
         t = sys.at("sunrise");
-        weather.SunRise = t;
+        weather->SunRise = t;
         t = sys.at("sunset");
-        weather.SunSet = t;
+        weather->SunSet = t;
         t = js.at("dt");
-        weather.LastUpdateTime = t;
-        weather.TemperatureMax = main.at("temp_max");
-        weather.TemperatureMin = main.at("temp_min");
-        weather.TemperatureValue = main.at("temp");
-        weather.WindSpeed = wind.at("speed");
-        return true;
+        weather->LastUpdateTime = t;
+        weather->TemperatureMax = main.at("temp_max");
+        weather->TemperatureMin = main.at("temp_min");
+        weather->TemperatureValue = main.at("temp");
+        weather->WindSpeed = wind.at("speed");
+        weather->IsServiceError = false;
     } catch(const std::exception &e) {
-        weather.IsServiceError = true;
         std::stringstream ss;
         ss << "Openweathermap responce read exception." << e.what();
         sd_journal_print(LOG_ERR, ss.str().c_str());
-        return false;
     }
+    return weather;
 }
 bool GlobalWeather::DownloadJSON(std::string URL) {
     CURL *curl;

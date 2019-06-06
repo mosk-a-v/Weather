@@ -16,7 +16,7 @@ float DS18B20Interface::Read() {
         return -9999;
     }
     float temp = -9998;
-    try{
+    try {
         unsigned int tempInt;
         char crcConf[5];
         fscanf(file, "%*x %*x %*x %*x %*x %*x %*x %*x %*x : crc=%*x %s", crcConf);
@@ -27,15 +27,14 @@ float DS18B20Interface::Read() {
     } catch(const std::exception &e) {
         std::stringstream ss;
         ss << "Error reading from device " << deviceId << ". Detail: " << e.what();
-        sd_journal_print(LOG_ERR, ss.str().c_str());
+        //sd_journal_print(LOG_ERR, ss.str().c_str());
     }
     fclose(file);
     file = nullptr;
     return temp;
 }
 
-DS18B20Interface::DS18B20Interface(std::string deviceId) {
-    this->deviceId = deviceId;
+DS18B20Interface::DS18B20Interface(std::string deviceId, SensorId sensorId) : ISensorInterface(deviceId, sensorId) {
 }
 
 DS18B20Interface::~DS18B20Interface() {

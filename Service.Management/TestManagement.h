@@ -1,5 +1,6 @@
 #pragma once
-#include "Management.h"
+#include "Common.h"
+
 #ifdef TEST
 class TestManagement :
     public Management {

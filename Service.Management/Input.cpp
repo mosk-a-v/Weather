@@ -1,8 +1,9 @@
 #include "Input.h"
+
 bool Input::Get(DeviceResponce& responce) {
-    string inp_str;
+    std::string inp_str;
     try {
-        if(getline(cin, inp_str)) {
+        if(std::getline(std::cin, inp_str)) {
             auto js = json::parse(inp_str);
             responce.Sensor = js.at("id");
             responce.Value = js.at("temperature_C");
@@ -12,7 +13,7 @@ bool Input::Get(DeviceResponce& responce) {
             return false;
         }
     } catch(...) {
-        string message = "Read input stream error. {" + inp_str + "}";
+        std::string message = "Read input stream error. {" + inp_str + "}";
         sd_journal_print(LOG_ERR, message.c_str());
         return true;
     }

@@ -62,6 +62,7 @@ float CurrentWeather::GetAverageMonthTemperature(int month) {
         case 11:
             avgMonth = -6.1f;
     }
+    return avgMonth;
 }
 float CurrentWeather::GetDailyShift(int hour) {
     if(hour < 4) {

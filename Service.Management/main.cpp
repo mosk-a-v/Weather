@@ -1,9 +1,9 @@
-#include<exception>
-#include<stdexcept>
+#include "Common.h"
+#include "GlobalWeather.h"
 #include "Management.h"
 #include "DirectConnectedInput.h"
-#include "TestManagement.h"
-using namespace std;
+#include "DS18B20Interface.h"
+#include "Input.h"
 
 //cat out.txt | projects/Service.Management/bin/ARM/Debug/Service.Management.out
 
@@ -16,21 +16,28 @@ int main(void) {
     Storage *storage = new Storage();
     GlobalWeather *gw = new GlobalWeather();
     Management *management = new Management(storage, gw);
-    DirectConnectedInput *dcQuery = new DirectConnectedInput();
-    dcQuery->Start(30, management);
+    ISensorInterface *boilerSensor = new DS18B20Interface(BOILER_SENSOR_ID, DirectBoiler);
+    ISensorInterface *indoorSensor = new DS18B20Interface(INDOOR_SENSOR_ID, DirectIndoor);
+    DirectConnectedInput *boilerQuery = new DirectConnectedInput(management, boilerSensor);
+    boilerQuery->Start();
+    DirectConnectedInput *indoorQuery = new DirectConnectedInput(management, indoorSensor);
+    indoorQuery->Start();
     sd_journal_print(LOG_INFO, "Service start.");
     while(Input::Get(deviceResponce)) {
         if(globalExceptionPtr) {
             try {
                 std::rethrow_exception(globalExceptionPtr);
             } catch(const std::exception &ex) {
-                stringstream message_stream;
-                message_stream << "Thread for query DirectConnected device exited with exception: " << ex.what() << endl;
+                std::stringstream message_stream;
+                message_stream << "Thread for query DirectConnected device exited with exception: " << ex.what() << std::endl;
                 sd_journal_print(LOG_ERR, message_stream.str().c_str());
                 globalExceptionPtr = nullptr;
-                dcQuery->~DirectConnectedInput();
-                dcQuery = new DirectConnectedInput();
-                dcQuery->Start(30, management);
+                boilerQuery->~DirectConnectedInput();
+                boilerQuery = new DirectConnectedInput(management, boilerSensor);
+                boilerQuery->Start();
+                indoorQuery->~DirectConnectedInput();
+                indoorQuery = new DirectConnectedInput(management, boilerSensor);
+                indoorQuery->Start();
             }
         }
         if(prevDeviceResponce == deviceResponce) continue;
@@ -43,7 +50,8 @@ int main(void) {
         }
     }
     sd_journal_print(LOG_ERR, "Input stream is empty. Service stop.");
-    dcQuery->~DirectConnectedInput();
+    boilerQuery->~DirectConnectedInput();
+    indoorQuery->~DirectConnectedInput();
     storage->~Storage();
     return EXIT_SUCCESS;
 #endif 

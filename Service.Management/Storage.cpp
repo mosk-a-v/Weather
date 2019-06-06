@@ -14,9 +14,9 @@ void Storage::SaveResponce(const DeviceResponce& responce) {
     }
 }
 
-void Storage::SaveCycleStatistics(CycleStatictics *cycleStat) {
+void Storage::SaveCycleStatistics(CycleStatictics *cycleStat, SensorValues *sensorValues) {
     try {
-        SaveCycleStatisticsInternal(cycleStat);
+        SaveCycleStatisticsInternal(cycleStat, sensorValues);
     } catch(sql::SQLException &e) {
         LogException(e);
         delete connection;
@@ -63,12 +63,12 @@ Storage::~Storage() {
 }
 
 void Storage::LogException(sql::SQLException &e) {
-    stringstream ss;
+    std::stringstream ss;
     ss << "# ERR: SQLException in " << __FILE__;
-    ss << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
+    ss << "(" << __FUNCTION__ << ") on line " << __LINE__ << std::endl;
     ss << "# ERR: " << e.what();
     ss << " (MySQL error code: " << e.getErrorCode();
-    ss << ", SQLState: " << e.getSQLState() << " )" << endl;
+    ss << ", SQLState: " << e.getSQLState() << " )" << std::endl;
     sd_journal_print(LOG_ERR, ss.str().c_str());
 }
 
@@ -80,7 +80,7 @@ void Storage::Connect() {
 
 void Storage::SaveResponceInternal(const DeviceResponce & responce) {
     sql::Statement *stmt = connection->createStatement();
-    stringstream ss;
+    std::stringstream ss;
     ss << "INSERT INTO `Temperature` (`Time`, `Value`, `Device`) VALUES ('" <<
         responce.Time << "', " <<
         responce.Value << ", " <<
@@ -89,29 +89,30 @@ void Storage::SaveResponceInternal(const DeviceResponce & responce) {
     delete stmt;
 }
 
-void Storage::SaveCycleStatisticsInternal(CycleStatictics * cycleStat) {
+void Storage::SaveCycleStatisticsInternal(CycleStatictics * cycleStat, SensorValues *sensorValues) {
     sql::Statement *stmt = connection->createStatement();
-    stringstream ss;
+    std::stringstream ss;
     time_t lt = cycleStat->CycleStart;
     auto local_field = *std::gmtime(&lt);
     local_field.tm_isdst = -1;
     time_t utc = std::mktime(&local_field);
 
     ss << "INSERT INTO `CycleStatistics` (`CycleStart`, `AvgIndoor`, `AvgOutdoor`, `AvgBoiler`, `Wind`, `Sun`, `BoilerRequired`, " <<
-        "`IsHeating`, `CycleLength`, `LastIndoor`, `LastOutdoor`, `LastBoiler`, `Result`)" <<
+        "`IsHeating`, `CycleLength`, `LastIndoor`, `LastOutdoor`, `LastBoiler`, `MaxDelta`, `Result`)" <<
         " VALUES (" <<
         "FROM_UNIXTIME(" << utc << "), " <<
-        cycleStat->AvgIndoor << ", " <<
-        cycleStat->AvgOutdoor << ", " <<
-        cycleStat->AvgBoiler << ", " <<
-        cycleStat->Wind << ", " <<
-        cycleStat->Sun << ", " <<
+        (sensorValues->GetLastSensorResponseTime(RadioIndoor) != DEFAULT_TIME ? sensorValues->GetAveragSensorValue(RadioIndoor) : -100) << ", " <<
+        (sensorValues->GetLastSensorResponseTime(RadioOutdoor) != DEFAULT_TIME ? sensorValues->GetAveragSensorValue(RadioOutdoor) : -100) << ", " <<
+        sensorValues->GetAveragSensorValue(RadioBoiler) << ", " <<
+        sensorValues->GetLastSensorValue(GlobalWind) << ", " <<
+        sensorValues->GetLastSensorValue(GlobalSun) << ", " <<
         cycleStat->BoilerRequired << ", " <<
         cycleStat->IsHeating << ", " <<
         cycleStat->CycleLength << ", " <<
-        cycleStat->LastIndoor << ", " <<
-        cycleStat->LastOutdoor << ", " <<
-        cycleStat->LastBoiler << ", " <<
+        sensorValues->GetLastSensorValue(RadioIndoor) << ", " <<
+        sensorValues->GetLastSensorValue(RadioOutdoor) << ", " <<
+        sensorValues->GetLastSensorValue(RadioBoiler) << ", " <<
+        cycleStat->MaxDelta << ", " <<
         (short)cycleStat->Result << ");";
     stmt->execute(ss.str());
     delete stmt;
