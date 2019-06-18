@@ -8,22 +8,19 @@
 
 //#define TEST
 
-static std::exception_ptr globalExceptionPtr = nullptr;
-
 class Management {
 private:
-    std::mutex mu;
-    std::vector<ControlValue> *controlTable;
-    std::vector<SettingValue> *settingsTable;
-    GlobalWeather *globalWeatherSystem;
-    Storage *storage;
+    std::vector<ControlValue> *controlTable = nullptr;
+    std::vector<SettingValue> *settingsTable = nullptr;
+    GlobalWeather *globalWeatherSystem = nullptr;;
+    Storage *storage = nullptr;
+    CycleInfo *cycleInfo = nullptr;
+    SensorValues *sensorValues = nullptr;
     float maxIndoorTemperature;
     float minIndoorTemperature;
     float maxOutdoorTemperature;
     float minOutdoorTemperature;
     std::string statusTemplate;
-    CycleInfo *cycleInfo = nullptr;
-    SensorValues *sensorValues = nullptr;
 protected:
     virtual std::time_t GetTime();
     float GetRequiredIndoorTemperature();
@@ -31,13 +28,11 @@ protected:
     
     float GetControlValue(int sun, int wind, float outdoorTemperature, float indoorTemperature);
     void BeginNewCycle(const time_t &now);
-    void SetupGPIO();
-    void SetGPIOValues();
     void ReadTemplate();
     void StoreGlobalWeather();
     SensorId GetBoilerSensorId();
-    float GetAvgIndoorTemperature();
-    float GetAvgOutdoorTemperature();
+    SensorId GetIndoorSensorId();
+    SensorId GetOutdoorSensorId();
 public:
     void ProcessResponce(const DeviceResponce& responce);
     Management(Storage *storage, GlobalWeather *globalWeatherSystem);

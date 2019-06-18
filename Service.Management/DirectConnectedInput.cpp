@@ -12,21 +12,22 @@ void DirectConnectedInput::Start() {
     };
     _execute.store(true, std::memory_order_release);
     _thd = std::thread([this]() {
-        sd_journal_print(LOG_INFO, "Thread for DirectConnectedInput started.");
+        std::stringstream ss;
+        ss << "Thread for sensor " << sensor->GetSensorId() << " started.";
+        sd_journal_print(LOG_INFO, ss.str().c_str());
         while(_execute.load(std::memory_order_acquire)) {
             try {
                 DeviceResponce deviceResponce;
                 if(Query(deviceResponce)) {
                     management->ProcessResponce(deviceResponce);
-                } else {
-                    std::stringstream ss;
-                    ss << "DirectConnectedInput. Sensor " << sensor->GetSensorId() << " value error.";
-                    sd_journal_print(LOG_ERR, ss.str().c_str());
                 }
                 std::this_thread::sleep_for(std::chrono::seconds(QUERY_INTERVAL));
-            } catch(...) {
-                globalExceptionPtr = std::current_exception();
-                break;
+            } catch(const std::exception &e) {
+                std::stringstream ss;
+                ss << "Thread for sensor " << sensor->GetSensorId() << " exception.";
+                ss << e.what();
+                sd_journal_print(LOG_INFO, ss.str().c_str());
+
             }
         }
     });
@@ -46,7 +47,7 @@ bool DirectConnectedInput::Query(DeviceResponce& responce) {
             std::this_thread::sleep_for(std::chrono::seconds(READ_WAIT));
             value = sensor->Read();
             retry++;
-        } while((value < 0 || value > 85) && retry < 3);
+        } while((value < -55 || value > 125) && retry < 3);
         if(retry >= 3) {
             return false;
         }

@@ -1,7 +1,5 @@
 #include "GlobalWeather.h"
 
-std::string GlobalWeather::Response;
-
 CurrentWeather* GlobalWeather::GetWeather() {
     CurrentWeather *weather = new CurrentWeather();
     weather->IsServiceError = true;
@@ -10,7 +8,7 @@ CurrentWeather* GlobalWeather::GetWeather() {
         if(!DownloadJSON(API_URL)) {
             return weather;
         }
-        auto js = json::parse(Response);
+        auto js = json::parse(GlobalWeatherResponse);
         auto wind = js.at("wind");
         auto main = js.at("main");
         auto clouds = js.at("clouds");
@@ -31,7 +29,7 @@ CurrentWeather* GlobalWeather::GetWeather() {
         weather->IsServiceError = false;
     } catch(const std::exception &e) {
         std::stringstream ss;
-        ss << "Openweathermap responce read exception." << e.what();
+        ss << "Openweathermap responce read exception." << e.what() << GlobalWeatherResponse;
         sd_journal_print(LOG_ERR, ss.str().c_str());
     }
     return weather;
@@ -42,7 +40,7 @@ bool GlobalWeather::DownloadJSON(std::string URL) {
     struct curl_slist *headers = NULL;
     std::ostringstream oss;
     bool result;
-    Response.clear();
+    GlobalWeatherResponse.clear();
     headers = curl_slist_append(headers, "Accept: application/json");
     headers = curl_slist_append(headers, "Content-Type: application/json");
     headers = curl_slist_append(headers, "charsets: utf-8");
@@ -53,7 +51,7 @@ bool GlobalWeather::DownloadJSON(std::string URL) {
         curl_easy_setopt(curl, CURLOPT_URL, URL.c_str());
         curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Writer);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &Response);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &GlobalWeatherResponse);
         res = curl_easy_perform(curl);
         curl_slist_free_all(headers);
         headers = NULL;

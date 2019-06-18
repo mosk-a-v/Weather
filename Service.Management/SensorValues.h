@@ -1,6 +1,5 @@
 #pragma once
 #include "Common.h"
-#include "Utils.h"
 
 class SensorValues {
     std::map<int, int> sensorIndex;
@@ -12,10 +11,12 @@ class SensorValues {
 public: 
     SensorValues();
     ~SensorValues();
-    float GetAveragSensorValue(SensorId id);
+    float GetAverageSensorValue(SensorId id);
     float GetLastSensorValue(SensorId id);
     time_t GetLastSensorResponseTime(SensorId id);
     void AddSensorValue(SensorId id, float value, time_t time);
     std::string ToString(SensorId id);
+    std::string GetSensorColumns();
+    std::string GetSensorValues();
 };
 

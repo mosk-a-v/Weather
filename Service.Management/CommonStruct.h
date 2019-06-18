@@ -10,14 +10,18 @@ enum CycleResult {
 enum SensorId {
     Undefined = 0,
     RadioOutdoor = 113,
-    RadioIndoor = 150,
+    RadioBedroom = 150,
     RadioBoiler = 179,
-    DirectBoiler = 9000,
-    DirectIndoor = 9100,
-    GlobalSun = 20000,
-    GlobalWind = 20001
+    RadioLounge = 69,
+    RadioMansard = 134,
+    RadioStudy = 12,
+    DirectBoiler = 901,
+    DirectIndoor = 902,
+    DirectOtdoor = 903,
+    GlobalSun = 1000,
+    GlobalWind = 1001,
+    GlobalOutdoor = 1002
 };
-const SensorId Sensors[] = { RadioOutdoor, RadioIndoor, RadioBoiler, DirectBoiler, DirectIndoor, GlobalSun, GlobalWind };
 
 struct ControlValue {
 public:

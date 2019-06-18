@@ -1,33 +1,12 @@
 ﻿#include "TemplateUtils.h"
 
-std::string TemplateUtils::GetSensorValue(SensorValues *sensorValues, SensorId sensorId) {
-    float lastValue = sensorValues->GetLastSensorValue(sensorId);
-    if(lastValue == DEFAULT_TEMPERATURE) {
-        return "---";
-    } else {
-        std::stringstream ss;
-        ss << lastValue << " (" << Utils::FormatTime(sensorValues->GetLastSensorResponseTime(sensorId)) << ")"
-            << " [" << sensorValues->GetAveragSensorValue(sensorId) << ")]";
-        return ss.str();
-    }
-}
-
-std::string TemplateUtils::GetAllSensorValues(SensorValues * sensorValues) {
-    std::stringstream ss;
-    for(const auto& s : Sensors) {
-        SensorId sensorId = (SensorId)s;
-        ss << sensorId << ": " << GetSensorValue(sensorValues, sensorId) << ". ";
-    }
-    return ss.str();
-}
-
 void TemplateUtils::WriteCurrentStatus(SensorValues *sensorValues, CycleInfo *cycle, const std::string statusTemplate, const time_t & now) {
     try {
         std::ofstream statusStream;
         statusStream.open(OUTPUT_FILE_NAME, std::ofstream::out | std::ofstream::trunc);
         if(statusTemplate.length() < 10) {
             CycleStatictics *cycleStat = cycle->GetStatictics();
-            statusStream << "InA:" << GetSensorValue(sensorValues, RadioIndoor) << "; Out: " << GetSensorValue(sensorValues, RadioOutdoor) << "; BA: " << GetSensorValue(sensorValues, RadioBoiler) <<
+            statusStream << "InA:" << sensorValues->ToString(RadioBedroom) << "; Out: " << sensorValues->ToString(RadioOutdoor) << "; BA: " << sensorValues->ToString(RadioBoiler) <<
                 "; BR: " << cycleStat->BoilerRequired << "; Delta: " << cycleStat->Delta << "; Status: " << cycleStat->IsHeating << std::endl;
             delete cycleStat;
         } else {
@@ -54,7 +33,7 @@ std::string TemplateUtils::FillTemplate(SensorValues *sensorValues, CycleInfo *c
         std::string paramName = statusTemplate.substr(paramStart + 1, paramEnd - paramStart - 1);
         try {
             int sensorId = (SensorId)std::stoi(paramName);
-            std::string value = GetSensorValue(sensorValues, (SensorId)sensorId);
+            std::string value = sensorValues->ToString((SensorId)sensorId);
             if(value.length() > 1) {
                 ss << value;
             } else {
@@ -71,6 +50,12 @@ std::string TemplateUtils::FillTemplate(SensorValues *sensorValues, CycleInfo *c
                 ss << cycleStat->IsBoilerOn;
             } else if(paramName == "periodType") {
                 ss << (cycleStat->BoilerRequired == DEFAULT_TEMPERATURE ? "Запуск" : (cycleStat->IsHeating ? "Нагрев" : "Охлаждение"));
+            } else if(paramName == "requiredBoiler") {
+                if(cycleStat->BoilerRequired == DEFAULT_TEMPERATURE) {
+                    ss << "---";
+                } else {
+                    ss << cycleStat->BoilerRequired;
+                }
             } else {
                 ss << "Wrong Parameter Name";
             }

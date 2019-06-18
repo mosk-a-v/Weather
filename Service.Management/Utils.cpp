@@ -53,3 +53,16 @@ float Utils::GetWindAdjust(int wind) {
     else
         return 4;
 }
+
+void Utils::SetupGPIO() {
+    wiringPiSetupGpio();
+    pinMode(BOILER_STATUS_PIN, OUTPUT);
+    pinMode(SENSOR_POWER_PIN, OUTPUT);
+    digitalWrite(BOILER_STATUS_PIN, true);
+    digitalWrite(SENSOR_POWER_PIN, false);
+}
+
+void Utils::SetGPIOValues(int pin, bool value) {
+    std::lock_guard<std::mutex> lock(gpio_lock);
+    digitalWrite(pin, value);
+}

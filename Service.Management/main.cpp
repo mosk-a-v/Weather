@@ -7,6 +7,31 @@
 
 //cat out.txt | projects/Service.Management/bin/ARM/Debug/Service.Management.out
 
+std::mutex management_lock;
+std::mutex sensor_power_lock;
+std::mutex gpio_lock;
+std::string GlobalWeatherResponse;
+
+DirectConnectedInput **sensors = new DirectConnectedInput*[DIRECT_SENSORS_COUNT];
+
+void StartSensorThreads(Management *management) {
+    sensors[0] = new DirectConnectedInput(management, new DS18B20Interface(BOILER_SENSOR_ID, DirectBoiler, 1, 0));
+    sensors[1] = new DirectConnectedInput(management, new DS18B20Interface(INDOOR_SENSOR_ID, DirectIndoor, 1, 0));
+    sensors[2] = new DirectConnectedInput(management, new DS18B20Interface(OUTDOOR_SENSOR_ID, DirectOtdoor, 1, 0));
+    for(int i = 0; i < DIRECT_SENSORS_COUNT; i++) {
+        if(sensors[i] != nullptr) {
+            sensors[i]->Start();
+        }
+    }
+}
+void StopSensorThreads() {
+    for(int i = 0; i < DIRECT_SENSORS_COUNT; i++) {
+        if(sensors[i] != nullptr) {
+            sensors[i]->~DirectConnectedInput();
+        }
+    }
+}
+
 int main(void) {
 #ifdef TEST
     TestAll();
@@ -16,43 +41,24 @@ int main(void) {
     Storage *storage = new Storage();
     GlobalWeather *gw = new GlobalWeather();
     Management *management = new Management(storage, gw);
-    ISensorInterface *boilerSensor = new DS18B20Interface(BOILER_SENSOR_ID, DirectBoiler);
-    ISensorInterface *indoorSensor = new DS18B20Interface(INDOOR_SENSOR_ID, DirectIndoor);
-    DirectConnectedInput *boilerQuery = new DirectConnectedInput(management, boilerSensor);
-    boilerQuery->Start();
-    DirectConnectedInput *indoorQuery = new DirectConnectedInput(management, indoorSensor);
-    indoorQuery->Start();
+    StartSensorThreads(management);
     sd_journal_print(LOG_INFO, "Service start.");
     while(Input::Get(deviceResponce)) {
-        if(globalExceptionPtr) {
-            try {
-                std::rethrow_exception(globalExceptionPtr);
-            } catch(const std::exception &ex) {
-                std::stringstream message_stream;
-                message_stream << "Thread for query DirectConnected device exited with exception: " << ex.what() << std::endl;
-                sd_journal_print(LOG_ERR, message_stream.str().c_str());
-                globalExceptionPtr = nullptr;
-                boilerQuery->~DirectConnectedInput();
-                boilerQuery = new DirectConnectedInput(management, boilerSensor);
-                boilerQuery->Start();
-                indoorQuery->~DirectConnectedInput();
-                indoorQuery = new DirectConnectedInput(management, boilerSensor);
-                indoorQuery->Start();
-            }
-        }
-        if(prevDeviceResponce == deviceResponce) continue;
-        storage->SaveResponce(deviceResponce);
-        prevDeviceResponce = deviceResponce;
         try {
+            if(prevDeviceResponce == deviceResponce) {
+                continue;
+            }
+            //storage->SaveResponce(deviceResponce);
+            prevDeviceResponce = deviceResponce;
             management->ProcessResponce(deviceResponce);
         } catch(...) {
             sd_journal_print(LOG_ERR, "ProcessResponce error");
         }
     }
     sd_journal_print(LOG_ERR, "Input stream is empty. Service stop.");
-    boilerQuery->~DirectConnectedInput();
-    indoorQuery->~DirectConnectedInput();
+    StopSensorThreads();
     storage->~Storage();
+    management->~Management();
     return EXIT_SUCCESS;
 #endif 
 }

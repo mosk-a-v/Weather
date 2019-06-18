@@ -6,10 +6,17 @@ int SensorValues::GetSensorIndex(SensorId id) {
 
 SensorValues::SensorValues() {
     sensorIndex[RadioOutdoor] = 0;
-    sensorIndex[RadioIndoor] = 1;
-    sensorIndex[RadioBoiler] = 2;
-    sensorIndex[DirectBoiler] = 3;
-    sensorIndex[DirectIndoor] = 4;
+    sensorIndex[RadioBoiler] = 1;
+    sensorIndex[RadioBedroom] = 2;
+    sensorIndex[RadioLounge] = 3;
+    sensorIndex[RadioMansard] = 4;
+    sensorIndex[RadioStudy] = 5;
+    sensorIndex[DirectBoiler] = 6;
+    sensorIndex[DirectIndoor] = 7;
+    sensorIndex[DirectOtdoor] = 8;
+    sensorIndex[GlobalSun] = 9;
+    sensorIndex[GlobalWind] = 10;
+    sensorIndex[GlobalOutdoor] = 11;
 
     for(int i = 0; i < SENSORS_COUNT; i++) {
         lastSensorValues[i] = DEFAULT_TEMPERATURE;
@@ -20,13 +27,12 @@ SensorValues::SensorValues() {
 }
 
 SensorValues::~SensorValues() {
-    sensorIndex.~map();
 }
 
-float SensorValues::GetAveragSensorValue(SensorId id) {
+float SensorValues::GetAverageSensorValue(SensorId id) {
     int sensorIndex = GetSensorIndex(id);
-    return (lastSensorResponseTime[sensorIndex] == DEFAULT_TIME) ?
-        lastSensorResponseTime[sensorIndex] : avgSensorValues[sensorIndex] /
+    return (lastSensorResponseTime[sensorIndex] == firstSensorResponseTime[sensorIndex]) ?
+        lastSensorValues[sensorIndex] : avgSensorValues[sensorIndex] /
         (lastSensorResponseTime[sensorIndex] - firstSensorResponseTime[sensorIndex]);
 }
 
@@ -45,7 +51,6 @@ void SensorValues::AddSensorValue(SensorId id, float value, time_t time) {
     if(value == DEFAULT_TEMPERATURE) {
         return;
     }
-    lastSensorResponseTime[sensorIndex] = value;
     if(avgSensorValues[sensorIndex] == DEFAULT_TEMPERATURE) {
         firstSensorResponseTime[sensorIndex] = time;
         avgSensorValues[sensorIndex] = value;
@@ -53,10 +58,60 @@ void SensorValues::AddSensorValue(SensorId id, float value, time_t time) {
         avgSensorValues[sensorIndex] += (time - lastSensorResponseTime[sensorIndex]) * value;
     }
     lastSensorResponseTime[sensorIndex] = time;
+    lastSensorValues[sensorIndex] = value;
 }
 
 std::string SensorValues::ToString(SensorId id) {
+    float lastValue = GetLastSensorValue(id);
+    if(lastValue == DEFAULT_TEMPERATURE) {
+        return "---";
+    } else {
+        std::stringstream ss;
+        ss << lastValue << " (" << Utils::FormatTime(GetLastSensorResponseTime(id)) << ")"
+            << " [" << GetAverageSensorValue(id) << "]";
+        return ss.str();
+    }
+}
+
+std::string SensorValues::GetSensorColumns() {
     std::stringstream ss;
-    ss << GetLastSensorValue(id) << " [" << Utils::FormatTime(GetLastSensorResponseTime(id)) << "] (" << GetAveragSensorValue(id) << ")";
+    ss << "`AvgRadioOutdoor`, `LastRadioOutdoor`" <<
+        ", `AvgRadioBoiler`, `LastRadioBoiler`" <<
+        ", `AvgRadioBedroom`, `LastRadioBedroom`" <<
+        ", `AvgRadioLounge`, `LastRadioLounge`" <<
+        ", `AvgRadioMansard`, `LastRadioMansard`" <<
+        ", `AvgRadioStudy`, `LastRadioStudy`" <<
+        ", `AvgDirectBoiler`, `LastDirectBoiler`" <<
+        ", `AvgDirectIndoor`, `LastDirectIndoor`" <<
+        ", `AvgDirectOtdoor`, `LastDirectOtdoor`" <<
+        ", `GlobalSun`" <<
+        ", `GlobalWind`" <<
+        ", `GlobalOutdoor`";
+    return ss.str();
+}
+
+std::string SensorValues::GetSensorValues() {
+    std::stringstream ss;
+    ss << GetAverageSensorValue(RadioOutdoor) << ", " <<
+        GetLastSensorValue(RadioOutdoor) << ", " <<
+        GetAverageSensorValue(RadioBoiler) << ", " <<
+        GetAverageSensorValue(RadioBoiler) << ", " <<
+        GetAverageSensorValue(RadioBedroom) << ", " <<
+        GetAverageSensorValue(RadioBedroom) << ", " <<
+        GetAverageSensorValue(RadioLounge) << ", " <<
+        GetAverageSensorValue(RadioLounge) << ", " <<
+        GetAverageSensorValue(RadioMansard) << ", " <<
+        GetAverageSensorValue(RadioMansard) << ", " <<
+        GetAverageSensorValue(RadioStudy) << ", " <<
+        GetAverageSensorValue(RadioStudy) << ", " <<
+        GetAverageSensorValue(DirectBoiler) << ", " <<
+        GetAverageSensorValue(DirectBoiler) << ", " <<
+        GetAverageSensorValue(DirectIndoor) << ", " <<
+        GetAverageSensorValue(DirectIndoor) << ", " <<
+        GetAverageSensorValue(DirectOtdoor) << ", " <<
+        GetAverageSensorValue(DirectOtdoor) << ", " <<
+        GetAverageSensorValue(GlobalSun) << ", " <<
+        GetAverageSensorValue(GlobalWind) << ", " <<
+        GetAverageSensorValue(GlobalOutdoor);
     return ss.str();
 }

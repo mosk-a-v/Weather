@@ -97,23 +97,17 @@ void Storage::SaveCycleStatisticsInternal(CycleStatictics * cycleStat, SensorVal
     local_field.tm_isdst = -1;
     time_t utc = std::mktime(&local_field);
 
-    ss << "INSERT INTO `CycleStatistics` (`CycleStart`, `AvgIndoor`, `AvgOutdoor`, `AvgBoiler`, `Wind`, `Sun`, `BoilerRequired`, " <<
-        "`IsHeating`, `CycleLength`, `LastIndoor`, `LastOutdoor`, `LastBoiler`, `MaxDelta`, `Result`)" <<
+    ss << "INSERT INTO `CycleStatistics` (`CycleStart`, `BoilerRequired`, `IsHeating`, `CycleLength`, `Result`, `MaxDelta`, `Delta`, " <<
+        sensorValues->GetSensorColumns() << ")" <<
         " VALUES (" <<
         "FROM_UNIXTIME(" << utc << "), " <<
-        (sensorValues->GetLastSensorResponseTime(RadioIndoor) != DEFAULT_TIME ? sensorValues->GetAveragSensorValue(RadioIndoor) : -100) << ", " <<
-        (sensorValues->GetLastSensorResponseTime(RadioOutdoor) != DEFAULT_TIME ? sensorValues->GetAveragSensorValue(RadioOutdoor) : -100) << ", " <<
-        sensorValues->GetAveragSensorValue(RadioBoiler) << ", " <<
-        sensorValues->GetLastSensorValue(GlobalWind) << ", " <<
-        sensorValues->GetLastSensorValue(GlobalSun) << ", " <<
         cycleStat->BoilerRequired << ", " <<
         cycleStat->IsHeating << ", " <<
         cycleStat->CycleLength << ", " <<
-        sensorValues->GetLastSensorValue(RadioIndoor) << ", " <<
-        sensorValues->GetLastSensorValue(RadioOutdoor) << ", " <<
-        sensorValues->GetLastSensorValue(RadioBoiler) << ", " <<
+        (short)cycleStat->Result << ", " <<
         cycleStat->MaxDelta << ", " <<
-        (short)cycleStat->Result << ");";
+        cycleStat->Delta << ", " <<
+        sensorValues->GetSensorValues() << ");";
     stmt->execute(ss.str());
     delete stmt;
 }

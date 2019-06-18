@@ -69,10 +69,15 @@ void CycleInfo::EndCycle(CycleResult result, const time_t & now) {
     this->result = result;
 }
 void CycleInfo::ProcessBoilerTemperature(float value, const time_t& now) {
-    if(requiredBoilerTemperature == DEFAULT_TEMPERATURE || isCycleEnd) {
+    if(!IsStartingMode() && !isCycleEnd) {
+        CalculateDelta(value, now);
+    }
+    lastBoilerTemperature = value;
+    lastBoilerResponceTime = now;
+    DetectComplitingStartMode(now);
+    if(isCycleEnd) {
         return;
     }
-    CalculateDelta(value, now);
     if(now - cycleStartTime < MIN_CYCLE_TIME) {
         return;
     }
@@ -125,12 +130,12 @@ CycleStatictics* CycleInfo::GetStatictics() {
     result->Delta = delta;
     return result;
 }
-CycleInfo::CycleInfo(bool isHeating, float requiredBoilerTemperature, float currentBoilerTemperature, const time_t& now) {    
+CycleInfo::CycleInfo(bool isHeating, float requiredBoilerTemperature, float currentBoilerTemperature, time_t currentBoilerResponceTime, const time_t& now) {
     this->cycleStartTime = now;
     this->requiredBoilerTemperature = requiredBoilerTemperature;
     this->isHeating = isHeating;
-    this->lastBoilerResponceTime = this->cycleStartTime;
+    this->lastBoilerResponceTime = currentBoilerResponceTime;
+    this->lastBoilerTemperature = currentBoilerTemperature;
 }
 
-CycleInfo::~CycleInfo() {
-}
+CycleInfo::~CycleInfo() {}
