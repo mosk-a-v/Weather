@@ -9,4 +9,5 @@ public:
     static float GetWindAdjust(int wind);
     static void SetupGPIO();
     static void SetGPIOValues(int pin, bool value);
+    static std::time_t GetTime();
 };

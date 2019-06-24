@@ -9,8 +9,10 @@
 #define DEFAULT_TIME 0
 #define MAX_TEMPERATURE_DEVIATION 4
 #define OUTPUT_FILE_NAME "/var/www/html/index.html"
-#define READ_WAIT 10
-#define QUERY_INTERVAL 60
+#define READ_WAIT 5
+#define QUERY_INTERVAL 30
+#define RESET_WAIT_INTERVAL 2
+#define RESET_TIMEOUT 600
 #define	W1_PREFIX	"/sys/bus/w1/devices/28-"
 #define	W1_POSTFIX	"/w1_slave"
 #define API_URL "https://api.openweathermap.org/data/2.5/weather?id=480562&units=metric&appid=a626320fe32f14e991091b0839149783"

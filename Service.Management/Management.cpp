@@ -14,7 +14,7 @@ Management::Management(Storage *storage, GlobalWeather *globalWeatherSystem) {
     this->minOutdoorTemperature = min_max_outdoor.first->Outdoor;
     this->maxOutdoorTemperature = min_max_outdoor.second->Outdoor;
     this->sensorValues = new SensorValues();
-    this->cycleInfo = new CycleInfo(false, DEFAULT_TEMPERATURE, DEFAULT_TEMPERATURE, GetTime(), GetTime());
+    this->cycleInfo = new CycleInfo(false, DEFAULT_TEMPERATURE, DEFAULT_TEMPERATURE, Utils::GetTime(), Utils::GetTime());
 #ifndef TEST
     Utils::SetupGPIO();
     ReadTemplate();
@@ -23,15 +23,15 @@ Management::Management(Storage *storage, GlobalWeather *globalWeatherSystem) {
 }
 void Management::ProcessResponce(const DeviceResponce& responce) {
     std::lock_guard<std::mutex> lock(management_lock);
-    time_t now = GetTime();
+    time_t now = Utils::GetTime();
     sensorValues->AddSensorValue(responce.Sensor, responce.Value, now);
     if(responce.Sensor == GetBoilerSensorId()) {
         cycleInfo->ProcessBoilerTemperature(responce.Value, now);
+        Utils::SetGPIOValues(BOILER_STATUS_PIN, !cycleInfo->IsBoilerOn());
+        if(cycleInfo->IsCycleEnd()) {
+            BeginNewCycle(now);
+        }
     }
-    if(cycleInfo->IsCycleEnd()) {
-        BeginNewCycle(now);
-    }
-    Utils::SetGPIOValues(BOILER_STATUS_PIN, !cycleInfo->IsBoilerOn());
     TemplateUtils::WriteCurrentStatus(sensorValues, cycleInfo, statusTemplate, now);
 }
 void Management::BeginNewCycle(const time_t &now) {
@@ -42,7 +42,7 @@ void Management::BeginNewCycle(const time_t &now) {
     sensorValues = new SensorValues();
     StoreGlobalWeather();
     float boilerTemperature = lastSensorValues->GetLastSensorValue(GetBoilerSensorId());
-    float outdoorTemperature = lastSensorValues->GetAverageSensorValue(GetOutdoorSensorId());
+    float outdoorTemperature = lastSensorValues->GetLastSensorValue(GetOutdoorSensorId());
     float indoorTemperature = lastSensorValues->GetAverageSensorValue(GetIndoorSensorId());
     time_t boilerResponseTime = lastSensorValues->GetLastSensorResponseTime(GetBoilerSensorId());
     float sun = sensorValues->GetLastSensorValue(GlobalSun);
@@ -63,7 +63,7 @@ void Management::BeginNewCycle(const time_t &now) {
 }
 float Management::GetRequiredIndoorTemperature() {
     const long TwoHourSeconds = 60 * 60 * 2;
-    std::time_t t = GetTime() + TwoHourSeconds;
+    std::time_t t = Utils::GetTime() + TwoHourSeconds;
     std::tm *requiredDateTime = std::localtime(&t);
 
     std::vector<SettingValue>::iterator result = std::find_if(settingsTable->begin(), settingsTable->end(),
@@ -139,9 +139,7 @@ float Management::GetControlValue(int sun, int wind, float outdoorTemperature, f
         return result->Boiler;
     }
 }
-std::time_t Management::GetTime() {
-    return std::time(0);
-}
+
 void Management::ReadTemplate() {
     try {
         std::ifstream templateStream;
@@ -158,7 +156,7 @@ void Management::ReadTemplate() {
     }
 }
 void Management::StoreGlobalWeather() {
-    time_t now = GetTime();
+    time_t now = Utils::GetTime();
     CurrentWeather *weather = globalWeatherSystem->GetWeather();
     sensorValues->AddSensorValue(GlobalSun, weather->GetSun(), now);
     sensorValues->AddSensorValue(GlobalWind, weather->GetWind(), now);

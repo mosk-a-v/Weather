@@ -11,6 +11,7 @@ std::mutex management_lock;
 std::mutex sensor_power_lock;
 std::mutex gpio_lock;
 std::string GlobalWeatherResponse;
+std::atomic<time_t> reset_time;
 
 DirectConnectedInput **sensors = new DirectConnectedInput*[DIRECT_SENSORS_COUNT];
 
@@ -27,7 +28,7 @@ void StartSensorThreads(Management *management) {
 void StopSensorThreads() {
     for(int i = 0; i < DIRECT_SENSORS_COUNT; i++) {
         if(sensors[i] != nullptr) {
-            sensors[i]->~DirectConnectedInput();
+            delete sensors[i];
         }
     }
 }
@@ -36,6 +37,7 @@ int main(void) {
 #ifdef TEST
     TestAll();
 #else
+    reset_time = Utils::GetTime();
     DeviceResponce deviceResponce;
     DeviceResponce prevDeviceResponce;
     Storage *storage = new Storage();
@@ -57,8 +59,8 @@ int main(void) {
     }
     sd_journal_print(LOG_ERR, "Input stream is empty. Service stop.");
     StopSensorThreads();
-    storage->~Storage();
-    management->~Management();
+    delete storage;
+    delete management;
     return EXIT_SUCCESS;
 #endif 
 }

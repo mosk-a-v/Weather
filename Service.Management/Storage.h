@@ -6,7 +6,7 @@ class Storage {
 private:
     sql::Driver *driver;
     sql::Connection *connection;
-    void LogException(sql::SQLException &e);
+    void LogException(std::exception &e);
     void Connect();
     void SaveResponceInternal(const DeviceResponce& responce);
     void SaveCycleStatisticsInternal(CycleStatictics *cycleStat, SensorValues *sensorValues);

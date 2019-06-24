@@ -95,21 +95,21 @@ std::string SensorValues::GetSensorValues() {
     ss << GetAverageSensorValue(RadioOutdoor) << ", " <<
         GetLastSensorValue(RadioOutdoor) << ", " <<
         GetAverageSensorValue(RadioBoiler) << ", " <<
-        GetAverageSensorValue(RadioBoiler) << ", " <<
+        GetLastSensorValue(RadioBoiler) << ", " <<
         GetAverageSensorValue(RadioBedroom) << ", " <<
-        GetAverageSensorValue(RadioBedroom) << ", " <<
+        GetLastSensorValue(RadioBedroom) << ", " <<
         GetAverageSensorValue(RadioLounge) << ", " <<
-        GetAverageSensorValue(RadioLounge) << ", " <<
+        GetLastSensorValue(RadioLounge) << ", " <<
         GetAverageSensorValue(RadioMansard) << ", " <<
-        GetAverageSensorValue(RadioMansard) << ", " <<
+        GetLastSensorValue(RadioMansard) << ", " <<
         GetAverageSensorValue(RadioStudy) << ", " <<
-        GetAverageSensorValue(RadioStudy) << ", " <<
+        GetLastSensorValue(RadioStudy) << ", " <<
         GetAverageSensorValue(DirectBoiler) << ", " <<
-        GetAverageSensorValue(DirectBoiler) << ", " <<
+        GetLastSensorValue(DirectBoiler) << ", " <<
         GetAverageSensorValue(DirectIndoor) << ", " <<
-        GetAverageSensorValue(DirectIndoor) << ", " <<
+        GetLastSensorValue(DirectIndoor) << ", " <<
         GetAverageSensorValue(DirectOtdoor) << ", " <<
-        GetAverageSensorValue(DirectOtdoor) << ", " <<
+        GetLastSensorValue(DirectOtdoor) << ", " <<
         GetAverageSensorValue(GlobalSun) << ", " <<
         GetAverageSensorValue(GlobalWind) << ", " <<
         GetAverageSensorValue(GlobalOutdoor);

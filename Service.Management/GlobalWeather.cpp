@@ -3,7 +3,7 @@
 CurrentWeather* GlobalWeather::GetWeather() {
     CurrentWeather *weather = new CurrentWeather();
     weather->IsServiceError = true;
-    weather->ResponceTime = std::time(0);
+    weather->ResponceTime = Utils::GetTime();
     try {
         if(!DownloadJSON(API_URL)) {
             return weather;

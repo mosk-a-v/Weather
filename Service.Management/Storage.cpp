@@ -7,7 +7,7 @@ Storage::Storage() {
 void Storage::SaveResponce(const DeviceResponce& responce) {
     try {
         SaveResponceInternal(responce);
-    } catch(sql::SQLException &e) {
+    } catch(std::exception &e) {
         LogException(e);
         delete connection;
         Connect();
@@ -17,7 +17,7 @@ void Storage::SaveResponce(const DeviceResponce& responce) {
 void Storage::SaveCycleStatistics(CycleStatictics *cycleStat, SensorValues *sensorValues) {
     try {
         SaveCycleStatisticsInternal(cycleStat, sensorValues);
-    } catch(sql::SQLException &e) {
+    } catch(std::exception &e) {
         LogException(e);
         delete connection;
         Connect();
@@ -62,13 +62,10 @@ Storage::~Storage() {
     delete connection;
 }
 
-void Storage::LogException(sql::SQLException &e) {
+void Storage::LogException(std::exception &e) {
     std::stringstream ss;
     ss << "# ERR: SQLException in " << __FILE__;
-    ss << "(" << __FUNCTION__ << ") on line " << __LINE__ << std::endl;
-    ss << "# ERR: " << e.what();
-    ss << " (MySQL error code: " << e.getErrorCode();
-    ss << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+    ss << "# ERR: " << e.what() << std::endl;
     sd_journal_print(LOG_ERR, ss.str().c_str());
 }
 

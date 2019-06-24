@@ -63,6 +63,10 @@ void Utils::SetupGPIO() {
 }
 
 void Utils::SetGPIOValues(int pin, bool value) {
-    std::lock_guard<std::mutex> lock(gpio_lock);
+    //std::lock_guard<std::mutex> lock(gpio_lock);
     digitalWrite(pin, value);
+}
+
+std::time_t Utils::GetTime() {
+    return std::time(0);
 }

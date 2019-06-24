@@ -22,7 +22,6 @@ private:
     float minOutdoorTemperature;
     std::string statusTemplate;
 protected:
-    virtual std::time_t GetTime();
     float GetRequiredIndoorTemperature();
     float GetRequiredBoilerTemperature(int sun, int wind, float outdoorTemperature, float indoorTemperature);
     

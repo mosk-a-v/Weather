@@ -4,23 +4,33 @@ void DS18B20Interface::FileOpen() {
     try {
         std::stringstream ss;
         ss << W1_PREFIX << deviceId << W1_POSTFIX;
-        file = fopen(ss.str().c_str(), "r");
+        errno = 0;
+        file = std::fopen(ss.str().c_str(), "r");
     } catch(...) {
         file = nullptr;
+    }
+    if(errno != 0) {
+        std::stringstream ss;
+        ss << "Sensor " << deviceId << " file open error (errno=" << errno << ").";;
+        sd_journal_print(LOG_ERR, ss.str().c_str());
     }
 }
 void DS18B20Interface::CloseFile() {
     try {
-        if(!file) {
-            fclose(file);
+        if(file != nullptr) {
+            std::fclose(file);
         }
     } catch(...) {}
     file = nullptr;
 }
 void DS18B20Interface::ResetSensor() {
     std::lock_guard<std::mutex> lock(sensor_power_lock);
+    if(Utils::GetTime() - reset_time.load(std::memory_order_acquire) < RESET_TIMEOUT) {
+        return;
+    }
+    reset_time.store(Utils::GetTime(), std::memory_order_release);
     Utils::SetGPIOValues(SENSOR_POWER_PIN, true);
-    std::this_thread::sleep_for(std::chrono::seconds(5));
+    std::this_thread::sleep_for(std::chrono::seconds(RESET_WAIT_INTERVAL));
     Utils::SetGPIOValues(SENSOR_POWER_PIN, false);
     std::stringstream ss;
     ss << "Sensor " << deviceId << " reset.";
@@ -28,7 +38,7 @@ void DS18B20Interface::ResetSensor() {
 }
 float DS18B20Interface::Read() {
     FileOpen();
-    if(!file) {
+    if(file == nullptr) {
         ResetSensor();
         return -9999;
     }
@@ -37,15 +47,16 @@ float DS18B20Interface::Read() {
         unsigned int tempInt;
         char crcConf[5];
         fscanf(file, "%*x %*x %*x %*x %*x %*x %*x %*x %*x : crc=%*x %s", crcConf);
-        if(strncmp(crcConf, "YES", 3) == 0) {
+        if(!feof(file) && !ferror(file) && strncmp(crcConf, "YES", 3) == 0) {
             fscanf(file, "%*x %*x %*x %*x %*x %*x %*x %*x %*x t=%5d", &tempInt);
-            temp = ((float)tempInt / 1000.0) * correctionCoefficient + shift;
+            if(!ferror(file)) {
+                temp = ((float)tempInt / 1000.0) * correctionCoefficient + shift;
+            }
         }
     } catch(const std::exception &e) {
         std::stringstream ss;
         ss << "Error reading from device " << deviceId << ". Detail: " << e.what();
         sd_journal_print(LOG_ERR, ss.str().c_str());
-        ResetSensor();
     }
     CloseFile();
     return temp;

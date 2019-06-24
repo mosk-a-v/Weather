@@ -1,7 +1,7 @@
 #include "CurrentWeather.h"
 
 int CurrentWeather::GetSun() {
-    std::time_t currentTime = std::time(0);
+    std::time_t currentTime = Utils::GetTime();
     if(IsServiceError) {
         tm tm = *localtime(&currentTime);
         if(tm.tm_hour > 10 && tm.tm_hour < 16) {
@@ -25,7 +25,7 @@ int CurrentWeather::GetWind() {
     }
 }
 float CurrentWeather::GetTemperature() {
-    std::time_t currentTime = std::time(0);
+    std::time_t currentTime = Utils::GetTime();
     if(IsServiceError) {
         tm tm = *localtime(&currentTime);
         float avgMonth = GetAverageMonthTemperature(tm.tm_mon);
