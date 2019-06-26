@@ -28,37 +28,14 @@ void CycleInfo::DetectLatency() {
     }
 }
 float CycleInfo::CalclateDeltaForLastPeriod(float boilerTemperature, const time_t& now) {
-    float result = 0;
     if(lastBoilerResponceTime == DEFAULT_TIME ||
        lastBoilerTemperature == DEFAULT_TEMPERATURE ||
+       boilerTemperature == DEFAULT_TEMPERATURE ||
        requiredBoilerTemperature == DEFAULT_TEMPERATURE) {
-        return result;
+        return 0;
     }
-    if(lastBoilerTemperature < boilerTemperature) {
-        if(boilerTemperature <= requiredBoilerTemperature) {
-            result -= (boilerTemperature - lastBoilerTemperature) * (now - lastBoilerResponceTime) / 2;
-        } else if(lastBoilerTemperature < requiredBoilerTemperature && boilerTemperature > requiredBoilerTemperature) {
-            float dx1 = (requiredBoilerTemperature - lastBoilerTemperature) * (now - lastBoilerResponceTime) / (boilerTemperature - lastBoilerTemperature);
-            result -= dx1 * (requiredBoilerTemperature - lastBoilerTemperature) / 2;
-            float dx2 = boilerTemperature - lastBoilerTemperature - dx1;
-            result += dx2 * (boilerTemperature - requiredBoilerTemperature) / 2;
-        } else {
-            result += (boilerTemperature - lastBoilerTemperature) * (now - lastBoilerResponceTime) / 2;
-        }
-    }
-    if(lastBoilerTemperature > boilerTemperature) {
-        if(boilerTemperature >= requiredBoilerTemperature) {
-            result += (lastBoilerTemperature - boilerTemperature) * (now - lastBoilerTemperature) / 2;
-        } else if(boilerTemperature < requiredBoilerTemperature && lastBoilerTemperature > requiredBoilerTemperature) {
-            float dx1 = (lastBoilerTemperature - requiredBoilerTemperature) * (now - lastBoilerResponceTime) / (lastBoilerTemperature - boilerTemperature);
-            result += dx1 * (lastBoilerTemperature - requiredBoilerTemperature) / 2;
-            float dx2 = lastBoilerTemperature - boilerTemperature - dx1;
-            result -= dx2 * (requiredBoilerTemperature - boilerTemperature) / 2;
-        } else {
-            result -= (lastBoilerTemperature - boilerTemperature) * (now - lastBoilerResponceTime) / 2;
-        }
-    }
-    return result;
+    return ((lastBoilerTemperature - requiredBoilerTemperature) + (boilerTemperature - requiredBoilerTemperature)) *
+        (now - lastBoilerResponceTime) / 2;
 }
 void CycleInfo::EndCycle(CycleResult result, const time_t & now) {
     if(this->isCycleEnd) {
@@ -69,15 +46,13 @@ void CycleInfo::EndCycle(CycleResult result, const time_t & now) {
     this->result = result;
 }
 void CycleInfo::ProcessBoilerTemperature(float value, const time_t& now) {
-    if(!IsStartingMode() && !isCycleEnd) {
-        CalculateDelta(value, now);
-    }
-    lastBoilerTemperature = value;
-    lastBoilerResponceTime = now;
-    DetectComplitingStartMode(now);
     if(isCycleEnd) {
         return;
     }
+    CalculateDelta(value, now);
+    lastBoilerTemperature = value;
+    lastBoilerResponceTime = now;
+    DetectComplitingStartMode(now);
     if(now - cycleStartTime < MIN_CYCLE_TIME) {
         return;
     }
@@ -90,9 +65,9 @@ void CycleInfo::ProcessBoilerTemperature(float value, const time_t& now) {
     } else if(value < (requiredBoilerTemperature - MAX_TEMPERATURE_DEVIATION) && !IsBoilerOn()) {
         EndCycle(TemperatureLimit, now);
     } else {
-        if(isHeating && delta >= 0) {
+        if(isHeating && delta > 0) {
             EndCycle(Normal, now);
-        } else if(!isHeating && delta <= 0) {
+        } else if(!isHeating && delta < 0) {
             EndCycle(Normal, now);
         } else {
             DetectLatency();
@@ -113,7 +88,11 @@ bool CycleInfo::IsBoilerOn() {
     if(IsStartingMode()) {
         return false;
     }
-    return (isLatencyPeriod || isCycleEnd) ? !isHeating : isHeating;
+    bool result = isLatencyPeriod ? !isHeating : isHeating;
+    if(result) {
+        sd_journal_print(LOG_INFO, "Boiler Is On!!!!!");
+    }
+    return result;
 }
 bool CycleInfo::IsCycleEnd() {
     return isCycleEnd;

@@ -11,6 +11,6 @@ public:
 
 class IntegerNumPunct : public std::numpunct<char> {
 protected:
-    virtual char_type do_thousands_sep() const { return ','; }
+    virtual char_type do_thousands_sep() const { return '`'; }
     virtual std::string do_grouping() const { return "\03"; }
 };
