@@ -17,8 +17,8 @@ DirectConnectedInput **sensors = new DirectConnectedInput*[DIRECT_SENSORS_COUNT]
 
 void StartSensorThreads(Management *management) {
     sensors[0] = new DirectConnectedInput(management, new DS18B20Interface(BOILER_SENSOR_ID, DirectBoiler, 1, 0));
-    sensors[1] = new DirectConnectedInput(management, new DS18B20Interface(INDOOR_SENSOR_ID, DirectIndoor, 1, 0));
-    sensors[2] = new DirectConnectedInput(management, new DS18B20Interface(OUTDOOR_SENSOR_ID, DirectOtdoor, 1, 0));
+    sensors[1] = new DirectConnectedInput(management, new DS18B20Interface(INDOOR_SENSOR_ID, DirectIndoor, 1, 1.5));
+    sensors[2] = new DirectConnectedInput(management, new DS18B20Interface(OUTDOOR_SENSOR_ID, DirectOtdoor, 1, 0.5));
     for(int i = 0; i < DIRECT_SENSORS_COUNT; i++) {
         if(sensors[i] != nullptr) {
             sensors[i]->Start();

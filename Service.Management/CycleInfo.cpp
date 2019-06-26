@@ -103,7 +103,7 @@ bool CycleInfo::IsStartingMode() {
     return requiredBoilerTemperature == DEFAULT_TEMPERATURE;
 }
 void CycleInfo::DetectComplitingStartMode(const time_t & now) {
-    if(IsStartingMode() && !isCycleEnd) {
+    if(IsStartingMode() && !isCycleEnd && (now - cycleStartTime) > QUERY_INTERVAL) {
         if(lastBoilerTemperature != DEFAULT_TEMPERATURE) {
             EndCycle(Starting, now);
         }

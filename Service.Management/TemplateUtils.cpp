@@ -1,6 +1,6 @@
 ﻿#include "TemplateUtils.h"
 
-void TemplateUtils::WriteCurrentStatus(SensorValues *sensorValues, CycleInfo *cycle, const std::string statusTemplate, const time_t & now) {
+void TemplateUtils::WriteCurrentStatus(SensorValues *sensorValues, CycleInfo *cycle, const std::string statusTemplate, char *additionalInfo, const time_t & now) {
     try {
         std::ofstream statusStream;
         statusStream.open(OUTPUT_FILE_NAME, std::ofstream::out | std::ofstream::trunc);
@@ -10,7 +10,7 @@ void TemplateUtils::WriteCurrentStatus(SensorValues *sensorValues, CycleInfo *cy
                 "; BR: " << cycleStat->BoilerRequired << "; Delta: " << cycleStat->Delta << "; Status: " << cycleStat->IsHeating << std::endl;
             delete cycleStat;
         } else {
-            statusStream << FillTemplate(sensorValues, cycle, statusTemplate, now);
+            statusStream << FillTemplate(sensorValues, cycle, statusTemplate, additionalInfo, now);
         }
         statusStream.close();
     } catch(std::exception e) {
@@ -18,10 +18,11 @@ void TemplateUtils::WriteCurrentStatus(SensorValues *sensorValues, CycleInfo *cy
     }
 }
 
-std::string TemplateUtils::FillTemplate(SensorValues *sensorValues, CycleInfo *cycle, const std::string statusTemplate, const time_t & now) {
+std::string TemplateUtils::FillTemplate(SensorValues *sensorValues, CycleInfo *cycle, const std::string statusTemplate, char *additionalInfo, const time_t & now) {
     std::stringstream ss;
     ss << std::fixed;
     ss.precision(1);
+    ss.imbue(std::locale(std::locale("ru_RU.utf8"), new IntegerNumPunct));
 
     CycleStatictics *cycleStat = cycle->GetStatictics();
     size_t paramStart = statusTemplate.find("%");
@@ -42,7 +43,6 @@ std::string TemplateUtils::FillTemplate(SensorValues *sensorValues, CycleInfo *c
         } catch(...) {
             if(paramName == "time") {
                 tm tm = *localtime(&now);
-                ss.imbue(std::locale("ru_RU.utf8"));
                 ss << std::put_time(&tm, "%c");
             } else if(paramName == "delta") {
                 ss << cycleStat->Delta << " (" << now - cycleStat->CycleStart << ")";
@@ -56,6 +56,8 @@ std::string TemplateUtils::FillTemplate(SensorValues *sensorValues, CycleInfo *c
                 } else {
                     ss << cycleStat->BoilerRequired;
                 }
+            } else if(paramName == "additionalInfo") {
+                ss << additionalInfo;
             } else {
                 ss << "Wrong Parameter Name";
             }

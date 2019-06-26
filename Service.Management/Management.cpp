@@ -15,6 +15,7 @@ Management::Management(Storage *storage, GlobalWeather *globalWeatherSystem) {
     this->maxOutdoorTemperature = min_max_outdoor.second->Outdoor;
     this->sensorValues = new SensorValues();
     this->cycleInfo = new CycleInfo(false, DEFAULT_TEMPERATURE, DEFAULT_TEMPERATURE, Utils::GetTime(), Utils::GetTime());
+    sprintf(additionalInfo, "");
 #ifndef TEST
     Utils::SetupGPIO();
     ReadTemplate();
@@ -25,14 +26,14 @@ void Management::ProcessResponce(const DeviceResponce& responce) {
     std::lock_guard<std::mutex> lock(management_lock);
     time_t now = Utils::GetTime();
     sensorValues->AddSensorValue(responce.Sensor, responce.Value, now);
-    if(responce.Sensor == GetBoilerSensorId()) {
+    if(responce.Sensor == boilerSensorId) {
         cycleInfo->ProcessBoilerTemperature(responce.Value, now);
         Utils::SetGPIOValues(BOILER_STATUS_PIN, !cycleInfo->IsBoilerOn());
-        if(cycleInfo->IsCycleEnd()) {
-            BeginNewCycle(now);
-        }
     }
-    TemplateUtils::WriteCurrentStatus(sensorValues, cycleInfo, statusTemplate, now);
+    if(cycleInfo->IsCycleEnd() && CanStartNewCycle()) {
+        BeginNewCycle(now);
+    }
+    TemplateUtils::WriteCurrentStatus(sensorValues, cycleInfo, statusTemplate, additionalInfo, now);
 }
 void Management::BeginNewCycle(const time_t &now) {
     CycleStatictics *lastCycleStat = cycleInfo->GetStatictics();
@@ -41,10 +42,11 @@ void Management::BeginNewCycle(const time_t &now) {
 
     sensorValues = new SensorValues();
     StoreGlobalWeather();
-    float boilerTemperature = lastSensorValues->GetLastSensorValue(GetBoilerSensorId());
-    float outdoorTemperature = lastSensorValues->GetLastSensorValue(GetOutdoorSensorId());
-    float indoorTemperature = lastSensorValues->GetAverageSensorValue(GetIndoorSensorId());
-    time_t boilerResponseTime = lastSensorValues->GetLastSensorResponseTime(GetBoilerSensorId());
+    SetBoilerSensorId(lastSensorValues);
+    float boilerTemperature = GetBoilerTemperature(lastSensorValues);
+    time_t boilerResponseTime = GetLastBoilerResponseTime(lastSensorValues);
+    float outdoorTemperature = GetOutdoorTemperature(lastSensorValues);
+    float indoorTemperature = GetIndoorTemperature(lastSensorValues);
     float sun = sensorValues->GetLastSensorValue(GlobalSun);
     float wind = sensorValues->GetLastSensorValue(GlobalWind);
 
@@ -52,10 +54,10 @@ void Management::BeginNewCycle(const time_t &now) {
     float requiredBoilerTemperature = GetRequiredBoilerTemperature(sun, wind, outdoorTemperature, requiredIndoorTemperature);
     float adjustBoilerTemperature = Utils::GetAdjustBoilerTemperature(indoorTemperature, requiredIndoorTemperature, requiredBoilerTemperature);
     bool newCycleWillHeating = boilerTemperature <= adjustBoilerTemperature;
-    
+    sprintf(additionalInfo, "Boiler: %.2f; Outdoor: %.2f; Indoor: %.2f", boilerTemperature, outdoorTemperature, indoorTemperature);
+
     delete cycleInfo;
     cycleInfo = new CycleInfo(newCycleWillHeating, adjustBoilerTemperature, boilerTemperature, boilerResponseTime, now);
-    
     delete lastCycleStat;
     lastCycleStat = nullptr;
     delete lastSensorValues;
@@ -164,14 +166,57 @@ void Management::StoreGlobalWeather() {
     delete weather;
     weather = nullptr;
 }
-SensorId Management::GetBoilerSensorId() {
-    return DirectBoiler;
+void Management::SetBoilerSensorId(SensorValues * sensorValues) {
+    boilerSensorId = (sensorValues->GetLastSensorResponseTime(DirectBoiler) != DEFAULT_TIME) ? DirectBoiler : RadioBoiler;
 }
-SensorId Management::GetIndoorSensorId() {
-    return RadioBedroom;
+bool Management::CanStartNewCycle() {
+    return GetIndoorTemperature(sensorValues) != DEFAULT_TEMPERATURE &&
+        GetOutdoorTemperature(sensorValues) != DEFAULT_TEMPERATURE &&
+        GetBoilerTemperature(sensorValues) != DEFAULT_TEMPERATURE;
 }
-SensorId Management::GetOutdoorSensorId() {
-    return RadioOutdoor;
+float Management::GetBoilerTemperature(SensorValues *sensorValues) {
+    /* RadioBoiler, DirectBoiler */
+    return (sensorValues->GetLastSensorResponseTime(DirectBoiler) != DEFAULT_TIME) ?
+        sensorValues->GetLastSensorValue(DirectBoiler) :
+        sensorValues->GetLastSensorValue(RadioBoiler);
+}
+time_t Management::GetLastBoilerResponseTime(SensorValues * sensorValues) {
+    return (sensorValues->GetLastSensorResponseTime(DirectBoiler) != DEFAULT_TIME) ?
+        sensorValues->GetLastSensorResponseTime(DirectBoiler) :
+        sensorValues->GetLastSensorResponseTime(RadioBoiler);
+}
+float Management::GetIndoorTemperature(SensorValues *sensorValues) {
+    /* RadioBedroom, RadioLounge, RadioMansard, RadioStudy, DirectIndoor */
+    float avg = 0;
+    int count = 0;
+    if(sensorValues->GetLastSensorResponseTime(RadioBedroom) != DEFAULT_TIME) {
+        avg += sensorValues->GetLastSensorValue(RadioBedroom);
+        count++;
+    }
+    if(sensorValues->GetLastSensorResponseTime(RadioLounge) != DEFAULT_TIME) {
+        avg += sensorValues->GetLastSensorValue(RadioLounge);
+        count++;
+    }
+    if(sensorValues->GetLastSensorResponseTime(RadioMansard) != DEFAULT_TIME) {
+        avg += sensorValues->GetLastSensorValue(RadioMansard);
+        count++;
+    }
+    if(sensorValues->GetLastSensorResponseTime(RadioStudy) != DEFAULT_TIME) {
+        avg += sensorValues->GetLastSensorValue(RadioStudy);
+        count++;
+    }
+    if(sensorValues->GetLastSensorResponseTime(DirectIndoor) != DEFAULT_TIME) {
+        avg += sensorValues->GetLastSensorValue(DirectIndoor);
+        count++;
+    }
+    return count != 0 ? (avg / count) : DEFAULT_TEMPERATURE;
+}
+float Management::GetOutdoorTemperature(SensorValues *sensorValues) {
+    /* RadioOutdoor, DirectOtdoor, GlobalOutdoor */
+    return (sensorValues->GetLastSensorResponseTime(DirectOtdoor) != DEFAULT_TIME) ?
+        sensorValues->GetAverageSensorValue(DirectOtdoor) :
+        ((sensorValues->GetLastSensorResponseTime(RadioOutdoor) != DEFAULT_TIME) ?
+         sensorValues->GetAverageSensorValue(RadioOutdoor) : sensorValues->GetAverageSensorValue(GlobalOutdoor));
 }
 Management::~Management() {
     if(settingsTable != nullptr) {
