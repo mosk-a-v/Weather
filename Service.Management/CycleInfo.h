@@ -22,7 +22,6 @@ class CycleInfo {
     void DetectLatency();
     void CalculateDelta(float boilerTemperature, const time_t& now);
     float CalclateDeltaForLastPeriod(float boilerTemperature, const time_t& now);
-    void EndCycle(CycleResult result, const time_t& now);
     void DetectComplitingStartMode(const time_t & now);
     bool IsStartingMode();
 public:
@@ -31,5 +30,7 @@ public:
     void ProcessBoilerTemperature(float value, const time_t& now);
     bool IsCycleEnd();
     bool IsBoilerOn();
+    time_t GetCycleLength(time_t now);
     CycleStatictics* GetStatictics();
+    void EndCycle(CycleResult result, const time_t& now);
 };

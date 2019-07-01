@@ -6,6 +6,7 @@
 #define MAX_DELTA_DEVIATION 30000
 #define MIN_CYCLE_TIME 90
 #define MAX_CYCLE_TIME 2000
+#define SENSOR_TIMEOUT 600
 #define DEFAULT_TIME 0
 #define MAX_TEMPERATURE_DEVIATION 4
 #define OUTPUT_FILE_NAME "/var/www/html/index.html"

@@ -4,7 +4,8 @@ enum CycleResult {
     Starting = 0,
     Normal = 1,
     TimeOut = 2,
-    TemperatureLimit = 3
+    TemperatureLimit = 3,
+    SensorError = 4
 };
 
 enum SensorId {

@@ -29,8 +29,11 @@ void Management::ProcessResponce(const DeviceResponce& responce) {
     if(responce.Sensor == boilerSensorId) {
         cycleInfo->ProcessBoilerTemperature(responce.Value, now);
         Utils::SetGPIOValues(BOILER_STATUS_PIN, !cycleInfo->IsBoilerOn());
+    } else if(sensorValues->GetLastSensorResponseTime(boilerSensorId) == DEFAULT_TEMPERATURE &&
+              cycleInfo->GetCycleLength(now) > SENSOR_TIMEOUT) {
+        cycleInfo->EndCycle(SensorError, now);
     }
-    if(cycleInfo->IsCycleEnd() && CanStartNewCycle()) {
+    if(cycleInfo->IsCycleEnd()) {
         BeginNewCycle(now);
     }
     TemplateUtils::WriteCurrentStatus(sensorValues, cycleInfo, statusTemplate, additionalInfo, now);
@@ -52,7 +55,8 @@ void Management::BeginNewCycle(const time_t &now) {
 
     float requiredIndoorTemperature = GetRequiredIndoorTemperature();
     float requiredBoilerTemperature = GetRequiredBoilerTemperature(sun, wind, outdoorTemperature, requiredIndoorTemperature);
-    float adjustBoilerTemperature = Utils::GetAdjustBoilerTemperature(indoorTemperature, requiredIndoorTemperature, requiredBoilerTemperature);
+    float adjustBoilerTemperature = indoorTemperature == DEFAULT_TEMPERATURE ? DEFAULT_TEMPERATURE :
+        Utils::GetAdjustBoilerTemperature(indoorTemperature, requiredIndoorTemperature, requiredBoilerTemperature);
     bool newCycleWillHeating = boilerTemperature <= adjustBoilerTemperature;
     sprintf(additionalInfo, "Boiler: %.2f; Outdoor: %.2f; Indoor: %.2f", boilerTemperature, outdoorTemperature, indoorTemperature);
 
