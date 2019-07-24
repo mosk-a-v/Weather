@@ -1,11 +1,12 @@
 #include "Input.h"
 
-bool Input::Get(DeviceResponce& responce) {
+bool Input::Get(DeviceResponce& responce, std::map<std::string, SensorId> *sensorsTable) {
     std::string inp_str;
     try {
         if(std::getline(std::cin, inp_str)) {
             auto js = json::parse(inp_str);
-            responce.Sensor = js.at("id");
+            int id = js.at("id");
+            responce.Sensor = sensorsTable->at(std::to_string(id));
             responce.Value = js.at("temperature_C");
             responce.Time = js.at("time");
             return true;

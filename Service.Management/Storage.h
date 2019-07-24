@@ -8,14 +8,13 @@ private:
     sql::Connection *connection;
     void LogException(std::exception &e);
     void Connect();
-    void SaveResponceInternal(const DeviceResponce& responce);
     void SaveCycleStatisticsInternal(CycleStatictics *cycleStat, SensorValues *sensorValues);
 public:
     Storage();
     ~Storage();
-    void SaveResponce(const DeviceResponce& responce);
     void SaveCycleStatistics(CycleStatictics *cycleStat, SensorValues *sensorValues);
     std::vector<ControlValue> *ReadControlTable();
     std::vector<SettingValue> *ReadSettingsTable();
+    std::map<std::string, SensorId>* ReadSensorsTable();
 };
 

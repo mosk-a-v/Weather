@@ -17,6 +17,7 @@ SensorValues::SensorValues() {
     sensorIndex[GlobalSun] = 9;
     sensorIndex[GlobalWind] = 10;
     sensorIndex[GlobalOutdoor] = 11;
+    sensorIndex[Undefined] = 12;
 
     for(int i = 0; i < SENSORS_COUNT; i++) {
         lastSensorValues[i] = DEFAULT_TEMPERATURE;

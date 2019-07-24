@@ -4,16 +4,6 @@ Storage::Storage() {
     Connect();
 }
 
-void Storage::SaveResponce(const DeviceResponce& responce) {
-    try {
-        SaveResponceInternal(responce);
-    } catch(std::exception &e) {
-        LogException(e);
-        delete connection;
-        Connect();
-    }
-}
-
 void Storage::SaveCycleStatistics(CycleStatictics *cycleStat, SensorValues *sensorValues) {
     try {
         SaveCycleStatisticsInternal(cycleStat, sensorValues);
@@ -58,6 +48,20 @@ std::vector<SettingValue>* Storage::ReadSettingsTable() {
     return result;
 }
 
+std::map<std::string, SensorId>* Storage::ReadSensorsTable() {
+    std::map<std::string, SensorId> *result = new std::map<std::string, SensorId>();
+    sql::Statement *stmt = connection->createStatement();
+    sql::ResultSet *resultSet = stmt->executeQuery("SELECT SensorId, SensorIdentifier FROM SensorTable;");
+    while(resultSet->next()) {
+        SensorId id = (SensorId)(resultSet->getInt("SensorId"));
+        std::string identifier = (resultSet->getString("SensorIdentifier")).asStdString();
+        result->insert(std::pair<std::string, SensorId>(identifier, id));
+    }
+    delete resultSet;
+    delete stmt;
+    return result;
+}
+
 Storage::~Storage() {
     delete connection;
 }
@@ -73,17 +77,6 @@ void Storage::Connect() {
     driver = get_driver_instance();
     connection = driver->connect(HOST, USER, PASSWORD);
     connection->setSchema(SCHEMA);
-}
-
-void Storage::SaveResponceInternal(const DeviceResponce & responce) {
-    sql::Statement *stmt = connection->createStatement();
-    std::stringstream ss;
-    ss << "INSERT INTO `Temperature` (`Time`, `Value`, `Device`) VALUES ('" <<
-        responce.Time << "', " <<
-        responce.Value << ", " <<
-        (int)responce.Sensor << ");";
-    stmt->execute(ss.str());
-    delete stmt;
 }
 
 void Storage::SaveCycleStatisticsInternal(CycleStatictics * cycleStat, SensorValues *sensorValues) {

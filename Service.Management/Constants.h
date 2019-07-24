@@ -2,7 +2,7 @@
 
 #define HALF_LIGHT_TIME 3000
 #define DEFAULT_TEMPERATURE -100
-#define DEFAULT_LATENCY 5
+#define DEFAULT_LATENCY 20
 #define MAX_DELTA_DEVIATION 30000
 #define MIN_CYCLE_TIME 90
 #define MAX_CYCLE_TIME 2000
@@ -26,6 +26,3 @@
 #define USER "root"
 #define PASSWORD "root_root"
 #define SCHEMA "weather"
-#define BOILER_SENSOR_ID "030797794e9d"
-#define INDOOR_SENSOR_ID "03069779b057"
-#define OUTDOOR_SENSOR_ID "01144ab139aa"

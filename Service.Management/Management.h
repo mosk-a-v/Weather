@@ -21,6 +21,7 @@ private:
     float minIndoorTemperature;
     float maxOutdoorTemperature;
     float minOutdoorTemperature;
+    float latency = DEFAULT_LATENCY;
     std::string statusTemplate;
     SensorId boilerSensorId = DirectBoiler;
 protected:
@@ -30,13 +31,12 @@ protected:
     void BeginNewCycle(const time_t &now);
     void ReadTemplate();
     void StoreGlobalWeather();
-    void SetBoilerSensorId(SensorValues *sensorValues);
-    bool CanStartNewCycle();
+    bool SetBoilerSensorId(SensorValues *sensorValues);
     float GetIndoorTemperature(SensorValues *sensorValues);
     float GetOutdoorTemperature(SensorValues *sensorValues);
-    float GetBoilerTemperature(SensorValues *sensorValues);
-    time_t GetLastBoilerResponseTime(SensorValues *sensorValues);
 public:
+    void LoadControlTable();
+    void LoadSettingsTable();
     void ProcessResponce(const DeviceResponce& responce);
     Management(Storage *storage, GlobalWeather *globalWeatherSystem);
     ~Management();

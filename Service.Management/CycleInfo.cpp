@@ -112,12 +112,20 @@ CycleStatictics* CycleInfo::GetStatictics() {
     result->Delta = delta;
     return result;
 }
-CycleInfo::CycleInfo(bool isHeating, float requiredBoilerTemperature, float currentBoilerTemperature, time_t currentBoilerResponceTime, const time_t& now) {
+CycleInfo::CycleInfo(bool isHeating, float requiredBoilerTemperature, float currentBoilerTemperature, time_t currentBoilerResponceTime, float latency, const time_t& now) {
     this->cycleStartTime = now;
     this->requiredBoilerTemperature = requiredBoilerTemperature;
     this->isHeating = isHeating;
     this->lastBoilerResponceTime = currentBoilerResponceTime;
     this->lastBoilerTemperature = currentBoilerTemperature;
+    this->latency = latency;
 }
-
+CycleInfo::CycleInfo(const time_t& now) {
+    this->cycleStartTime = now;
+    this->requiredBoilerTemperature = DEFAULT_TEMPERATURE;
+    this->isHeating = false;
+    this->lastBoilerResponceTime = DEFAULT_TIME;
+    this->lastBoilerTemperature = DEFAULT_TEMPERATURE;
+    this->latency = DEFAULT_LATENCY;
+}
 CycleInfo::~CycleInfo() {}
