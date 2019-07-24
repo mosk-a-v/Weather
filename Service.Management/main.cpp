@@ -59,7 +59,7 @@ int main(void) {
     sd_journal_print(LOG_INFO, "Service start.");
     while(Input::Get(deviceResponce, sensorsTable)) {
         try {
-            if(prevDeviceResponce == deviceResponce) {
+            if(prevDeviceResponce == deviceResponce || deviceResponce.Sensor == Undefined) {
                 continue;
             }
             prevDeviceResponce = deviceResponce;
