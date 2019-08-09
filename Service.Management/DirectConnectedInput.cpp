@@ -38,6 +38,8 @@ bool DirectConnectedInput::IsRunning() const noexcept {
 
 bool DirectConnectedInput::Query(DeviceResponce& responce) {
     responce.Value = 0;
+    responce.Battery = true;
+    responce.Humidity = -1;
     responce.Sensor = sensor->GetSensorId();
     for(int i = 0; i < 3; i++) {
         float value = sensor->Read();

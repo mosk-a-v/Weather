@@ -11,11 +11,28 @@ bool Input::Get(DeviceResponce& responce, std::map<std::string, SensorId> *senso
                 responce.Sensor = it->second;
                 responce.Value = js.at("temperature_C");
                 responce.Time = js.at("time");
+                responce.Humidity = -1;
+                auto battery = js.find("battery");
+                auto humidity = js.find("humidity");
+                if(battery != js.end()) {
+                    std::string status = *battery;
+                    responce.Battery = (status.find("OK") != std::string::npos);
+                } else {
+                    responce.Battery = true;
+                }
+                if(humidity != js.end()) {
+                    std::string mod = js.at("model");
+                    if(mod != "inFactory sensor") {
+                        responce.Humidity = *humidity;
+                    }
+                }
                 return true;
             } else {
                 responce.Sensor = Undefined;
                 responce.Value = DEFAULT_TEMPERATURE;
                 responce.Time = "";
+                responce.Humidity = -1;
+                responce.Battery = false;
                 return true;
             }
         } else {

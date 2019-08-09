@@ -39,7 +39,10 @@ void Management::LoadSettingsTable() {
 void Management::ProcessResponce(const DeviceResponce& responce) {
     std::lock_guard<std::mutex> lock(management_lock);
     time_t now = Utils::GetTime();
-    sensorValues->AddSensorValue(responce.Sensor, responce.Value, now);
+    sensorValues->AddSensorValue(responce.Sensor, responce.Value, !responce.Battery, now);
+    if(responce.Humidity > 0) {
+        sensorValues->AddSensorValue((SensorId)((int)responce.Sensor + 20), responce.Humidity, !responce.Battery, now);
+    }
     if(responce.Sensor == boilerSensorId) {
         cycleInfo->ProcessBoilerTemperature(responce.Value, now);
         Utils::SetGPIOValues(BOILER_STATUS_PIN, !cycleInfo->IsBoilerOn());
@@ -181,9 +184,9 @@ void Management::ReadTemplate() {
 }
 void Management::StoreGlobalWeather() {
     CurrentWeather *weather = globalWeatherSystem->GetWeather();
-    sensorValues->AddSensorValue(GlobalSun, weather->GetSun(), weather->LastUpdateTime);
-    sensorValues->AddSensorValue(GlobalWind, weather->GetWind(), weather->LastUpdateTime);
-    sensorValues->AddSensorValue(GlobalOutdoor, weather->GetTemperature(), weather->LastUpdateTime);
+    sensorValues->AddSensorValue(GlobalSun, weather->GetSun(), false, weather->LastUpdateTime);
+    sensorValues->AddSensorValue(GlobalWind, weather->GetWind(), false, weather->LastUpdateTime);
+    sensorValues->AddSensorValue(GlobalOutdoor, weather->GetTemperature(), false, weather->LastUpdateTime);
     delete weather;
     weather = nullptr;
 }

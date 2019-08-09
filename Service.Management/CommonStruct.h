@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 enum CycleResult {
     Starting = 0,
@@ -19,6 +19,11 @@ enum SensorId {
     DirectBoiler = 7,
     DirectIndoor = 8,
     DirectOtdoor = 9,
+    RadioKitchen = 10,
+    RadioLoungeHumidity = 24,
+    RadioMansardHumidity = 25,
+    RadioStudyHumidity = 26,
+    RadioKitchenHumidity = 30,
     GlobalSun = 100,
     GlobalWind = 101,
     GlobalOutdoor = 102
@@ -76,6 +81,8 @@ public:
     std::string Time;
     SensorId Sensor;
     float Value;
+    int Humidity;
+    bool Battery;
 
     DeviceResponce() {
         Time = "";
