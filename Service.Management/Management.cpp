@@ -1,8 +1,9 @@
 ﻿#include "Management.h"
 
-Management::Management(Storage *storage, GlobalWeather *globalWeatherSystem) {
+Management::Management(Storage *storage, GlobalWeather *globalWeatherSystem, std::map<std::string, SensorInfo> *sensorsTable) {
     this->storage = storage;
     this->globalWeatherSystem = globalWeatherSystem;
+    this->sensorsTable = sensorsTable;
     LoadSettingsTable();
     LoadControlTable();
     this->sensorValues = new SensorValues();
@@ -205,42 +206,30 @@ bool Management::SetBoilerSensorId(SensorValues * sensorValues) {
     return false;
 }
 float Management::GetIndoorTemperature(SensorValues *sensorValues) {
-    /* RadioBedroom, RadioLounge, RadioMansard, RadioStudy, DirectIndoor */
     float avg = 0;
     int count = 0;
-    if(sensorValues->GetLastSensorResponseTime(RadioBedroom) != DEFAULT_TIME) {
-        avg += sensorValues->GetLastSensorValue(RadioBedroom);
-        count++;
-    }
-    if(sensorValues->GetLastSensorResponseTime(RadioLounge) != DEFAULT_TIME) {
-        avg += sensorValues->GetLastSensorValue(RadioLounge);
-        count++;
-    }
-    if(sensorValues->GetLastSensorResponseTime(RadioMansard) != DEFAULT_TIME) {
-        avg += sensorValues->GetLastSensorValue(RadioMansard);
-        count++;
-    }
-    if(sensorValues->GetLastSensorResponseTime(RadioStudy) != DEFAULT_TIME) {
-        avg += sensorValues->GetLastSensorValue(RadioStudy);
-        count++;
-    }
-    if(sensorValues->GetLastSensorResponseTime(DirectIndoor) != DEFAULT_TIME) {
-        avg += sensorValues->GetLastSensorValue(DirectIndoor);
-        count++;
+    for(auto it = sensorsTable->begin(); it != sensorsTable->end(); ++it) {
+        SensorInfo sensor = it->second;
+        if(sensor.IsIndoor && sensor.UseForCalc) {
+            if(sensorValues->GetLastSensorResponseTime(sensor.Id) != DEFAULT_TIME && !sensorValues->IsSensorWarning(sensor.Id)) {
+                avg += sensorValues->GetLastSensorValue(sensor.Id);
+                count++;
+            }
+        }
     }
     return count != 0 ? (avg / count) : DEFAULT_TEMPERATURE;
 }
 float Management::GetOutdoorTemperature(SensorValues *sensorValues) {
-    /* RadioOutdoor, DirectOtdoor, GlobalOutdoor */
     float avg = 0;
     int count = 0;
-    if(sensorValues->GetLastSensorResponseTime(RadioOutdoor) != DEFAULT_TIME) {
-        avg += sensorValues->GetLastSensorValue(RadioOutdoor);
-        count++;
-    }
-    if(sensorValues->GetLastSensorResponseTime(DirectOtdoor) != DEFAULT_TIME) {
-        avg += sensorValues->GetLastSensorValue(DirectOtdoor);
-        count++;
+    for(auto it = sensorsTable->begin(); it != sensorsTable->end(); ++it) {
+        SensorInfo sensor = it->second;
+        if(sensor.IsOutdoor && sensor.UseForCalc) {
+            if(sensorValues->GetLastSensorResponseTime(sensor.Id) != DEFAULT_TIME && !sensorValues->IsSensorWarning(sensor.Id)) {
+                avg += sensorValues->GetLastSensorValue(sensor.Id);
+                count++;
+            }
+        }
     }
     return count != 0 ? (avg / count) : sensorValues->GetAverageSensorValue(GlobalOutdoor);
 }

@@ -5,6 +5,6 @@ using json = nlohmann::json;
 
 class Input {
 public:
-    static bool Get(DeviceResponce& responce, std::map<std::string, SensorId> *sensorsTable);
+    static bool Get(DeviceResponce& responce, std::map<std::string, SensorInfo> *sensorsTable);
 };
 

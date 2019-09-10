@@ -98,3 +98,24 @@ public:
         return Sensor == right.Sensor && Value == right.Value;
     }
 };
+
+struct SensorInfo {
+public:
+    SensorId Id;
+    bool UseForCalc;
+    bool IsIndoor;
+    bool IsOutdoor;
+    bool IsDirect;
+    float CorrectionCoefficient;
+    float Shift;
+
+    SensorInfo(int id, bool isIndoor, bool isOutdoor, bool useForCalc, bool isDirect, float correctionCoefficient, float shift) {
+        Id = (SensorId)id;
+        IsIndoor = isIndoor;
+        IsOutdoor = isOutdoor;
+        UseForCalc = useForCalc;
+        IsDirect = isDirect;
+        CorrectionCoefficient = correctionCoefficient;
+        Shift = shift;
+    }
+};

@@ -48,14 +48,20 @@ std::vector<SettingValue>* Storage::ReadSettingsTable() {
     return result;
 }
 
-std::map<std::string, SensorId>* Storage::ReadSensorsTable() {
-    std::map<std::string, SensorId> *result = new std::map<std::string, SensorId>();
+std::map<std::string, SensorInfo>* Storage::ReadSensorsTable() {
+    std::map<std::string, SensorInfo> *result = new std::map<std::string, SensorInfo>();
     sql::Statement *stmt = connection->createStatement();
-    sql::ResultSet *resultSet = stmt->executeQuery("SELECT SensorId, SensorIdentifier FROM SensorTable;");
+    sql::ResultSet *resultSet = stmt->executeQuery("SELECT SensorIdentifier, SensorId, UseForCalc, IsIndoor, IsOutdoor, IsDirect, CorrectionCoefficient, Shift FROM SensorTable;");
     while(resultSet->next()) {
-        SensorId id = (SensorId)(resultSet->getInt("SensorId"));
         std::string identifier = (resultSet->getString("SensorIdentifier")).asStdString();
-        result->insert(std::pair<std::string, SensorId>(identifier, id));
+        int id = resultSet->getInt("SensorId");
+        bool useForCalc = resultSet->getBoolean("UseForCalc");
+        bool isIndoor = resultSet->getBoolean("IsIndoor");
+        bool isOutdoor = resultSet->getBoolean("IsOutdoor");
+        bool isDirect = resultSet->getBoolean("IsDirect");
+        float correctionCoefficient = resultSet->getDouble("CorrectionCoefficient");
+        float shift = resultSet->getDouble("Shift");
+        result->insert(std::pair<std::string, SensorInfo>(identifier, SensorInfo(id, isIndoor, isOutdoor, useForCalc, isDirect, correctionCoefficient, shift)));
     }
     delete resultSet;
     delete stmt;

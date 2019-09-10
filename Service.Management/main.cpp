@@ -12,26 +12,17 @@ std::mutex sensor_power_lock;
 std::mutex gpio_lock;
 std::string GlobalWeatherResponse;
 std::atomic<time_t> reset_time;
-std::map<std::string, SensorId> *sensorsTable;
+std::map<std::string, SensorInfo> *sensorsTable;
 DirectConnectedInput **sensors = new DirectConnectedInput*[DIRECT_SENSORS_COUNT];
 
-std::string GetSensorIdentifier(SensorId sensorId, std::map<std::string, SensorId> *sensorsTable) {
-    auto result = std::find_if(
-        sensorsTable->begin(),
-        sensorsTable->end(),
-        [sensorId](const std::pair<std::string, SensorId>& mo) { return mo.second == sensorId; });
-    if(result == sensorsTable->end()) {
-        sd_journal_print(LOG_ERR, "ProcessResponce error");
-    }
-    return result->first;
-}
-void StartSensorThreads(Management *management, std::map<std::string, SensorId> *sensorsTable) {
-    sensors[0] = new DirectConnectedInput(management, new DS18B20Interface(GetSensorIdentifier(DirectBoiler, sensorsTable), DirectBoiler, 1, 0));
-    sensors[1] = new DirectConnectedInput(management, new DS18B20Interface(GetSensorIdentifier(DirectIndoor, sensorsTable), DirectIndoor, 1, 1.5));
-    sensors[2] = new DirectConnectedInput(management, new DS18B20Interface(GetSensorIdentifier(DirectOtdoor, sensorsTable), DirectOtdoor, 1, 0.5));
-    for(int i = 0; i < DIRECT_SENSORS_COUNT; i++) {
-        if(sensors[i] != nullptr) {
-            sensors[i]->Start();
+void StartSensorThreads(Management *management, std::map<std::string, SensorInfo> *sensorsTable) {
+    int i = 0;
+    for(auto it = sensorsTable->begin(); it != sensorsTable->end(); ++it) {
+        SensorInfo sensor = it->second;
+        if(sensor.IsDirect) {
+            auto sensorThread = new DirectConnectedInput(management, new DS18B20Interface(it->first, sensor.Id, sensor.CorrectionCoefficient, sensor.Shift));
+            sensorThread->Start();
+            sensors[i++] = sensorThread;
         }
     }
 }
@@ -53,7 +44,7 @@ int main(void) {
     Storage *storage = new Storage();
     sensorsTable = storage->ReadSensorsTable();
     GlobalWeather *gw = new GlobalWeather();
-    Management *management = new Management(storage, gw);
+    Management *management = new Management(storage, gw, sensorsTable);
 
     StartSensorThreads(management, sensorsTable);
     sd_journal_print(LOG_INFO, "Service start.");

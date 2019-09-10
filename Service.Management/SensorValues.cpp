@@ -47,7 +47,7 @@ float SensorValues::GetLastSensorValue(SensorId id) {
     return lastSensorValues[sensorIndex];
 }
 
-bool SensorValues::GetSensorWarning(SensorId id) {
+bool SensorValues::IsSensorWarning(SensorId id) {
     int sensorIndex = GetSensorIndex(id);
     return sensorWarnings[sensorIndex];
 }
@@ -68,6 +68,9 @@ void SensorValues::AddSensorValue(SensorId id, float value, bool warning, time_t
     } else {
         avgSensorValues[sensorIndex] += (time - lastSensorResponseTime[sensorIndex]) * value;
     }
+    if(lastSensorValues[sensorIndex] != DEFAULT_TEMPERATURE && fabs(lastSensorValues[sensorIndex] - value) > MAX_SENSOR_DEVIATION) {
+        sensorWarnings[sensorIndex] = true;
+    }
     lastSensorResponseTime[sensorIndex] = time;
     lastSensorValues[sensorIndex] = value;
     if(!sensorWarnings[sensorIndex]) {
@@ -84,7 +87,7 @@ std::string SensorValues::ToString(SensorId id) {
         ss << std::fixed;
         ss.precision(1);
         ss << lastValue;
-        if(GetSensorWarning(id)) {
+        if(IsSensorWarning(id)) {
             ss << " ! ";
         }
         ss << " (" << Utils::FormatTime(GetLastSensorResponseTime(id)) << ")"
@@ -142,7 +145,7 @@ std::string SensorValues::GetSensorValues() {
         GetAverageSensorValue(RadioMansardHumidity) << ", " <<
         GetAverageSensorValue(RadioStudyHumidity) << ", " <<
         GetAverageSensorValue(RadioKitchen) << ", " <<
-        GetLastSensorValue(RadioKitchen) << ", " << 
+        GetLastSensorValue(RadioKitchen) << ", " <<
         GetAverageSensorValue(RadioKitchenHumidity);
     return ss.str();
 }

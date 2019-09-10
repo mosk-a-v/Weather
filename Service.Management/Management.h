@@ -12,6 +12,7 @@ class Management {
 private:
     std::vector<ControlValue> *controlTable = nullptr;
     std::vector<SettingValue> *settingsTable = nullptr;
+    std::map<std::string, SensorInfo> *sensorsTable = nullptr;
     GlobalWeather *globalWeatherSystem = nullptr;;
     Storage *storage = nullptr;
     CycleInfo *cycleInfo = nullptr;
@@ -38,7 +39,7 @@ public:
     void LoadControlTable();
     void LoadSettingsTable();
     void ProcessResponce(const DeviceResponce& responce);
-    Management(Storage *storage, GlobalWeather *globalWeatherSystem);
+    Management(Storage *storage, GlobalWeather *globalWeatherSystem, std::map<std::string, SensorInfo> *sensorsTable);
     ~Management();
 };
 
