@@ -126,6 +126,6 @@ CycleInfo::CycleInfo(const time_t& now) {
     this->isHeating = false;
     this->lastBoilerResponceTime = DEFAULT_TIME;
     this->lastBoilerTemperature = DEFAULT_TEMPERATURE;
-    this->latency = DEFAULT_LATENCY;
+    this->latency = 0;
 }
 CycleInfo::~CycleInfo() {}

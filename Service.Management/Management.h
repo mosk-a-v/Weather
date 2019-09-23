@@ -22,7 +22,6 @@ private:
     float minIndoorTemperature;
     float maxOutdoorTemperature;
     float minOutdoorTemperature;
-    float latency = DEFAULT_LATENCY;
     std::string statusTemplate;
     SensorId boilerSensorId = DirectBoiler;
 protected:

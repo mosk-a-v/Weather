@@ -46,14 +46,14 @@ void Management::ProcessResponce(const DeviceResponce& responce) {
     }
     if(responce.Sensor == boilerSensorId) {
         cycleInfo->ProcessBoilerTemperature(responce.Value, now);
-        Utils::SetGPIOValues(BOILER_STATUS_PIN, !cycleInfo->IsBoilerOn());
     } else if(sensorValues->GetLastSensorResponseTime(boilerSensorId) == DEFAULT_TIME &&
               cycleInfo->GetCycleLength(now) > SENSOR_TIMEOUT) {
         cycleInfo->EndCycle(SensorError, now);
     }
-    if(cycleInfo->IsCycleEnd()) {
+    if(cycleInfo->IsCycleEnd() && GetIndoorTemperature(sensorValues) != DEFAULT_TEMPERATURE) {
         BeginNewCycle(now);
     }
+    Utils::SetGPIOValues(BOILER_STATUS_PIN, !cycleInfo->IsBoilerOn());
     TemplateUtils::WriteCurrentStatus(sensorValues, cycleInfo, statusTemplate, additionalInfo, now);
 }
 void Management::BeginNewCycle(const time_t &now) {
@@ -78,7 +78,7 @@ void Management::BeginNewCycle(const time_t &now) {
         sprintf(additionalInfo, "Boiler: %.2f; Outdoor: %.2f; Indoor: %.2f", boilerTemperature, outdoorTemperature, indoorTemperature);
 
         delete cycleInfo;
-        cycleInfo = new CycleInfo(newCycleWillHeating, adjustBoilerTemperature, boilerTemperature, boilerResponseTime, latency, now);
+        cycleInfo = new CycleInfo(newCycleWillHeating, adjustBoilerTemperature, boilerTemperature, boilerResponseTime, DEFAULT_LATENCY, now);
     } else {
         sprintf(additionalInfo, "Sensor error");
         delete cycleInfo;
@@ -194,15 +194,12 @@ void Management::StoreGlobalWeather() {
 bool Management::SetBoilerSensorId(SensorValues * sensorValues) {
     if(sensorValues->GetLastSensorResponseTime(DirectBoiler) != DEFAULT_TIME) {
         boilerSensorId = DirectBoiler;
-        latency = 0;
         return true;
     } else if(sensorValues->GetLastSensorResponseTime(RadioBoiler) != DEFAULT_TIME) {
         boilerSensorId = RadioBoiler;
-        latency = DEFAULT_LATENCY;
         return true;
     }
     boilerSensorId = Undefined;
-    latency = 0;
     return false;
 }
 float Management::GetIndoorTemperature(SensorValues *sensorValues) {
