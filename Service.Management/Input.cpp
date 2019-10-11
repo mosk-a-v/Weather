@@ -4,6 +4,7 @@ bool Input::Get(DeviceResponce& responce, std::map<std::string, SensorInfo> *sen
     std::string inp_str;
     try {
         if(std::getline(std::cin, inp_str)) {
+            inp_str = inp_str.substr(inp_str.find('{'));
             auto js = json::parse(inp_str);
             int id = js.at("id");
             auto it = sensorsTable->find(std::to_string(id));

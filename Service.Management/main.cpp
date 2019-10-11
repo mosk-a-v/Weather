@@ -5,6 +5,7 @@
 #include "DS18B20Interface.h"
 #include "Input.h"
 
+//packages: git, libmysqlcppconn-dev, libcurl4-openssl-dev, nlohmann-json-dev, libsystemd-dev, wiringpi
 //cat out.txt | projects/Service.Management/bin/ARM/Debug/Service.Management.out
 
 std::mutex management_lock;

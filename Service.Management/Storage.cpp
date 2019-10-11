@@ -6,11 +6,14 @@ Storage::Storage() {
 
 void Storage::SaveCycleStatistics(CycleStatictics *cycleStat, SensorValues *sensorValues) {
     try {
+        if(connection == nullptr) {
+            Connect();
+        }
         SaveCycleStatisticsInternal(cycleStat, sensorValues);
     } catch(std::exception &e) {
         LogException(e);
         delete connection;
-        Connect();
+        connection = nullptr;
     }
 }
 

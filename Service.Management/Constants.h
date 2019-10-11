@@ -10,7 +10,7 @@
 #define MAX_SENSOR_DEVIATION 8
 #define DEFAULT_TIME 0
 #define MAX_TEMPERATURE_DEVIATION 4
-#define OUTPUT_FILE_NAME "/var/www/html/index.html"
+#define OUTPUT_FILE_NAME "/media/NAS/web_boiler/index.html"
 #define READ_WAIT 5
 #define QUERY_INTERVAL 30
 #define RESET_WAIT_INTERVAL 2
@@ -20,10 +20,10 @@
 #define API_URL "https://api.openweathermap.org/data/2.5/weather?id=480562&units=metric&appid=a626320fe32f14e991091b0839149783"
 #define	BOILER_STATUS_PIN 17
 #define	SENSOR_POWER_PIN 27
-#define TEMPLATE_FILE_NAME "/var/www/html/boiler_status.html"
+#define TEMPLATE_FILE_NAME "/media/NAS/web_boiler/boiler_status.html"
 #define SENSORS_COUNT 20
 #define DIRECT_SENSORS_COUNT 3
-#define HOST "tcp://192.168.10.14:3306"
-#define USER "root"
-#define PASSWORD "root_root"
-#define SCHEMA "weather"
+#define HOST "tcp://192.168.10.19:3307"
+#define USER "boiler"
+#define PASSWORD "fruPrld7uj"
+#define SCHEMA "boiler"
