@@ -41,7 +41,7 @@ bool Input::Get(DeviceResponce& responce, std::map<std::string, SensorInfo> *sen
         }
     } catch(...) {
         std::string message = "Read input stream error. {" + inp_str + "}";
-        sd_journal_print(LOG_ERR, message.c_str());
+        Utils::WriteLogInfo(LOG_ERR, message);
         responce.Sensor = Undefined;
         responce.Value = DEFAULT_TEMPERATURE;
         responce.Time = "";

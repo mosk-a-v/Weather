@@ -28,6 +28,14 @@ std::string Utils::FormatTime(const time_t & time) {
     return buffer.str();
 }
 
+std::string Utils::FormatDateTime(const time_t & time) {
+    std::stringstream buffer;
+    tm tm = *localtime(&time);
+    buffer.imbue(std::locale("ru_RU.utf8"));
+    buffer << std::put_time(&tm, "%F %T");
+    return buffer.str();
+}
+
 float Utils::GetSunAdjust(int sun) {
     if(sun < 30)
         return 0;
@@ -69,4 +77,46 @@ void Utils::SetGPIOValues(int pin, bool value) {
 
 std::time_t Utils::GetTime() {
     return std::time(0);
+}
+
+void Utils::WriteLogInfo(int priority, std::string message) {
+    sd_journal_print(priority, message.c_str());
+    try {
+        std::ofstream statusStream;
+        statusStream.open(LOG_FILE_NAME, std::ofstream::out | std::ofstream::app);
+        std::string prefix;
+        switch(priority) {
+            case LOG_EMERG:
+                prefix = "EMERGENCY";
+                break;
+            case LOG_ALERT:
+                prefix = "ALERT";
+                break;
+            case LOG_CRIT:
+                prefix = "CRITICAL";
+                break;
+            case LOG_ERR:
+                prefix = "ERROR";
+                break;
+            case LOG_WARNING:
+                prefix = "WARNING";
+                break;
+            case LOG_NOTICE:
+                prefix = "NOTICE";
+                break;
+            case LOG_INFO:
+                prefix = "INFO";
+                break;
+            case LOG_DEBUG:
+                prefix = "DEBUG";
+                break;
+            default:
+                prefix = "N|/A";
+                break;
+        }
+        statusStream << FormatDateTime(GetTime()) << ". " << prefix << ": " << message<< std::endl;
+        statusStream.close();
+    } catch(std::exception e) {
+        Utils::WriteLogInfo(LOG_ERR, "Status write exception.");
+    }
 }

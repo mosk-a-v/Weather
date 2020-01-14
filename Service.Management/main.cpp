@@ -6,6 +6,7 @@
 #include "Input.h"
 
 //packages: git, libmysqlcppconn-dev, libcurl4-openssl-dev, nlohmann-json-dev, libsystemd-dev, wiringpi
+//read-only: https://github.com/JasperE84/root-ro
 //cat out.txt | projects/Service.Management/bin/ARM/Debug/Service.Management.out
 
 std::mutex management_lock;
@@ -48,7 +49,7 @@ int main(void) {
     Management *management = new Management(storage, gw, sensorsTable);
 
     StartSensorThreads(management, sensorsTable);
-    sd_journal_print(LOG_INFO, "Service start.");
+    Utils::WriteLogInfo(LOG_INFO, "Service start.");
     while(Input::Get(deviceResponce, sensorsTable)) {
         try {
             if(prevDeviceResponce == deviceResponce || deviceResponce.Sensor == Undefined) {
@@ -57,10 +58,10 @@ int main(void) {
             prevDeviceResponce = deviceResponce;
             management->ProcessResponce(deviceResponce);
         } catch(...) {
-            sd_journal_print(LOG_ERR, "ProcessResponce error");
+            Utils::WriteLogInfo(LOG_ERR, "ProcessResponce error");
         }
     }
-    sd_journal_print(LOG_ERR, "Input stream is empty. Service stop.");
+    Utils::WriteLogInfo(LOG_ERR, "Input stream is empty. Service stop.");
     StopSensorThreads();
     delete storage;
     delete management;

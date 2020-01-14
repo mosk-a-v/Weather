@@ -14,7 +14,7 @@ void DirectConnectedInput::Start() {
     _thd = std::thread([this]() {
         std::stringstream ss;
         ss << "Thread for sensor " << sensor->GetSensorId() << " started.";
-        sd_journal_print(LOG_INFO, ss.str().c_str());
+        Utils::WriteLogInfo(LOG_INFO, ss.str());
         while(_execute.load(std::memory_order_acquire)) {
             std::this_thread::sleep_for(std::chrono::seconds(QUERY_INTERVAL));
             try {
@@ -26,7 +26,7 @@ void DirectConnectedInput::Start() {
                 std::stringstream ss;
                 ss << "Thread for sensor " << sensor->GetSensorId() << " exception.";
                 ss << e.what();
-                sd_journal_print(LOG_INFO, ss.str().c_str());
+                Utils::WriteLogInfo(LOG_INFO, ss.str());
             }
         }
     });
@@ -44,6 +44,9 @@ bool DirectConnectedInput::Query(DeviceResponce& responce) {
     for(int i = 0; i < 3; i++) {
         float value = sensor->Read();
         if(value < -55 || value > 125) {
+            std::stringstream ss;
+            ss << "Wrong value for Sensor " << sensor->GetSensorId() << ". Value is `" << value << "'.";
+            Utils::WriteLogInfo(LOG_INFO, ss.str());
             return false;
         }
         responce.Value += value / 3.0f;

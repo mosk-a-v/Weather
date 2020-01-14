@@ -30,7 +30,7 @@ CurrentWeather* GlobalWeather::GetWeather() {
     } catch(const std::exception &e) {
         std::stringstream ss;
         ss << "Openweathermap responce read exception." << e.what() << GlobalWeatherResponse;
-        sd_journal_print(LOG_ERR, ss.str().c_str());
+        Utils::WriteLogInfo(LOG_ERR, ss.str());
     }
     return weather;
 }
@@ -63,7 +63,7 @@ bool GlobalWeather::DownloadJSON(std::string URL) {
         } else {
             std::stringstream ss;
             ss << "Curl error" << res;
-            sd_journal_print(LOG_ERR, ss.str().c_str());
+            Utils::WriteLogInfo(LOG_ERR, ss.str());
             result = false;
         }
         curl_easy_cleanup(curl);

@@ -101,7 +101,7 @@ float Management::GetRequiredIndoorTemperature() {
     if(result == settingsTable->end()) {
         std::stringstream message_stream;
         message_stream << "Wrong Now. Hour: " << requiredDateTime->tm_hour << "; WeekDay:" << requiredDateTime->tm_wday << std::endl;
-        sd_journal_print(LOG_INFO, message_stream.str().c_str());
+        Utils::WriteLogInfo(LOG_INFO, message_stream.str());
         return 20;
     } else {
         return result->Temperature;
@@ -161,7 +161,7 @@ float Management::GetControlValue(int sun, int wind, float outdoorTemperature, f
     if(result == controlTable->end()) {
         std::stringstream message_stream;
         message_stream << "Wrong Temperature. Sun: " << sun << "; Wind:" << wind << "; Outdoor:" << outdoorTemperature << "; Indoor:" << indoorTemperature;
-        sd_journal_print(LOG_INFO, message_stream.str().c_str());
+        Utils::WriteLogInfo(LOG_INFO, message_stream.str());
         return 40;
     } else {
         return result->Boiler;
@@ -180,7 +180,7 @@ void Management::ReadTemplate() {
         statusTemplate = "";
         std::stringstream ss;
         ss << "Template read exception." << e.what();
-        sd_journal_print(LOG_ERR, ss.str().c_str());
+        Utils::WriteLogInfo(LOG_ERR, ss.str());
     }
 }
 void Management::StoreGlobalWeather() {

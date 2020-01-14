@@ -90,7 +90,7 @@ bool CycleInfo::IsBoilerOn() {
     }
     bool result = isLatencyPeriod ? !isHeating : isHeating;
     /*if(result) {
-        sd_journal_print(LOG_INFO, "Boiler Is On!!!!!");
+        Utils::WriteLogInfo(LOG_INFO, "Boiler Is On!!!!!");
     }*/
     return result;
 }

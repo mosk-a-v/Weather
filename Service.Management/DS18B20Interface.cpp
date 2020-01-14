@@ -12,7 +12,7 @@ void DS18B20Interface::FileOpen() {
     if(errno != 0) {
         std::stringstream ss;
         ss << "Sensor " << deviceId << " file open error (errno=" << errno << ").";;
-        sd_journal_print(LOG_ERR, ss.str().c_str());
+        Utils::WriteLogInfo(LOG_ERR, ss.str());
     }
 }
 void DS18B20Interface::CloseFile() {
@@ -34,7 +34,7 @@ void DS18B20Interface::ResetSensor() {
     Utils::SetGPIOValues(SENSOR_POWER_PIN, false);
     std::stringstream ss;
     ss << "Sensor " << deviceId << " reset.";
-    sd_journal_print(LOG_ERR, ss.str().c_str());
+    Utils::WriteLogInfo(LOG_ERR, ss.str());
 }
 float DS18B20Interface::Read() {
     FileOpen();
@@ -44,11 +44,11 @@ float DS18B20Interface::Read() {
     }
     float temp = -9998;
     try {
-        unsigned int tempInt;
+        int tempInt;
         char crcConf[5];
         fscanf(file, "%*x %*x %*x %*x %*x %*x %*x %*x %*x : crc=%*x %s", crcConf);
         if(!feof(file) && !ferror(file) && strncmp(crcConf, "YES", 3) == 0) {
-            fscanf(file, "%*x %*x %*x %*x %*x %*x %*x %*x %*x t=%5d", &tempInt);
+            fscanf(file, "%*x %*x %*x %*x %*x %*x %*x %*x %*x t=%d", &tempInt);
             if(!ferror(file)) {
                 temp = ((float)tempInt / 1000.0) * correctionCoefficient + shift;
             }
@@ -56,7 +56,7 @@ float DS18B20Interface::Read() {
     } catch(const std::exception &e) {
         std::stringstream ss;
         ss << "Error reading from device " << deviceId << ". Detail: " << e.what();
-        sd_journal_print(LOG_ERR, ss.str().c_str());
+        Utils::WriteLogInfo(LOG_ERR, ss.str());
     }
     CloseFile();
     return temp;

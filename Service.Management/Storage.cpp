@@ -79,7 +79,7 @@ void Storage::LogException(std::exception &e) {
     std::stringstream ss;
     ss << "# ERR: SQLException in " << __FILE__;
     ss << "# ERR: " << e.what() << std::endl;
-    sd_journal_print(LOG_ERR, ss.str().c_str());
+    Utils::WriteLogInfo(LOG_ERR, ss.str());
 }
 
 void Storage::Connect() {
