@@ -15,7 +15,6 @@ class CycleInfo {
     float delta = 0;
     float deltaForLastPeriod = 0;
     float maxDelta = 0;
-    float latency = DEFAULT_LATENCY;
     float requiredBoilerTemperature = DEFAULT_TEMPERATURE;
     float lastBoilerTemperature = DEFAULT_TEMPERATURE;
 
@@ -25,7 +24,7 @@ class CycleInfo {
     void DetectComplitingStartMode(const time_t & now);
     bool IsStartingMode();
 public:
-    CycleInfo(bool isHeating, float requiredBoilerTemperature,  float currentBoilerTemperature, time_t currentBoilerResponceTime, float latency, const time_t& now);
+    CycleInfo(bool isHeating, float requiredBoilerTemperature,  float currentBoilerTemperature, time_t currentBoilerResponceTime, const time_t& now);
     CycleInfo(const time_t& now);
     ~CycleInfo();
     void ProcessBoilerTemperature(float value, const time_t& now);

@@ -18,13 +18,9 @@ void CycleInfo::DetectLatency() {
         return;
     }
     if(isHeating) {
-        if(delta > -latency && deltaForLastPeriod > 0) {
-            isLatencyPeriod = true;
-        }
+        isLatencyPeriod = (delta < 0 && deltaForLastPeriod > 0 && fabs(delta) < (deltaForLastPeriod / 2));
     } else {
-        if(delta < latency && deltaForLastPeriod < 0) {
-            isLatencyPeriod = true;
-        }
+        isLatencyPeriod = (delta > 0 && deltaForLastPeriod < 0 && fabs(delta) < (deltaForLastPeriod / 2));
     }
 }
 float CycleInfo::CalclateDeltaForLastPeriod(float boilerTemperature, const time_t& now) {
@@ -65,9 +61,8 @@ void CycleInfo::ProcessBoilerTemperature(float value, const time_t& now) {
     } else if(value < (requiredBoilerTemperature - MAX_TEMPERATURE_DEVIATION) && !IsBoilerOn()) {
         EndCycle(TemperatureLimit, now);
     } else {
-        if(isHeating && delta > 0) {
-            EndCycle(Normal, now);
-        } else if(!isHeating && delta < 0) {
+        bool isComplete = (isHeating && delta > 0) || (!isHeating && delta < 0) || isLatencyPeriod;
+        if(isComplete) {
             EndCycle(Normal, now);
         } else {
             DetectLatency();
@@ -78,7 +73,7 @@ bool CycleInfo::IsStartingMode() {
     return requiredBoilerTemperature == DEFAULT_TEMPERATURE;
 }
 void CycleInfo::DetectComplitingStartMode(const time_t & now) {
-    if(IsStartingMode() && !isCycleEnd && (now - cycleStartTime) > QUERY_INTERVAL) {
+    if(IsStartingMode() && !IsCycleEnd() && (now - cycleStartTime) > QUERY_INTERVAL) {
         if(lastBoilerTemperature != DEFAULT_TEMPERATURE) {
             EndCycle(Starting, now);
         }
@@ -112,13 +107,12 @@ CycleStatictics* CycleInfo::GetStatictics() {
     result->Delta = delta;
     return result;
 }
-CycleInfo::CycleInfo(bool isHeating, float requiredBoilerTemperature, float currentBoilerTemperature, time_t currentBoilerResponceTime, float latency, const time_t& now) {
+CycleInfo::CycleInfo(bool isHeating, float requiredBoilerTemperature, float currentBoilerTemperature, time_t currentBoilerResponceTime, const time_t& now) {
     this->cycleStartTime = now;
     this->requiredBoilerTemperature = requiredBoilerTemperature;
     this->isHeating = isHeating;
     this->lastBoilerResponceTime = currentBoilerResponceTime;
     this->lastBoilerTemperature = currentBoilerTemperature;
-    this->latency = latency;
 }
 CycleInfo::CycleInfo(const time_t& now) {
     this->cycleStartTime = now;
@@ -126,6 +120,5 @@ CycleInfo::CycleInfo(const time_t& now) {
     this->isHeating = false;
     this->lastBoilerResponceTime = DEFAULT_TIME;
     this->lastBoilerTemperature = DEFAULT_TEMPERATURE;
-    this->latency = 0;
 }
 CycleInfo::~CycleInfo() {}

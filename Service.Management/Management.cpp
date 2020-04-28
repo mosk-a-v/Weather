@@ -78,7 +78,7 @@ void Management::BeginNewCycle(const time_t &now) {
         sprintf(additionalInfo, "Boiler: %.2f; Outdoor: %.2f; Indoor: %.2f", boilerTemperature, outdoorTemperature, indoorTemperature);
 
         delete cycleInfo;
-        cycleInfo = new CycleInfo(newCycleWillHeating, adjustBoilerTemperature, boilerTemperature, boilerResponseTime, DEFAULT_LATENCY, now);
+        cycleInfo = new CycleInfo(newCycleWillHeating, adjustBoilerTemperature, boilerTemperature, boilerResponseTime, now);
     } else {
         sprintf(additionalInfo, "Sensor error");
         delete cycleInfo;
