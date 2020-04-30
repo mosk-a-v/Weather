@@ -120,3 +120,19 @@ void Utils::WriteLogInfo(int priority, std::string message) {
         Utils::WriteLogInfo(LOG_ERR, "Status write exception.");
     }
 }
+
+std::string Utils::ReadFile(std::string fileName) {
+    try {
+        std::ifstream fileStream;
+        fileStream.open(fileName);
+        std::stringstream buffer;
+        buffer << fileStream.rdbuf();
+        fileStream.close();
+        return buffer.str();
+    } catch(const std::exception &e) {
+        std::stringstream ss;
+        ss << "File '" << fileName << "' read exception." << e.what();
+        Utils::WriteLogInfo(LOG_ERR, ss.str());
+        return "";
+    }
+}

@@ -29,7 +29,6 @@ protected:
     float GetRequiredBoilerTemperature(int sun, int wind, float outdoorTemperature, float indoorTemperature);
     float GetControlValue(int sun, int wind, float outdoorTemperature, float indoorTemperature);
     void BeginNewCycle(const time_t &now);
-    void ReadTemplate();
     void StoreGlobalWeather();
     bool SetBoilerSensorId(SensorValues *sensorValues);
     float GetIndoorTemperature(SensorValues *sensorValues);

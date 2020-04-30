@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="CurrentWeather.cpp" />
+    <ClCompile Include="CycleInfo.cpp" />
+    <ClCompile Include="DirectConnectedInput.cpp" />
+    <ClCompile Include="DS18B20Interface.cpp" />
+    <ClCompile Include="GlobalWeather.cpp" />
+    <ClCompile Include="Input.cpp" />
+    <ClCompile Include="ISensorInterface.h" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Management.cpp" />
+    <ClCompile Include="SensorValues.cpp" />
+    <ClCompile Include="Storage.cpp" />
+    <ClCompile Include="TemplateUtils.cpp" />
+    <ClCompile Include="TestManagement.cpp" />
+    <ClCompile Include="Utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Common.h" />
+    <ClInclude Include="CommonStruct.h" />
+    <ClInclude Include="StandartLib.h" />
+    <ClInclude Include="Constants.h" />
+    <ClInclude Include="CurrentWeather.h" />
+    <ClInclude Include="CycleInfo.h" />
+    <ClInclude Include="DirectConnectedInput.h" />
+    <ClInclude Include="DS18B20Interface.h" />
+    <ClInclude Include="GlobalWeather.h" />
+    <ClInclude Include="Input.h" />
+    <ClInclude Include="Management.h" />
+    <ClInclude Include="SensorValues.h" />
+    <ClInclude Include="Storage.h" />
+    <ClInclude Include="TemplateUtils.h" />
+    <ClInclude Include="TestManagement.h" />
+    <ClInclude Include="Utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="boiler_status.htm" />
+    <None Include="DB Create.sql" />
+    <None Include="\\syn_server\web_boiler\ControlValues.json">
+      <Filter>ExternalFiles</Filter>
+    </None>
+    <None Include="\\syn_server\web_boiler\SensorValues.json">
+      <Filter>ExternalFiles</Filter>
+    </None>
+    <None Include="\\syn_server\web_boiler\SettingsValue.json">
+      <Filter>ExternalFiles</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="ExternalFiles">
+      <UniqueIdentifier>{fcd85990-66f7-4a13-bf53-b39bf398798c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

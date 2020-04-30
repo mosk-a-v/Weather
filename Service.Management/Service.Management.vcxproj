@@ -116,6 +116,9 @@
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="DB Create.sql" />
+    <None Include="\\syn_server\web_boiler\ControlValues.json" />
+    <None Include="\\syn_server\web_boiler\SensorValues.json" />
+    <None Include="\\syn_server\web_boiler\SettingsValue.json" />
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <Link>

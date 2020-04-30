@@ -12,4 +12,5 @@ public:
     static void SetGPIOValues(int pin, bool value);
     static std::time_t GetTime();
     static void WriteLogInfo(int priority, std::string message);
+    static std::string ReadFile(std::string fileName);
 };

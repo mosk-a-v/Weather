@@ -11,7 +11,7 @@ Management::Management(Storage *storage, GlobalWeather *globalWeatherSystem, std
     sprintf(additionalInfo, "");
 #ifndef TEST
     Utils::SetupGPIO();
-    ReadTemplate();
+    this->statusTemplate = Utils::ReadFile(TEMPLATE_FILE_NAME);
     StoreGlobalWeather();
 #endif
 }
@@ -165,22 +165,6 @@ float Management::GetControlValue(int sun, int wind, float outdoorTemperature, f
         return 40;
     } else {
         return result->Boiler;
-    }
-}
-
-void Management::ReadTemplate() {
-    try {
-        std::ifstream templateStream;
-        templateStream.open(TEMPLATE_FILE_NAME);
-        std::stringstream buffer;
-        buffer << templateStream.rdbuf();
-        statusTemplate = buffer.str();
-        templateStream.close();
-    } catch(const std::exception &e) {
-        statusTemplate = "";
-        std::stringstream ss;
-        ss << "Template read exception." << e.what();
-        Utils::WriteLogInfo(LOG_ERR, ss.str());
     }
 }
 void Management::StoreGlobalWeather() {

@@ -27,3 +27,6 @@
 #define USER "boiler"
 #define PASSWORD "fruPrld7uj"
 #define SCHEMA "boiler"
+#define CONTROL_VALUE_FILE "/media/USB/ControlValues.json"
+#define SENSORS_VALUE_FILE "/media/USB/SensorValues.json"
+#define SETTINGS_VALUE_FILE "/media/USB/SettingsValue.json"

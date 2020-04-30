@@ -6,7 +6,14 @@
 #include "Input.h"
 
 //packages: git, libmysqlcppconn-dev, libcurl4-openssl-dev, nlohmann-json-dev, libsystemd-dev, wiringpi
+//NFS Setup: 
+//  1. NAS https://kodi.wiki/index.php?title=NFS#Synology
+//  2. /etc/fstab add line '192.168.10.19:/volume1/web_boiler /media/NAS/web_boiler nfs lookupcache=all,soft,nolock,bg,nfsvers=3,ac,actimeo=1800'
 //read-only: https://github.com/JasperE84/root-ro
+// Mosquitto:
+//  1. Install Mosquitto Broker https://randomnerdtutorials.com/how-to-install-mosquitto-broker-on-raspberry-pi/
+//  2. Setup PIPE between rtl_433 & Mosquitto Broker https://tech.sid3windr.be/2017/03/getting-your-currentcost-433mhz-data-into-openhab-using-an-rtl-sdr-dongle-and-mqtt/
+//  3. Installing eclipse/paho.mqtt c++ client https://unix.stackexchange.com/questions/527810/installing-eclipse-paho-mqtt-c-client-on-debian
 //cat out.txt | projects/Service.Management/bin/ARM/Debug/Service.Management.out
 
 std::mutex management_lock;
@@ -42,7 +49,7 @@ int main(void) {
 #else
     reset_time = Utils::GetTime();
     DeviceResponce deviceResponce;
-    DeviceResponce prevDeviceResponce;
+    DeviceResponce prevDeviceResponce;    
     Storage *storage = new Storage();
     sensorsTable = storage->ReadSensorsTable();
     GlobalWeather *gw = new GlobalWeather();

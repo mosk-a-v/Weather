@@ -13,8 +13,8 @@ public:
     Storage();
     ~Storage();
     void SaveCycleStatistics(CycleStatictics *cycleStat, SensorValues *sensorValues);
-    std::vector<ControlValue> *ReadControlTable();
-    std::vector<SettingValue> *ReadSettingsTable();
-    std::map<std::string, SensorInfo>* ReadSensorsTable();
+    static std::vector<ControlValue> *ReadControlTable();
+    static std::vector<SettingValue> *ReadSettingsTable();
+    static std::map<std::string, SensorInfo>* ReadSensorsTable();
 };
 
