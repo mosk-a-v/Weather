@@ -1,0 +1,842 @@
+[
+  {
+    "WeekDay": 1,
+    "Hour": 0,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 1,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 2,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 3,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 4,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 5,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 6,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 7,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 8,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 9,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 10,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 11,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 12,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 13,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 14,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 15,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 16,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 17,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 18,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 19,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 20,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 21,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 22,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 1,
+    "Hour": 23,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 0,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 1,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 2,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 3,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 4,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 5,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 6,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 7,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 8,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 9,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 10,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 11,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 12,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 13,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 14,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 15,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 16,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 17,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 18,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 19,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 20,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 21,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 22,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 2,
+    "Hour": 23,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 0,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 1,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 2,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 3,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 4,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 5,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 6,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 7,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 8,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 9,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 10,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 11,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 12,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 13,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 14,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 15,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 16,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 17,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 18,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 19,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 20,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 21,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 22,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 3,
+    "Hour": 23,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 0,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 1,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 2,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 3,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 4,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 5,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 6,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 7,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 8,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 9,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 10,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 11,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 12,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 13,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 14,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 15,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 16,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 17,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 18,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 19,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 20,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 21,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 22,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 4,
+    "Hour": 23,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 0,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 1,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 2,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 3,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 4,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 5,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 6,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 7,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 8,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 9,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 10,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 11,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 12,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 13,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 14,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 15,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 16,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 17,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 18,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 19,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 20,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 21,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 22,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 5,
+    "Hour": 23,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 0,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 1,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 2,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 3,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 4,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 5,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 6,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 7,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 8,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 9,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 10,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 11,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 12,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 13,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 14,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 15,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 16,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 17,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 18,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 19,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 20,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 21,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 22,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 6,
+    "Hour": 23,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 0,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 1,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 2,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 3,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 4,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 5,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 6,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 7,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 8,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 9,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 10,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 11,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 12,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 13,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 14,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 15,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 16,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 17,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 18,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 19,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 20,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 21,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 22,
+    "Temperature": 20
+  },
+  {
+    "WeekDay": 7,
+    "Hour": 23,
+    "Temperature": 20
+  }
+]

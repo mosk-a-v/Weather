@@ -88,6 +88,9 @@ void Management::BeginNewCycle(const time_t &now) {
     lastCycleStat = nullptr;
     delete lastSensorValues;
     lastSensorValues = nullptr;
+    if(statusTemplate.length() < 10) {
+        statusTemplate = Utils::ReadFile(TEMPLATE_FILE_NAME);
+    }
 }
 float Management::GetRequiredIndoorTemperature() {
     const long TwoHourSeconds = 60 * 60 * 2;

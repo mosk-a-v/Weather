@@ -4,6 +4,7 @@
 #include "DirectConnectedInput.h"
 #include "DS18B20Interface.h"
 #include "Input.h"
+#include "Rtl433Input.h"
 
 //packages: git, libmysqlcppconn-dev, libcurl4-openssl-dev, nlohmann-json-dev, libsystemd-dev, wiringpi
 //NFS Setup: 
@@ -22,7 +23,8 @@ std::mutex gpio_lock;
 std::string GlobalWeatherResponse;
 std::atomic<time_t> reset_time;
 std::map<std::string, SensorInfo> *sensorsTable;
-DirectConnectedInput **sensors = new DirectConnectedInput*[DIRECT_SENSORS_COUNT];
+DirectConnectedInput **directSensors = new DirectConnectedInput*[DIRECT_SENSORS_COUNT];
+Rtl433Input *rtlSensors;
 
 void StartSensorThreads(Management *management, std::map<std::string, SensorInfo> *sensorsTable) {
     int i = 0;
@@ -31,16 +33,20 @@ void StartSensorThreads(Management *management, std::map<std::string, SensorInfo
         if(sensor.IsDirect) {
             auto sensorThread = new DirectConnectedInput(management, new DS18B20Interface(it->first, sensor.Id, sensor.CorrectionCoefficient, sensor.Shift));
             sensorThread->Start();
-            sensors[i++] = sensorThread;
+            directSensors[i++] = sensorThread;
         }
     }
+    auto sensorThread = new Rtl433Input(management, sensorsTable);
+    sensorThread->Start();
+    rtlSensors = sensorThread;
 }
 void StopSensorThreads() {
     for(int i = 0; i < DIRECT_SENSORS_COUNT; i++) {
-        if(sensors[i] != nullptr) {
-            delete sensors[i];
+        if(directSensors[i] != nullptr) {
+            delete directSensors[i];
         }
     }
+    delete rtlSensors;
 }
 
 int main(void) {
@@ -57,18 +63,8 @@ int main(void) {
 
     StartSensorThreads(management, sensorsTable);
     Utils::WriteLogInfo(LOG_INFO, "Service start.");
-    while(Input::Get(deviceResponce, sensorsTable)) {
-        try {
-            if(prevDeviceResponce == deviceResponce || deviceResponce.Sensor == Undefined) {
-                continue;
-            }
-            prevDeviceResponce = deviceResponce;
-            management->ProcessResponce(deviceResponce);
-        } catch(...) {
-            Utils::WriteLogInfo(LOG_ERR, "ProcessResponce error");
-        }
-    }
-    Utils::WriteLogInfo(LOG_ERR, "Input stream is empty. Service stop.");
+    while(std::tolower(std::cin.get()) != 'q')  ;
+    Utils::WriteLogInfo(LOG_ERR, "Service stop.");
     StopSensorThreads();
     delete storage;
     delete management;

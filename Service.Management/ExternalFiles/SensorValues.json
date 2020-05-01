@@ -1,0 +1,112 @@
+[
+  {
+    "Description": "Улица (радио)",
+    "SensorId": 1,
+    "SensorIdentifier": "70",
+    "UseForCalc": true,
+    "IsIndoor": false,
+    "IsOutdoor": true,
+    "IsDirect": false,
+    "CorrectionCoefficient": 1,
+    "Shift": 0
+  },
+  {
+    "Description": "Дома (спальня)",
+    "SensorId": 2,
+    "SensorIdentifier": "142",
+    "UseForCalc": true,
+    "IsIndoor": true,
+    "IsOutdoor": false,
+    "IsDirect": false,
+    "CorrectionCoefficient": 1,
+    "Shift": 0
+  },
+  {
+    "Description": "Котел (радио)",
+    "SensorId": 3,
+    "SensorIdentifier": "60",
+    "UseForCalc": false,
+    "IsIndoor": false,
+    "IsOutdoor": false,
+    "IsDirect": false,
+    "CorrectionCoefficient": 1,
+    "Shift": 0
+  },
+  {
+    "Description": "Дома (зал)",
+    "SensorId": 4,
+    "SensorIdentifier": "69",
+    "UseForCalc": false,
+    "IsIndoor": true,
+    "IsOutdoor": false,
+    "IsDirect": false,
+    "CorrectionCoefficient": 1,
+    "Shift": 0
+  },
+  {
+    "Description": "Дома (мансарда)",
+    "SensorId": 5,
+    "SensorIdentifier": "134",
+    "UseForCalc": false,
+    "IsIndoor": true,
+    "IsOutdoor": false,
+    "IsDirect": false,
+    "CorrectionCoefficient": 1,
+    "Shift": 0
+  },
+  {
+    "Description": "Дома (кабинет)",
+    "SensorId": 6,
+    "SensorIdentifier": "12",
+    "UseForCalc": true,
+    "IsIndoor": true,
+    "IsOutdoor": false,
+    "IsDirect": false,
+    "CorrectionCoefficient": 1,
+    "Shift": 0
+  },
+  {
+    "Description": "Котел (провод)",
+    "SensorId": 7,
+    "SensorIdentifier": "030797794e9d",
+    "UseForCalc": false,
+    "IsIndoor": false,
+    "IsOutdoor": false,
+    "IsDirect": true,
+    "CorrectionCoefficient": 1,
+    "Shift": 1
+  },
+  {
+    "Description": "Дома (провод)",
+    "SensorId": 8,
+    "SensorIdentifier": "03069779b057",
+    "UseForCalc": true,
+    "IsIndoor": true,
+    "IsOutdoor": false,
+    "IsDirect": true,
+    "CorrectionCoefficient": 1,
+    "Shift": 0.4
+  },
+  {
+    "Description": "Улица (провод)",
+    "SensorId": 9,
+    "SensorIdentifier": "01144ab139aa",
+    "UseForCalc": true,
+    "IsIndoor": false,
+    "IsOutdoor": true,
+    "IsDirect": true,
+    "CorrectionCoefficient": 1,
+    "Shift": 0.6
+  },
+  {
+    "Description": "Дома (кухня)",
+    "SensorId": 10,
+    "SensorIdentifier": "105",
+    "UseForCalc": false,
+    "IsIndoor": true,
+    "IsOutdoor": false,
+    "IsDirect": false,
+    "CorrectionCoefficient": 1,
+    "Shift": 0
+  }
+]

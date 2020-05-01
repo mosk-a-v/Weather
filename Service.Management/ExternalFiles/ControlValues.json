@@ -1,0 +1,128 @@
+[
+  {
+    "Sun": 0,
+    "Wind": 0,
+    "Indoor": 20,
+    "Outdoor": 20,
+    "Boiler": 20
+  },
+  {
+    "Sun": 0,
+    "Wind": 0,
+    "Indoor": 20,
+    "Outdoor": 10,
+    "Boiler": 28
+  },
+  {
+    "Sun": 0,
+    "Wind": 0,
+    "Indoor": 20,
+    "Outdoor": 0,
+    "Boiler": 36
+  },
+  {
+    "Sun": 0,
+    "Wind": 0,
+    "Indoor": 20,
+    "Outdoor": -10,
+    "Boiler": 42
+  },
+  {
+    "Sun": 0,
+    "Wind": 0,
+    "Indoor": 20,
+    "Outdoor": -20,
+    "Boiler": 48
+  },
+  {
+    "Sun": 0,
+    "Wind": 0,
+    "Indoor": 20,
+    "Outdoor": -30,
+    "Boiler": 54
+  },
+  {
+    "Sun": 0,
+    "Wind": 0,
+    "Indoor": 18,
+    "Outdoor": 20,
+    "Boiler": 18
+  },
+  {
+    "Sun": 0,
+    "Wind": 0,
+    "Indoor": 18,
+    "Outdoor": 10,
+    "Boiler": 25
+  },
+  {
+    "Sun": 0,
+    "Wind": 0,
+    "Indoor": 18,
+    "Outdoor": 0,
+    "Boiler": 33
+  },
+  {
+    "Sun": 0,
+    "Wind": 0,
+    "Indoor": 18,
+    "Outdoor": -10,
+    "Boiler": 39
+  },
+  {
+    "Sun": 0,
+    "Wind": 0,
+    "Indoor": 18,
+    "Outdoor": -20,
+    "Boiler": 45
+  },
+  {
+    "Sun": 0,
+    "Wind": 0,
+    "Indoor": 18,
+    "Outdoor": -30,
+    "Boiler": 51
+  },
+  {
+    "Sun": 0,
+    "Wind": 0,
+    "Indoor": 22,
+    "Outdoor": 20,
+    "Boiler": 20
+  },
+  {
+    "Sun": 0,
+    "Wind": 0,
+    "Indoor": 22,
+    "Outdoor": 10,
+    "Boiler": 31
+  },
+  {
+    "Sun": 0,
+    "Wind": 0,
+    "Indoor": 22,
+    "Outdoor": 0,
+    "Boiler": 40
+  },
+  {
+    "Sun": 0,
+    "Wind": 0,
+    "Indoor": 22,
+    "Outdoor": -10,
+    "Boiler": 45
+  },
+  {
+    "Sun": 0,
+    "Wind": 0,
+    "Indoor": 22,
+    "Outdoor": -20,
+    "Boiler": 51
+  },
+  {
+    "Sun": 0,
+    "Wind": 0,
+    "Indoor": 22,
+    "Outdoor": -30,
+    "Boiler": 57
+  }
+]

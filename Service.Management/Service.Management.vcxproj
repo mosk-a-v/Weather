@@ -87,6 +87,7 @@
     <ClCompile Include="ISensorInterface.h" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Management.cpp" />
+    <ClCompile Include="Rtl433Input.cpp" />
     <ClCompile Include="SensorValues.cpp" />
     <ClCompile Include="Storage.cpp" />
     <ClCompile Include="TemplateUtils.cpp" />
@@ -96,6 +97,7 @@
   <ItemGroup>
     <ClInclude Include="Common.h" />
     <ClInclude Include="CommonStruct.h" />
+    <ClInclude Include="Rtl433Input.h" />
     <ClInclude Include="StandartLib.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="CurrentWeather.h" />
@@ -116,9 +118,9 @@
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="DB Create.sql" />
-    <None Include="\\syn_server\web_boiler\ControlValues.json" />
-    <None Include="\\syn_server\web_boiler\SensorValues.json" />
-    <None Include="\\syn_server\web_boiler\SettingsValue.json" />
+    <None Include="ExternalFiles\ControlValues.json" />
+    <None Include="ExternalFiles\SensorValues.json" />
+    <None Include="ExternalFiles\SettingsValue.json" />
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <Link>
@@ -131,7 +133,7 @@
       </AdditionalOptions>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
-      <LibraryDependencies>mysqlcppconn;wiringPi;curl;systemd;pthread%(LibraryDependencies)</LibraryDependencies>
+      <LibraryDependencies>mysqlcppconn;wiringPi;curl;systemd;pthread;paho-mqtt3as;paho-mqttpp3;%(LibraryDependencies)</LibraryDependencies>
     </Link>
     <RemotePostBuildEvent>
       <Command>
