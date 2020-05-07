@@ -1,7 +1,6 @@
 #include "CommandInput.h"
 
 Command* CommandInput::ParseCommand(std::string jsonStr) {
-    Utils::WriteLogInfo(LOG_ERR, "Call ParseMessage (command).");
     try {
         jsonStr = jsonStr.substr(jsonStr.find('{'));
         auto js = json::parse(jsonStr);

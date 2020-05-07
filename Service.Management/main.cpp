@@ -15,7 +15,8 @@
 //  1. Install Mosquitto Broker https://randomnerdtutorials.com/how-to-install-mosquitto-broker-on-raspberry-pi/
 //  2. Setup PIPE between rtl_433 & Mosquitto Broker https://tech.sid3windr.be/2017/03/getting-your-currentcost-433mhz-data-into-openhab-using-an-rtl-sdr-dongle-and-mqtt/
 //  3. Installing eclipse/paho.mqtt c++ client https://unix.stackexchange.com/questions/527810/installing-eclipse-paho-mqtt-c-client-on-debian
-//cat out.txt | projects/Service.Management/bin/ARM/Debug/Service.Management.out
+// mosquitto_pub -h 192.168.10.14 -t BOILER_COMMAND/JSON -f Command.json
+// rtl_433 -U -C si -R 91 -R 19 -F json 2>/dev/null  | mosquitto_pub -h 192.168.10.14 -i RTL_433 -l -t RTL_433/JSON
 
 std::mutex management_lock;
 std::mutex sensor_power_lock;

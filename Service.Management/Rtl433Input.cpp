@@ -12,6 +12,17 @@ bool Rtl433Input::ParseMessage(DeviceResponce& responce, std::string jsonStr) {
     try {
         jsonStr = jsonStr.substr(jsonStr.find('{'));
         auto js = json::parse(jsonStr);
+        std::string model = js.at("model");
+        bool supported = false;
+        for(auto it = models.begin(); it != models.end(); ++it) {
+            if(Utils::CaseInSensStringCompare(*it, model)) {
+                supported = true;
+                break;
+            }
+        }
+        if(!supported) {
+            return false;
+        }
         int id = js.at("id");
         auto it = sensorsTable->find(std::to_string(id));
         if(it != sensorsTable->end()) {
@@ -45,6 +56,8 @@ bool Rtl433Input::ParseMessage(DeviceResponce& responce, std::string jsonStr) {
 }
 Rtl433Input::Rtl433Input(Management * management, std::map<std::string, SensorInfo> *sensorsTable) : IInputInterface(management) {
     this->sensorsTable = sensorsTable;
+    this->models.push_back("inFactory sensor");
+    this->models.push_back("Nexus Temperature/Humidity");
 }
 Rtl433Input::~Rtl433Input() {
     if(_execute.load(std::memory_order_acquire)) {
