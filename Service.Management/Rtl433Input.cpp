@@ -43,73 +43,20 @@ bool Rtl433Input::ParseMessage(DeviceResponce& responce, std::string jsonStr) {
         return false;
     }
 }
-
-void Rtl433Input::Connect() {
-    if(client == nullptr || !client->is_connected()) {
-        connOpts.set_keep_alive_interval(20);
-        connOpts.set_clean_session(true);
-        this->client = new mqtt::async_client(SERVER_ADDRESS, CLIENT_ID);
-        client->connect(connOpts)->wait();
-        client->start_consuming();
-        client->subscribe(TOPIC, QOS)->wait();
-    }
-}
-
-std::string Rtl433Input::ReadMessage() {
-    try {
-        Connect();
-        auto msg = client->consume_message();
-        if(!msg) {
-            Disconnect();
-            return "";
-        }
-        return msg->get_payload_str();
-    } catch(std::exception &e) {
-        std::stringstream ss;
-        ss << "Read rtl_433 response error: " << e.what() << std::endl;
-        Utils::WriteLogInfo(LOG_ERR, ss.str());
-        Disconnect();
-    }
-    return std::string();
-}
-
-Rtl433Input::Rtl433Input(Management * management, std::map<std::string, SensorInfo> *sensorsTable) {
-    this->management = management;
+Rtl433Input::Rtl433Input(Management * management, std::map<std::string, SensorInfo> *sensorsTable) : IInputInterface(management) {
     this->sensorsTable = sensorsTable;
-    this->client = nullptr;
 }
-
 Rtl433Input::~Rtl433Input() {
     if(_execute.load(std::memory_order_acquire)) {
         Stop();
     };
 }
-
 void Rtl433Input::Stop() {
     _execute.store(false, std::memory_order_release);
-    Disconnect();
+    consumer.Disconnect();
     if(_thd.joinable())
         _thd.join();
 }
-
-void Rtl433Input::Disconnect() {
-    if(client != nullptr && client->is_connected()) {
-        try {
-            client->unsubscribe(TOPIC)->wait();
-            client->stop_consuming();
-            client->disconnect()->wait();
-        } catch(std::exception &e) {
-            std::stringstream ss;
-            ss << "Disconnect error: " << e.what() << std::endl;
-            Utils::WriteLogInfo(LOG_ERR, ss.str());
-        }
-    }
-    if(client != nullptr) {
-        delete client;
-        client = nullptr;
-    }
-}
-
 void Rtl433Input::Start() {
     if(_execute.load(std::memory_order_acquire)) {
         Stop();
@@ -121,17 +68,13 @@ void Rtl433Input::Start() {
         Utils::WriteLogInfo(LOG_INFO, ss.str());
         while(_execute.load(std::memory_order_acquire)) {
             DeviceResponce deviceResponce, prevDeviceResponce;
-            if(ParseMessage(deviceResponce, ReadMessage())) {
+            if(ParseMessage(deviceResponce, consumer.ReadMessage())) {
                 if(prevDeviceResponce == deviceResponce || deviceResponce.Sensor == Undefined) {
                     continue;
                 }
                 prevDeviceResponce = deviceResponce;
-                management->ProcessResponce(deviceResponce);
+                ProcessResponse(deviceResponce);
             }
         }
     });
-}
-
-bool Rtl433Input::IsRunning() const noexcept {
-    return (_execute.load(std::memory_order_acquire) && _thd.joinable());
 }

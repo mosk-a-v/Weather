@@ -5,39 +5,27 @@
 #include "CycleInfo.h"
 #include "SensorValues.h"
 #include "TemplateUtils.h"
-
-//#define TEST
+#include "Command.h"
+#include "NormalTemperatureStrategy.h"
 
 class Management {
 private:
-    std::vector<ControlValue> *controlTable = nullptr;
-    std::vector<SettingValue> *settingsTable = nullptr;
-    std::map<std::string, SensorInfo> *sensorsTable = nullptr;
-    GlobalWeather *globalWeatherSystem = nullptr;;
     Storage *storage = nullptr;
     CycleInfo *cycleInfo = nullptr;
     SensorValues *sensorValues = nullptr;
+    GlobalWeather *globalWeatherSystem = nullptr;;
+    TemperatureStrategyBase *temperatureStrategy = nullptr;
     char *additionalInfo = new char[250];
-    float maxIndoorTemperature;
-    float minIndoorTemperature;
-    float maxOutdoorTemperature;
-    float minOutdoorTemperature;
     std::string statusTemplate;
     SensorId boilerSensorId = DirectBoiler;
-protected:
-    float GetRequiredIndoorTemperature();
-    float GetRequiredBoilerTemperature(int sun, int wind, float outdoorTemperature, float indoorTemperature);
-    float GetControlValue(int sun, int wind, float outdoorTemperature, float indoorTemperature);
     void BeginNewCycle(const time_t &now);
     void StoreGlobalWeather();
-    bool SetBoilerSensorId(SensorValues *sensorValues);
-    float GetIndoorTemperature(SensorValues *sensorValues);
-    float GetOutdoorTemperature(SensorValues *sensorValues);
 public:
-    void LoadControlTable();
-    void LoadSettingsTable();
-    void ProcessResponce(const DeviceResponce& responce);
-    Management(Storage *storage, GlobalWeather *globalWeatherSystem, std::map<std::string, SensorInfo> *sensorsTable);
+    Management(Storage *storage, GlobalWeather *globalWeatherSystem);
     ~Management();
+
+    void ProcessResponce(const DeviceResponce& responce);
+    void ProcessCommand(Command *command);
+    
 };
 

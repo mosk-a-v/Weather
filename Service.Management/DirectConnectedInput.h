@@ -1,19 +1,16 @@
 #pragma once
 #include "Common.h"
 #include "Management.h"
+#include "IInputInterface.h"
 
-class DirectConnectedInput {
+class DirectConnectedInput : public IInputInterface {
 private:
-    std::atomic<bool> _execute;
-    std::thread _thd;
-    bool Query(DeviceResponce& responce);
     ISensorInterface *sensor;
-    Management *management;
+    bool Query(DeviceResponce& responce);
 public:
     DirectConnectedInput(Management *management, ISensorInterface *sensor);
     ~DirectConnectedInput();
     void Stop();
     void Start();
-    bool IsRunning() const noexcept;
 };
 

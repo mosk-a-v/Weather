@@ -20,7 +20,7 @@ void DirectConnectedInput::Start() {
             try {
                 DeviceResponce deviceResponce;
                 if(Query(deviceResponce)) {
-                    management->ProcessResponce(deviceResponce);
+                    ProcessResponse(deviceResponce);
                 }
             } catch(const std::exception &e) {
                 std::stringstream ss;
@@ -30,10 +30,6 @@ void DirectConnectedInput::Start() {
             }
         }
     });
-}
-
-bool DirectConnectedInput::IsRunning() const noexcept {
-    return (_execute.load(std::memory_order_acquire) && _thd.joinable());
 }
 
 bool DirectConnectedInput::Query(DeviceResponce& responce) {
@@ -55,9 +51,8 @@ bool DirectConnectedInput::Query(DeviceResponce& responce) {
     return true;
 }
 
-DirectConnectedInput::DirectConnectedInput(Management *management, ISensorInterface *sensor) :_execute(false) {
+DirectConnectedInput::DirectConnectedInput(Management *management, ISensorInterface *sensor) : IInputInterface(management) {
     this->sensor = sensor;
-    this->management = management;
 }
 
 DirectConnectedInput::~DirectConnectedInput() {

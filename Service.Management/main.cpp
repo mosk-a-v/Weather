@@ -3,7 +3,7 @@
 #include "Management.h"
 #include "DirectConnectedInput.h"
 #include "DS18B20Interface.h"
-#include "Input.h"
+#include "CommandInput.h"
 #include "Rtl433Input.h"
 
 //packages: git, libmysqlcppconn-dev, libcurl4-openssl-dev, nlohmann-json-dev, libsystemd-dev, wiringpi
@@ -22,53 +22,60 @@ std::mutex sensor_power_lock;
 std::mutex gpio_lock;
 std::string GlobalWeatherResponse;
 std::atomic<time_t> reset_time;
+std::vector<IInputInterface*> inputThreads;
 std::map<std::string, SensorInfo> *sensorsTable;
-DirectConnectedInput **directSensors = new DirectConnectedInput*[DIRECT_SENSORS_COUNT];
-Rtl433Input *rtlSensors;
 
-void StartSensorThreads(Management *management, std::map<std::string, SensorInfo> *sensorsTable) {
-    int i = 0;
+void StartInputThreads(Management *management, std::map<std::string, SensorInfo> *sensorsTable) {
     for(auto it = sensorsTable->begin(); it != sensorsTable->end(); ++it) {
         SensorInfo sensor = it->second;
         if(sensor.IsDirect) {
             auto sensorThread = new DirectConnectedInput(management, new DS18B20Interface(it->first, sensor.Id, sensor.CorrectionCoefficient, sensor.Shift));
             sensorThread->Start();
-            directSensors[i++] = sensorThread;
+            inputThreads.push_back(sensorThread);
         }
     }
-    auto sensorThread = new Rtl433Input(management, sensorsTable);
-    sensorThread->Start();
-    rtlSensors = sensorThread;
+    auto rtlThread = new Rtl433Input(management, sensorsTable);
+    rtlThread->Start();
+    inputThreads.push_back(rtlThread);
+    auto commandThread = new CommandInput(management);
+    commandThread->Start();
+    inputThreads.push_back(commandThread);
 }
-void StopSensorThreads() {
-    for(int i = 0; i < DIRECT_SENSORS_COUNT; i++) {
-        if(directSensors[i] != nullptr) {
-            delete directSensors[i];
+void StopInputThreads() {
+    for(auto it = inputThreads.begin(); it != inputThreads.end(); ++it) {
+        if(*it != nullptr) {
+            delete *it;
         }
     }
-    delete rtlSensors;
+}
+bool IsInputThreadsRunning() {
+    for(auto it = inputThreads.begin(); it != inputThreads.end(); ++it) {
+        if(*it == nullptr || !((*it)->IsRunning())) {
+            return false;
+        }
+    }
+    return true;
 }
 
 int main(void) {
-#ifdef TEST
-    TestAll();
-#else
     reset_time = Utils::GetTime();
-    DeviceResponce deviceResponce;
-    DeviceResponce prevDeviceResponce;    
     Storage *storage = new Storage();
-    sensorsTable = storage->ReadSensorsTable();
     GlobalWeather *gw = new GlobalWeather();
-    Management *management = new Management(storage, gw, sensorsTable);
+    Management *management = new Management(storage, gw);
 
-    StartSensorThreads(management, sensorsTable);
+    sensorsTable = Storage::ReadSensorsTable();
+    StartInputThreads(management, sensorsTable);
     Utils::WriteLogInfo(LOG_INFO, "Service start.");
-    while(std::tolower(std::cin.get()) != 'q')  ;
+    while(true) {
+        std::this_thread::sleep_for(std::chrono::seconds(60));
+        if(!IsInputThreadsRunning()) {
+            break;
+        }
+    }
     Utils::WriteLogInfo(LOG_ERR, "Service stop.");
-    StopSensorThreads();
+    StopInputThreads();
     delete storage;
     delete management;
     delete sensorsTable;
     return EXIT_SUCCESS;
-#endif 
 }

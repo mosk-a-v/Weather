@@ -22,7 +22,6 @@
 #define	SENSOR_POWER_PIN 27
 #define TEMPLATE_FILE_NAME "/media/NAS/web_boiler/boiler_status.html"
 #define SENSORS_COUNT 20
-#define DIRECT_SENSORS_COUNT 3
 #define HOST "tcp://192.168.10.19:3307"
 #define USER "boiler"
 #define PASSWORD "fruPrld7uj"
@@ -30,3 +29,5 @@
 #define CONTROL_VALUE_FILE "/media/USB/ControlValues.json"
 #define SENSORS_VALUE_FILE "/media/USB/SensorValues.json"
 #define SETTINGS_VALUE_FILE "/media/USB/SettingsValue.json"
+#define MOSQUITTO_BROKER_ADDRESS "tcp://localhost:1883"
+#define MOSQUITTO_BROKER_QOS 1

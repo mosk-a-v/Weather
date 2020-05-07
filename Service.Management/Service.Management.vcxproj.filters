@@ -6,16 +6,21 @@
     <ClCompile Include="DirectConnectedInput.cpp" />
     <ClCompile Include="DS18B20Interface.cpp" />
     <ClCompile Include="GlobalWeather.cpp" />
-    <ClCompile Include="Input.cpp" />
     <ClCompile Include="ISensorInterface.h" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Management.cpp" />
     <ClCompile Include="SensorValues.cpp" />
     <ClCompile Include="Storage.cpp" />
     <ClCompile Include="TemplateUtils.cpp" />
-    <ClCompile Include="TestManagement.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Rtl433Input.cpp" />
+    <ClCompile Include="IInputInterface.h" />
+    <ClCompile Include="CommandInput.cpp" />
+    <ClCompile Include="MqttConsumer.cpp" />
+    <ClCompile Include="NormalTemperatureStrategy.cpp" />
+    <ClCompile Include="TemperatureStrategyBase.cpp" />
+    <ClCompile Include="DirectTemperatureStrategy.cpp" />
+    <ClCompile Include="Command.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
@@ -27,14 +32,18 @@
     <ClInclude Include="DirectConnectedInput.h" />
     <ClInclude Include="DS18B20Interface.h" />
     <ClInclude Include="GlobalWeather.h" />
-    <ClInclude Include="Input.h" />
     <ClInclude Include="Management.h" />
     <ClInclude Include="SensorValues.h" />
     <ClInclude Include="Storage.h" />
     <ClInclude Include="TemplateUtils.h" />
-    <ClInclude Include="TestManagement.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Rtl433Input.h" />
+    <ClInclude Include="CommandInput.h" />
+    <ClInclude Include="MqttConsumer.h" />
+    <ClInclude Include="NormalTemperatureStrategy.h" />
+    <ClInclude Include="TemperatureStrategyBase.h" />
+    <ClInclude Include="DirectTemperatureStrategy.h" />
+    <ClInclude Include="Command.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="boiler_status.htm" />

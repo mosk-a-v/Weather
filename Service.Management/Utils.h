@@ -13,4 +13,6 @@ public:
     static std::time_t GetTime();
     static void WriteLogInfo(int priority, std::string message);
     static std::string ReadFile(std::string fileName);
+    static bool CompareChar(const char &c1, const char &c2);
+    static bool CaseInSensStringCompare(const std::string& str1, const std::string& str2);
 };
