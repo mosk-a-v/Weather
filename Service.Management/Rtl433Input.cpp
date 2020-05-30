@@ -12,10 +12,13 @@ bool Rtl433Input::ParseMessage(DeviceResponce& responce, std::string jsonStr) {
     try {
         jsonStr = jsonStr.substr(jsonStr.find('{'));
         auto js = json::parse(jsonStr);
-        std::string model = js.at("model");
+        auto modelItr = js.find("model");
+        if(modelItr == js.end()) {
+            return false;
+        }
         bool supported = false;
         for(auto it = models.begin(); it != models.end(); ++it) {
-            if(Utils::CaseInSensStringCompare(*it, model)) {
+            if(Utils::CaseInSensStringCompare(*it, *modelItr)) {
                 supported = true;
                 break;
             }

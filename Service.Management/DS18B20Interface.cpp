@@ -10,9 +10,9 @@ void DS18B20Interface::FileOpen() {
         file = nullptr;
     }
     if(errno != 0) {
-        std::stringstream ss;
+        /*std::stringstream ss;
         ss << "Sensor " << deviceId << " file open error (errno=" << errno << ").";;
-        Utils::WriteLogInfo(LOG_ERR, ss.str());
+        Utils::WriteLogInfo(LOG_ERR, ss.str());*/
     }
 }
 void DS18B20Interface::CloseFile() {

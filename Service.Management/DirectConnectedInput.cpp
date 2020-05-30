@@ -40,9 +40,9 @@ bool DirectConnectedInput::Query(DeviceResponce& responce) {
     for(int i = 0; i < 3; i++) {
         float value = sensor->Read();
         if(value < -55 || value > 125) {
-            std::stringstream ss;
+            /*std::stringstream ss;
             ss << "Wrong value for Sensor " << sensor->GetSensorId() << ". Value is `" << value << "'.";
-            Utils::WriteLogInfo(LOG_INFO, ss.str());
+            Utils::WriteLogInfo(LOG_INFO, ss.str());*/
             return false;
         }
         responce.Value += value / 3.0f;

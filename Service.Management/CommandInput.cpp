@@ -5,7 +5,11 @@ Command* CommandInput::ParseCommand(std::string jsonStr) {
         jsonStr = jsonStr.substr(jsonStr.find('{'));
         auto js = json::parse(jsonStr);
         std::string text = js.at("Command");
-        float value = js.at("Value");
+        float value = DEFAULT_TEMPERATURE;
+        auto valueItr = js.find("Value");
+        if(valueItr != js.end()) {
+            value = *valueItr;
+        }
         return new Command(text, value);
     } catch(...) {
         std::string message = "Parse command response error. {" + jsonStr + "}";
