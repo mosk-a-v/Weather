@@ -90,6 +90,7 @@
     <ClCompile Include="ISensorInterface.h" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Management.cpp" />
+    <ClCompile Include="MqttPublisher.cpp" />
     <ClCompile Include="Rtl433Input.cpp" />
     <ClCompile Include="SensorValues.cpp" />
     <ClCompile Include="IInputInterface.h" />
@@ -105,6 +106,7 @@
     <ClInclude Include="CommandInput.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="CommonStruct.h" />
+    <ClInclude Include="MqttPublisher.h" />
     <ClInclude Include="TemperatureStrategyBase.h" />
     <ClInclude Include="MqttConsumer.h" />
     <ClInclude Include="Rtl433Input.h" />

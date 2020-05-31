@@ -20,5 +20,6 @@ public:
     std::string ToString(SensorId id);
     std::string GetSensorColumns();
     std::string GetSensorValues();
+    nlohmann::json ToJson();
 };
 

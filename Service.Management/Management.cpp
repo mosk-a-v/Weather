@@ -6,6 +6,7 @@ Management::Management(Storage *storage, GlobalWeather *globalWeatherSystem) {
     this->sensorValues = new SensorValues();
     this->cycleInfo = new CycleInfo(Utils::GetTime());
     this->temperatureStrategy = new NormalTemperatureStrategy();
+    this->infoPublisher = new MqttPublisher(Topic, ClientId);
     sprintf(additionalInfo, "");
     Utils::SetupGPIO();
     this->statusTemplate = Utils::ReadFile(TEMPLATE_FILE_NAME);
@@ -28,7 +29,7 @@ void Management::ProcessResponce(const DeviceResponce& responce) {
         BeginNewCycle(now);
     }
     Utils::SetGPIOValues(BOILER_STATUS_PIN, !cycleInfo->IsBoilerOn());
-    TemplateUtils::WriteCurrentStatus(sensorValues, cycleInfo, statusTemplate, additionalInfo, now);
+    TemplateUtils::WriteCurrentStatus(sensorValues, cycleInfo, infoPublisher, statusTemplate, additionalInfo, now);
 }
 void Management::ProcessCommand(Command *command) {
     std::lock_guard<std::mutex> lock(management_lock);
@@ -39,7 +40,7 @@ void Management::ProcessCommand(Command *command) {
     temperatureStrategy = command->GetTemperatureStrategy();
     BeginNewCycle(now);
     Utils::SetGPIOValues(BOILER_STATUS_PIN, !cycleInfo->IsBoilerOn());
-    TemplateUtils::WriteCurrentStatus(sensorValues, cycleInfo, statusTemplate, additionalInfo, now);
+    TemplateUtils::WriteCurrentStatus(sensorValues, cycleInfo, infoPublisher, statusTemplate, additionalInfo, now);
 
 }
 void Management::StoreGlobalWeather() {
@@ -95,6 +96,10 @@ Management::~Management() {
     if(temperatureStrategy != nullptr) {
         delete temperatureStrategy;
         temperatureStrategy = nullptr;
+    }
+    if (infoPublisher != nullptr) {
+        delete infoPublisher;
+        infoPublisher = nullptr;
     }
     globalWeatherSystem = nullptr;
     storage = nullptr;

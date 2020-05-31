@@ -20,6 +20,7 @@
 
 std::mutex management_lock;
 std::mutex sensor_power_lock;
+std::mutex log_file_lock;
 std::mutex gpio_lock;
 std::string GlobalWeatherResponse;
 std::atomic<time_t> reset_time;

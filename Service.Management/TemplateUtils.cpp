@@ -1,6 +1,6 @@
 ﻿#include "TemplateUtils.h"
 
-void TemplateUtils::WriteCurrentStatus(SensorValues *sensorValues, CycleInfo *cycle, const std::string statusTemplate, char *additionalInfo, const time_t & now) {
+void TemplateUtils::WriteCurrentStatus(SensorValues *sensorValues, CycleInfo *cycle, MqttPublisher *publisher, const std::string statusTemplate, char *additionalInfo, const time_t & now) {
     try {
         std::ofstream statusStream;
         statusStream.open(OUTPUT_FILE_NAME, std::ofstream::out | std::ofstream::trunc);
@@ -10,7 +10,7 @@ void TemplateUtils::WriteCurrentStatus(SensorValues *sensorValues, CycleInfo *cy
                 "; BR: " << cycleStat->BoilerRequired << "; Delta: " << cycleStat->Delta << "; Status: " << cycleStat->IsHeating << std::endl;
             delete cycleStat;
         } else {
-            statusStream << FillTemplate(sensorValues, cycle, statusTemplate, additionalInfo, now);
+            statusStream << FillTemplate(sensorValues, cycle, publisher, statusTemplate, additionalInfo, now);
         }
         statusStream.close();
     } catch(std::exception e) {
@@ -18,13 +18,21 @@ void TemplateUtils::WriteCurrentStatus(SensorValues *sensorValues, CycleInfo *cy
     }
 }
 
-std::string TemplateUtils::FillTemplate(SensorValues *sensorValues, CycleInfo *cycle, const std::string statusTemplate, char *additionalInfo, const time_t & now) {
+std::string TemplateUtils::FillTemplate(SensorValues *sensorValues, CycleInfo *cycle, MqttPublisher* publisher, const std::string statusTemplate, char *additionalInfo, const time_t & now) {
     std::stringstream ss;
     ss << std::fixed;
     ss.precision(1);
     ss.imbue(std::locale(std::locale("ru_RU.utf8"), new IntegerNumPunct));
 
     CycleStatictics *cycleStat = cycle->GetStatictics();
+    nlohmann::json sensorInfo = sensorValues->ToJson();
+    sensorInfo["Delta"] = cycleStat->Delta;
+    sensorInfo["CycleStart"] = cycleStat->CycleStart;
+    sensorInfo["IsBoilerOn"] = cycleStat->IsBoilerOn;
+    sensorInfo["BoilerRequired"] = cycleStat->BoilerRequired;
+    sensorInfo["IsHeating"] = cycleStat->IsHeating;
+    publisher->Publish(sensorInfo.dump());
+
     size_t paramStart = statusTemplate.find("%");
     size_t paramEnd = -1;
     while(paramStart != std::string::npos) {

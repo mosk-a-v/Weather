@@ -149,3 +149,20 @@ std::string SensorValues::GetSensorValues() {
         GetAverageSensorValue(RadioKitchenHumidity);
     return ss.str();
 }
+
+nlohmann::json SensorValues::ToJson() {
+    nlohmann::json result;
+    for(auto it = sensorIndex.begin(); it != sensorIndex.end(); it++) {
+        if(((SensorId)it->first) == Undefined) {
+            continue;
+        }
+        nlohmann::json value;
+        value["Last"] = lastSensorValues[it->second];
+        value["Average"] = GetAverageSensorValue((SensorId)it->first);
+        value["Warning"] = sensorWarnings[it->second];
+        value["Time"] = lastSensorResponseTime[it->second];
+        value["IsInvalid"] = lastSensorValues[it->second] == DEFAULT_TEMPERATURE;
+        result[std::to_string(it->first)] = value;
+    }
+    return result;
+}

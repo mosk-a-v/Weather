@@ -71,7 +71,7 @@ void Utils::SetupGPIO() {
 }
 
 void Utils::SetGPIOValues(int pin, bool value) {
-    //std::lock_guard<std::mutex> lock(gpio_lock);
+    std::lock_guard<std::mutex> lock(gpio_lock);
     digitalWrite(pin, value);
 }
 
@@ -80,6 +80,7 @@ std::time_t Utils::GetTime() {
 }
 
 void Utils::WriteLogInfo(int priority, std::string message) {
+    std::lock_guard<std::mutex> lock(log_file_lock);
     sd_journal_print(priority, message.c_str());
     try {
         std::ofstream statusStream;
@@ -117,7 +118,9 @@ void Utils::WriteLogInfo(int priority, std::string message) {
         statusStream << FormatDateTime(GetTime()) << ". " << prefix << ": " << message<< std::endl;
         statusStream.close();
     } catch(std::exception e) {
-        Utils::WriteLogInfo(LOG_ERR, "Status write exception.");
+        std::stringstream ss;
+        ss << "Status write exception." << e.what();
+        sd_journal_print(LOG_ERR, ss.str().c_str());
     }
 }
 

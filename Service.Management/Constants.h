@@ -12,7 +12,7 @@
 #define OUTPUT_FILE_NAME "/media/NAS/web_boiler/index.html"
 #define LOG_FILE_NAME "/media/NAS/web_boiler/log.txt"
 #define READ_WAIT 5
-#define QUERY_INTERVAL 30
+#define QUERY_INTERVAL 15
 #define RESET_WAIT_INTERVAL 2
 #define RESET_TIMEOUT 600
 #define	W1_PREFIX	"/sys/bus/w1/devices/28-"

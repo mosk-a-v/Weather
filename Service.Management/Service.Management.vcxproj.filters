@@ -21,6 +21,7 @@
     <ClCompile Include="TemperatureStrategyBase.cpp" />
     <ClCompile Include="DirectTemperatureStrategy.cpp" />
     <ClCompile Include="Command.cpp" />
+    <ClCompile Include="MqttPublisher.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
@@ -44,6 +45,7 @@
     <ClInclude Include="TemperatureStrategyBase.h" />
     <ClInclude Include="DirectTemperatureStrategy.h" />
     <ClInclude Include="Command.h" />
+    <ClInclude Include="MqttPublisher.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="boiler_status.htm" />
