@@ -25,13 +25,15 @@ std::string TemplateUtils::FillTemplate(SensorValues *sensorValues, CycleInfo *c
     ss.imbue(std::locale(std::locale("ru_RU.utf8"), new IntegerNumPunct));
 
     CycleStatictics *cycleStat = cycle->GetStatictics();
-    nlohmann::json sensorInfo = sensorValues->ToJson();
-    sensorInfo["Delta"] = cycleStat->Delta;
-    sensorInfo["CycleStart"] = cycleStat->CycleStart;
-    sensorInfo["IsBoilerOn"] = cycleStat->IsBoilerOn;
-    sensorInfo["BoilerRequired"] = cycleStat->BoilerRequired;
-    sensorInfo["IsHeating"] = cycleStat->IsHeating;
-    publisher->Publish(sensorInfo.dump());
+    nlohmann::json boilerStatistics;
+    boilerStatistics["Delta"] = cycleStat->Delta;
+    boilerStatistics["CycleStart"] = cycleStat->CycleStart;
+    boilerStatistics["IsBoilerOn"] = cycleStat->IsBoilerOn;
+    boilerStatistics["BoilerRequired"] = cycleStat->BoilerRequired;
+    boilerStatistics["IsHeating"] = cycleStat->IsHeating;
+    boilerStatistics["AdditionalInfo"] = additionalInfo;
+    boilerStatistics["Sensors"] = sensorValues->ToJson();
+    publisher->Publish(boilerStatistics.dump());
 
     size_t paramStart = statusTemplate.find("%");
     size_t paramEnd = -1;

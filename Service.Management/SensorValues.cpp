@@ -157,12 +157,13 @@ nlohmann::json SensorValues::ToJson() {
             continue;
         }
         nlohmann::json value;
+        value["SensorId"] = it->first;
         value["Last"] = lastSensorValues[it->second];
         value["Average"] = GetAverageSensorValue((SensorId)it->first);
         value["Warning"] = sensorWarnings[it->second];
         value["Time"] = lastSensorResponseTime[it->second];
         value["IsInvalid"] = lastSensorValues[it->second] == DEFAULT_TEMPERATURE;
-        result[std::to_string(it->first)] = value;
+        result.push_back(value);
     }
     return result;
 }
