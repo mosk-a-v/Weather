@@ -1,0 +1,120 @@
+﻿@using BoilerWeb.HtmlHelpers;
+@model BoilerWeb.BoilerInfoModel;
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="~/css/index.css" />
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript" src="~/js/index.js"></script>
+    <script>
+        boilerinfo.chart.data.description.outdoor = @Html.Raw(Json.Serialize(BoilerWeb.BoilerInfoDescription.OutdoorSensors.OrderBy(x => x.Key).Select(x => x.Value)));
+        boilerinfo.chart.data.description.indoor = @Html.Raw(Json.Serialize(BoilerWeb.BoilerInfoDescription.IndoorSensors.OrderBy(x => x.Key).Select(x => x.Value)));
+        boilerinfo.chart.data.description.boiler = @Html.Raw(Json.Serialize(BoilerWeb.BoilerInfoDescription.BoilerSensors.OrderBy(x => x.Key).Select(x => x.Value)));
+        boilerinfo.chart.data.description.humidity = @Html.Raw(Json.Serialize(BoilerWeb.BoilerInfoDescription.HumiditySensors.OrderBy(x => x.Key).Select(x => x.Value)));
+        boilerinfo.chart.data.description.info = @Html.Raw(Json.Serialize(BoilerWeb.BoilerInfoDescription.InfoSensors.OrderBy(x => x.Key).Select(x => x.Value)));
+
+        boilerinfo.chart.data.values.outdoor = @Html.Raw(Json.Serialize(Model.Sensors
+                                              .Where(si=>BoilerWeb.BoilerInfoDescription.OutdoorSensors.Keys.Contains(si.SensorId))
+                                              .OrderBy(si => si.SensorId)
+                                              .Select(si=>Math.Round(si.Last, 1))));
+        boilerinfo.chart.data.values.indoor = @Html.Raw(Json.Serialize(Model.Sensors
+                                              .Where(si=>BoilerWeb.BoilerInfoDescription.IndoorSensors.Keys.Contains(si.SensorId))
+                                              .OrderBy(si => si.SensorId)
+                                              .Select(si=>Math.Round(si.Last, 1))));
+        boilerinfo.chart.data.values.boiler = @Html.Raw(Json.Serialize(Model.Sensors
+                                              .Where(si=>BoilerWeb.BoilerInfoDescription.BoilerSensors.Keys.Contains(si.SensorId))
+                                              .OrderBy(si => si.SensorId)
+                                              .Select(si=>Math.Round(si.Last, 1))));
+        boilerinfo.chart.data.values.humidity = @Html.Raw(Json.Serialize(Model.Sensors
+                                              .Where(si=>BoilerWeb.BoilerInfoDescription.HumiditySensors.Keys.Contains(si.SensorId))
+                                              .OrderBy(si => si.SensorId)
+                                              .Select(si=>Math.Round(si.Last, 1))));
+        boilerinfo.chart.data.values.info = @Html.Raw(Json.Serialize(Model.Sensors
+                                              .Where(si=>BoilerWeb.BoilerInfoDescription.InfoSensors.Keys.Contains(si.SensorId))
+                                              .OrderBy(si => si.SensorId)
+                                              .Select(si=>Math.Round(si.Last, 1))));
+        boilerinfo.chart.data.requiredBoiler = @(Math.Round(Model.BoilerRequired, 1))
+    </script>
+</head>
+<body onload="onLoadBody()">
+    <table>
+        <tr>
+            <td class="value">
+                <span>
+                    @(Model.BoilerRequired == BoilerWeb.BoilerInfoModel.DefaultValue ? "Запуск" : (Model.IsHeating ? "Нагрев" : "Охлаждение"))
+                </span>
+                <span>@BoilerInfoHelper.ConvertToLocal(Model.ReciveTime).ToString("dd-MM-yy HH:mm:ss")</span>
+            </td>
+        </tr>
+        <tr>
+            <td class="description">На улице</td>
+        </tr>
+        <tr>
+            <td>
+                <div style="display: flex; width: 750px; margin: auto;">
+                    <div style="width: 450px; height: 180px;" id="outdoor_charts" onclick="location.href='@Url.Action("OutdoorHistory")';"></div>
+                    <div style="width: 300px; height: 180px;" id="info_charts" onclick="location.href='@Url.Action("InfoHistory")';"> </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="description">Температура дома</td>
+        </tr>
+        <tr>
+            <td> <div style="width: 900px; margin: auto;" id="indoor_charts"  onclick="location.href='@Url.Action("IndoorHistory")';"/> </td>
+        </tr>
+        <tr>
+            <td class="description">Температура котла</td>
+        </tr>
+        <tr>
+            <td> <div style="width: 450px; margin: auto;" id="boiler_charts"  onclick="location.href='@Url.Action("BoilerHistory")';"/> </td>
+        </tr>
+        <tr>
+            <td class="description">Влажность дома</td>
+        </tr>
+        <tr>
+            <td> <div style="width: 600px; margin: auto;" id="humidity_charts"  onclick="location.href='@Url.Action("HumidityHistory")';"/> </td>
+        </tr>
+
+        <tr>
+            <td class="description">
+                <span> Котел включен </span>
+                <label class="container">
+                    <input type="checkbox" id="boiler_status" />
+                    <span class="checkmark"></span>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td class="value">
+                <span>
+                    Разность: @Model.Delta.ToString("N1") за @((int)Model.ReciveTime.Subtract(Model.CycleStart).TotalSeconds)сек
+                </span>
+                <span> @Model.AdditionalInfo </span>
+            </td>
+        </tr>
+    </table>
+    <script>
+        function onLoadBody() {
+            var x = document.getElementById("boiler_status");
+            x.checked = (@(Model.IsBoilerOn.ToString().ToLower()));
+        }
+    </script>
+    <div>
+        @using(Html.BeginForm("SetDirectMode", "Home", FormMethod.Post)) {
+            <input type="number" name="value" value="25" />
+            <input type="submit" value="Direct" />
+        }
+    </div>
+    <div>
+        @using(Html.BeginForm("SetNormalMode", "Home", FormMethod.Post)) {
+            <input type="submit" value="Normal" />
+        }
+    </div>
+</body>
+</html>
+
