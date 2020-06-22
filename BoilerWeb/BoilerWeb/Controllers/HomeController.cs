@@ -8,7 +8,12 @@ using Microsoft.Extensions.Logging;
 using BoilerWeb.Models;
 
 namespace BoilerWeb.Controllers {
+    public enum BoilerMode {
+        Auto, Direct
+    }
+
     public class HomeController : Controller {
+
         readonly ILogger<HomeController> _logger;
         readonly MqttConsumer mqttConsumer;
         readonly MqttPublisher mqttPublisher;
@@ -60,15 +65,21 @@ namespace BoilerWeb.Controllers {
         }
 
         [HttpPost]
-        public IActionResult SetDirectMode(float value) {
-            mqttPublisher.Publish(new CommandModel { Command = "Direct", Value = value });
+        public IActionResult SetMode(BoilerMode mode, float value) {
+            switch(mode) {
+                case BoilerMode.Auto:
+                    mqttPublisher.Publish(new CommandModel { Command = "Normal", Value = 0 });
+                    break;
+                case BoilerMode.Direct:
+                    mqttPublisher.Publish(new CommandModel { Command = "Direct", Value = value });
+                    break;
+            }
             return RedirectToAction("Index");
         }
 
-        [HttpPost]
-        public IActionResult SetNormalMode() {
-            mqttPublisher.Publish(new CommandModel { Command = "Normal", Value = 0 });
-            return RedirectToAction("Index");
+        [HttpGet]
+        public IActionResult Settings() {
+            return View();
         }
 
         public BoilerHistoryModel GetHistory(Dictionary<int, string> description) {

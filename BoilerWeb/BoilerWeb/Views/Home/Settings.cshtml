@@ -1,0 +1,45 @@
+﻿@using BoilerWeb.HtmlHelpers;
+
+@{
+    Layout = "_Layout";
+    ViewBag.Title = "Настройки";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/settings.css" />
+}
+
+<form class="w-75" action="@Url.Action("SetMode")" method="post">
+    <div class="container ml-3">
+        <h2> Режим работы </h2>
+        <div class="row">
+            <div class="col-sm-auto">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="mode" id="normalMode" value="Auto" checked>
+                    <label class="form-check-label" for="normalMode">
+                        Автоматический
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3" style="display:ruby">
+            <div class="col" style="width:100px">
+                <div class="form-check mt-1">
+                    <input class="form-check-input" type="radio" name="mode" id="directMode" value="Direct">
+                    <label class="form-check-label" for="directMode">
+                        Ручной:
+                    </label>
+                </div>
+            </div>
+            <div class="form-group form-inline" style="display:ruby-base;">
+                <input type="number" min="18" max="30" step="1" value="24" class="form-control" id="inputValue" style="width:70px" name="value">
+                <label for="inputValue" class="">гр.</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-auto">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    </div>
+</form>

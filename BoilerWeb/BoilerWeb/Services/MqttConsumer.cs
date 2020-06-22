@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace BoilerWeb {
     public class MqttConsumer : IHostedService {
-        const int QueueCapacity = 200;
+        const int QueueCapacity = 400;
         readonly IMqttClientService mqttClientService;
         BoilerInfoModel boilerInfoModel = new BoilerInfoModel { Sensors = new List<Sensor>() };
         DateTime lastFullModelRecieved = DateTime.MinValue;
@@ -61,8 +61,9 @@ namespace BoilerWeb {
                 readerWriterLockSlim.EnterWriteLock();
                 try {
                     boilerInfoModel = model;
-                    if(boilerInfoModel.ReciveTime.Subtract(lastFullModelRecieved).TotalMinutes >= 10
-                        /*boilerInfoModel.Sensors.All(s => s.Last != BoilerInfoModel.DefaultValue)*/) {
+                    if(boilerInfoModel.ReciveTime.Subtract(lastFullModelRecieved).TotalMinutes >= 10 &&
+                        boilerInfoModel.Sensors.All(s => !s.IsInvalid) ||
+                            boilerInfoModel.ReciveTime.Subtract(lastFullModelRecieved).TotalMinutes > 13) {
                         if(infoModelsHistory.Count >= QueueCapacity) {
                             infoModelsHistory.Dequeue();
                         }

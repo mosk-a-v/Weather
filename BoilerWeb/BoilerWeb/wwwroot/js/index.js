@@ -100,6 +100,8 @@ function drawChart() {
     boilerinfo.chart.drawBoilerChart();
     boilerinfo.chart.drawHumidityChart();
     boilerinfo.chart.drawInfoChart();
+
+    $("text:contains('(!)')").parents('svg').css({ 'border-color': 'red', 'border-style': 'solid', 'border-width': 'thin' });
 }
 
 google.charts.setOnLoadCallback(drawChart);
