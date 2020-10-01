@@ -22,7 +22,7 @@ namespace BoilerWeb {
         public List<Sensor> Sensors { get; set; }
     }
 
-    public struct Sensor {
+    public struct Sensor : ICloneable {
         public int SensorId { get; set; }
         public bool IsInvalid { get; set; }
         public double Average { get; set; }
@@ -30,5 +30,16 @@ namespace BoilerWeb {
         [JsonConverter(typeof(UnixDateTimeConverter))]
         public DateTime Time { get; set; }
         public bool Warning { get; set; }
+
+        public object Clone() {
+            return new Sensor {
+                SensorId = this.SensorId,
+                IsInvalid = this.IsInvalid,
+                Average = this.Average,
+                Last = this.Last,
+                Time = this.Time,
+                Warning = this.Warning
+            };
+        }
     }
 }

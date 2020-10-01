@@ -8,6 +8,7 @@ using System.Web.Mvc;
 namespace BoilerWeb.HtmlHelpers {
     public static class BoilerInfoHelper {
         static TimeZoneInfo local = TimeZoneInfo.FindSystemTimeZoneById("Europe/Moscow");
+        //static TimeZoneInfo local = TimeZoneInfo.FindSystemTimeZoneById("Russian Standard Time");
 
         public static IHtmlContent GetSensorInfo(this IHtmlHelper html, BoilerInfoModel boilerInfoModel, int sensorIndex) {
             return new HtmlString(boilerInfoModel.GetSensorInfo(sensorIndex));

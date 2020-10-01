@@ -39,15 +39,10 @@
                                               .OrderBy(si => si.SensorId)
                                               .Select(si=>Math.Round(si.Last, 1))));
         boilerinfo.chart.data.requiredBoiler = @(Math.Round(Model.BoilerRequired, 1));
-
-        function onLoadTable() {
-            var x = document.getElementById("boiler_status");
-            x.checked = (@(Model.IsBoilerOn.ToString().ToLower()));
-        }
     </script>
 }
 
-<table onload="onLoadTable">
+<table>
     <tr>
         <td class="value">
             <span>
@@ -57,7 +52,7 @@
         </td>
     </tr>
     <tr>
-        <td class="description">На улице</td>
+        <td class="description">Температура на улице</td>
     </tr>
     <tr>
         <td>
@@ -74,33 +69,26 @@
         <td> <div class="charts-group" style="width: 900px; margin: auto;" id="indoor_charts" onclick="location.href='@Url.Action("IndoorHistory")';" /> </td>
     </tr>
     <tr>
-        <td class="description">Температура котла</td>
+        <td class="description">Котел</td>
     </tr>
     <tr>
-        <td> <div class="charts-group" style="width: 450px; margin: auto;" id="boiler_charts" onclick="location.href='@Url.Action("BoilerHistory")';" /> </td>
+        <td>
+            <div style="display: flex; width: 600px; margin: auto;">
+                <div class="charts-group" style="width: 450px; height: 180px;" id="boiler_charts" onclick="location.href='@Url.Action("BoilerHistory")';" ></div>
+                <div style="width: 150px; height: 150px;">
+                    @if(Model.IsBoilerOn) {
+                        <img src="~/PNG/fire.png" width="120" height="120" alt="" loading="lazy" style="margin-top: 15px;">
+                    } else {
+                        <img src="~/PNG/no_fire.png" width="120" height="120" alt="" loading="lazy" style="margin-top: 15px;">
+                    }
+                </div>
+            </div>
+        </td>
     </tr>
     <tr>
         <td class="description">Влажность дома</td>
     </tr>
     <tr>
         <td> <div class="charts-group" style="width: 600px; margin: auto;" id="humidity_charts" onclick="location.href='@Url.Action("HumidityHistory")';" /> </td>
-    </tr>
-
-    <tr>
-        <td class="description">
-            <span> Котел включен </span>
-            <label class="container">
-                <input type="checkbox" id="boiler_status" />
-                <span class="checkmark"></span>
-            </label>
-        </td>
-    </tr>
-    <tr>
-        <td class="value">
-            <span>
-                Разность: @Model.Delta.ToString("N1") за @((int)Model.ReciveTime.Subtract(Model.CycleStart).TotalSeconds)сек
-            </span>
-            <span> @Model.AdditionalInfo </span>
-        </td>
     </tr>
 </table>

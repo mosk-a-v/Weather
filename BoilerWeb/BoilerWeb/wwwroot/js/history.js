@@ -24,9 +24,18 @@ function drawChart() {
 
     var options = {
         width: 900,
-        height: 500
+        height: 500,
+        curveType: 'function',
+        fontName: 'Arial'
+
     };
 
     var chart = new google.charts.Line(document.getElementById('linechart_material'));
+    WebFontConfig = {
+        custom: {
+            families: ['Roboto'],
+            urls: ['/']
+        }
+    };
     chart.draw(data, google.charts.Line.convertOptions(options));
 }

@@ -15,6 +15,8 @@ namespace BoilerWeb {
         BoilerInfoModel boilerInfoModel = new BoilerInfoModel { Sensors = new List<Sensor>() };
         DateTime lastFullModelRecieved = DateTime.MinValue;
         Queue<BoilerInfoModel> infoModelsHistory = new Queue<BoilerInfoModel>(QueueCapacity);
+        Dictionary<int, double> lastValues = new Dictionary<int, double>();
+
         readonly ReaderWriterLockSlim readerWriterLockSlim;
 
         public BoilerInfoModel BoilerInfoModel {
@@ -61,12 +63,12 @@ namespace BoilerWeb {
                 readerWriterLockSlim.EnterWriteLock();
                 try {
                     boilerInfoModel = model;
-                    if(boilerInfoModel.ReciveTime.Subtract(lastFullModelRecieved).TotalMinutes >= 10 &&
-                        boilerInfoModel.Sensors.All(s => !s.IsInvalid) ||
-                            boilerInfoModel.ReciveTime.Subtract(lastFullModelRecieved).TotalMinutes > 13) {
+                    SaveValidValues(model);
+                    if(boilerInfoModel.ReciveTime.Subtract(lastFullModelRecieved).TotalMinutes >= 10) {
                         if(infoModelsHistory.Count >= QueueCapacity) {
                             infoModelsHistory.Dequeue();
                         }
+                        SubstituteEmptyValues(model);
                         infoModelsHistory.Enqueue(model);
                         lastFullModelRecieved = boilerInfoModel.ReciveTime;
                     }
@@ -74,6 +76,28 @@ namespace BoilerWeb {
                     readerWriterLockSlim.ExitWriteLock();
                 }
             } catch { }
+        }
+
+        void SaveValidValues(BoilerInfoModel model) {
+            foreach(var sensor in model.Sensors) {
+                if(!sensor.IsInvalid || sensor.Last != BoilerInfoModel.DefaultValue) {
+                    if(!lastValues.TryAdd(sensor.SensorId, sensor.Last)) {
+                        lastValues[sensor.SensorId] = sensor.Last;
+                    }
+                }
+            }
+        }
+
+        void SubstituteEmptyValues(BoilerInfoModel model) {
+            for(int i = 0; i < model.Sensors.Count; i++) {
+                if(model.Sensors[i].IsInvalid || model.Sensors[i].Last == BoilerInfoModel.DefaultValue) {
+                    if(lastValues.TryGetValue(model.Sensors[i].SensorId, out double value)) {
+                        var sensor = (Sensor)model.Sensors[i].Clone();
+                        sensor.Last = value;
+                        model.Sensors[i] = sensor;
+                    }
+                }
+            }
         }
     }
 }

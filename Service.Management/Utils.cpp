@@ -82,40 +82,47 @@ std::time_t Utils::GetTime() {
 void Utils::WriteLogInfo(int priority, std::string message) {
     std::lock_guard<std::mutex> lock(log_file_lock);
     sd_journal_print(priority, message.c_str());
+
+    std::string prefix;
+    switch (priority) {
+    case LOG_EMERG:
+        prefix = "EMERGENCY";
+        break;
+    case LOG_ALERT:
+        prefix = "ALERT";
+        break;
+    case LOG_CRIT:
+        prefix = "CRITICAL";
+        break;
+    case LOG_ERR:
+        prefix = "ERROR";
+        break;
+    case LOG_WARNING:
+        prefix = "WARNING";
+        break;
+    case LOG_NOTICE:
+        prefix = "NOTICE";
+        break;
+    case LOG_INFO:
+        prefix = "INFO";
+        break;
+    case LOG_DEBUG:
+        prefix = "DEBUG";
+        break;
+    default:
+        prefix = "N|/A";
+        break;
+    }
     try {
         std::ofstream statusStream;
         statusStream.open(LOG_FILE_NAME, std::ofstream::out | std::ofstream::app);
-        std::string prefix;
-        switch(priority) {
-            case LOG_EMERG:
-                prefix = "EMERGENCY";
-                break;
-            case LOG_ALERT:
-                prefix = "ALERT";
-                break;
-            case LOG_CRIT:
-                prefix = "CRITICAL";
-                break;
-            case LOG_ERR:
-                prefix = "ERROR";
-                break;
-            case LOG_WARNING:
-                prefix = "WARNING";
-                break;
-            case LOG_NOTICE:
-                prefix = "NOTICE";
-                break;
-            case LOG_INFO:
-                prefix = "INFO";
-                break;
-            case LOG_DEBUG:
-                prefix = "DEBUG";
-                break;
-            default:
-                prefix = "N|/A";
-                break;
+        if(statusStream.is_open()) {
+            statusStream << FormatDateTime(GetTime()) << ". " << prefix << ": " << message << std::endl;
+        } else {
+            std::stringstream ss;
+            ss << "Log file open error. Badbit: '" << statusStream.badbit << "'";
+            sd_journal_print(LOG_ERR, ss.str().c_str());
         }
-        statusStream << FormatDateTime(GetTime()) << ". " << prefix << ": " << message<< std::endl;
         statusStream.close();
     } catch(std::exception e) {
         std::stringstream ss;

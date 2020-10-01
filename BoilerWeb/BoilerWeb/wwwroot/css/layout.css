@@ -1,5 +1,5 @@
 ﻿
-@media screen and (max-width: 950px) {
+@media screen and (max-width: 768px) {
     .dropdown-toggle {
         display: none;
     }
@@ -18,10 +18,15 @@
 }
 
 .dropdown-item {
-    color: rgba(0,0,0,.5)
+    color: rgba(0,0,0,.5);
+    font-size: 18px;
 }
 
 .dropdown-item.active {
     color: rgba(0,0,0,.9);
     background-color: #f8f9fa !important
+}
+
+.nav-link {
+    font-size: 18px;
 }

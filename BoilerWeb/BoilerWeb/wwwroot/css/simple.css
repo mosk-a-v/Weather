@@ -1,6 +1,11 @@
-﻿table {
+﻿h2 {
+    width: 650px;
+    margin-left: 5px;
+}
+
+table {
     border-collapse: collapse;
-    width: 800px;
+    width: 650px;
 }
 
 table, td, th {
