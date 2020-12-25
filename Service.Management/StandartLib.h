@@ -31,4 +31,5 @@
 #include <cppconn/exception.h>
 #include <cppconn/resultset.h>
 #include <wiringPi.h>
+#include <wiringPiI2C.h>
 

@@ -15,4 +15,7 @@ public:
     static std::string ReadFile(std::string fileName);
     static bool CompareChar(const char &c1, const char &c2);
     static bool CaseInSensStringCompare(const std::string& str1, const std::string& str2);
+    static int SetupI2C(int addr);
+    static uint16_t ReadFromI2C(uint16_t fd, uint8_t reg);
+    static uint16_t WriteToI2C(uint16_t fd, uint8_t reg, uint16_t data);
 };

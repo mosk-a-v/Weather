@@ -55,6 +55,11 @@ DirectConnectedInput::DirectConnectedInput(Management *management, ISensorInterf
     this->sensor = sensor;
 }
 
+DirectConnectedInput::DirectConnectedInput(Management* management, ISensorInterface* sensor, int queryInterval) :
+    DirectConnectedInput(management, sensor) {
+    this->queryInterval = queryInterval;
+}
+
 DirectConnectedInput::~DirectConnectedInput() {
     if(_execute.load(std::memory_order_acquire)) {
         Stop();

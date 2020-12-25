@@ -23,10 +23,13 @@ SensorValues::SensorValues() {
     sensorIndex[RadioStudyHumidity] = 15;
     sensorIndex[RadioKitchen] = 16;
     sensorIndex[RadioKitchenHumidity] = 17;
+    sensorIndex[ThermocoupleVoltage] = 18;
 
     for(int i = 0; i < SENSORS_COUNT; i++) {
         lastSensorValues[i] = DEFAULT_TEMPERATURE;
         avgSensorValues[i] = DEFAULT_TEMPERATURE;
+        minSensorValues[i] = DEFAULT_TEMPERATURE;
+        maxSensorValues[i] = DEFAULT_TEMPERATURE;
         lastSensorResponseTime[i] = DEFAULT_TIME;
         firstSensorResponseTime[i] = DEFAULT_TIME;
         sensorWarnings[i] = false;
@@ -47,6 +50,16 @@ float SensorValues::GetLastSensorValue(SensorId id) {
     return lastSensorValues[sensorIndex];
 }
 
+float SensorValues::GetMinSensorValue(SensorId id) {
+    int sensorIndex = GetSensorIndex(id);
+    return minSensorValues[sensorIndex];
+}
+
+float SensorValues::GetMaxSensorValue(SensorId id) {
+    int sensorIndex = GetSensorIndex(id);
+    return maxSensorValues[sensorIndex];
+}
+
 bool SensorValues::IsSensorWarning(SensorId id) {
     int sensorIndex = GetSensorIndex(id);
     return sensorWarnings[sensorIndex];
@@ -65,6 +78,8 @@ void SensorValues::AddSensorValue(SensorId id, float value, bool warning, time_t
     if(avgSensorValues[sensorIndex] == DEFAULT_TEMPERATURE) {
         firstSensorResponseTime[sensorIndex] = time;
         avgSensorValues[sensorIndex] = value;
+        minSensorValues[sensorIndex] = value;
+        maxSensorValues[sensorIndex] = value;
     } else {
         avgSensorValues[sensorIndex] += (time - lastSensorResponseTime[sensorIndex]) * value;
     }
@@ -75,6 +90,12 @@ void SensorValues::AddSensorValue(SensorId id, float value, bool warning, time_t
     lastSensorValues[sensorIndex] = value;
     if(!sensorWarnings[sensorIndex]) {
         sensorWarnings[sensorIndex] = warning;
+    }
+    if(minSensorValues[sensorIndex] > value) {
+        minSensorValues[sensorIndex] = value;
+    }
+    if(maxSensorValues[sensorIndex] < value) {
+        maxSensorValues[sensorIndex] = value;
     }
 }
 

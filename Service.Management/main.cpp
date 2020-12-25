@@ -5,8 +5,9 @@
 #include "DS18B20Interface.h"
 #include "CommandInput.h"
 #include "Rtl433Input.h"
+#include "Ina219Interface.h"
 
-//packages: git, libmysqlcppconn-dev, libcurl4-openssl-dev, nlohmann-json-dev, libsystemd-dev, wiringpi
+//packages: git, libmysqlcppconn-dev, libcurl4-openssl-dev, nlohmann-json-dev, libsystemd-dev, wiringpi, libi2c-dev
 //NFS Setup: 
 //  1. NAS https://kodi.wiki/index.php?title=NFS#Synology
 //  2. /etc/fstab add line '192.168.10.19:/volume1/web_boiler /media/NAS/web_boiler nfs lookupcache=all,soft,nolock,bg,nfsvers=3,ac,actimeo=1800'
@@ -27,18 +28,26 @@ std::atomic<time_t> reset_time;
 std::vector<IInputInterface*> inputThreads;
 std::map<std::string, SensorInfo> *sensorsTable;
 
-void StartInputThreads(Management *management, std::map<std::string, SensorInfo> *sensorsTable) {
+void StartInputThreads(Management* management, std::map<std::string, SensorInfo>* sensorsTable) {
     for(auto it = sensorsTable->begin(); it != sensorsTable->end(); ++it) {
         SensorInfo sensor = it->second;
-        if(sensor.IsDirect) {
-            auto sensorThread = new DirectConnectedInput(management, new DS18B20Interface(it->first, sensor.Id, sensor.CorrectionCoefficient, sensor.Shift));
+        DirectConnectedInput* sensorThread = nullptr;
+        if(sensor.InterfaceName == "1WIRE") {
+            sensorThread = new DirectConnectedInput(management, new DS18B20Interface(it->first, sensor.Id, sensor.CorrectionCoefficient, sensor.Shift));
             sensorThread->Start();
+        }
+        else if(sensor.InterfaceName == "I2C") {
+            sensorThread = new DirectConnectedInput(management, new Ina219Interface(it->first, sensor.Id, sensor.CorrectionCoefficient, sensor.Shift), 5);
+            sensorThread->Start();
+        }
+        if(sensorThread != nullptr) {
             inputThreads.push_back(sensorThread);
         }
     }
     auto rtlThread = new Rtl433Input(management, sensorsTable);
     rtlThread->Start();
     inputThreads.push_back(rtlThread);
+
     auto commandThread = new CommandInput(management);
     commandThread->Start();
     inputThreads.push_back(commandThread);

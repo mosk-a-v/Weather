@@ -61,6 +61,7 @@ void Management::BeginNewCycle(const time_t &now) {
     boilerSensorId = temperatureStrategy->GetBoilerSensorId(lastSensorValues);
     if(boilerSensorId != Undefined) {
         float boilerTemperature = lastSensorValues->GetLastSensorValue(boilerSensorId);
+        float minVoltage = lastSensorValues->GetMinSensorValue(ThermocoupleVoltage);
         time_t boilerResponseTime = lastSensorValues->GetLastSensorResponseTime(boilerSensorId);
         float sun = sensorValues->GetLastSensorValue(GlobalSun);
         float wind = sensorValues->GetLastSensorValue(GlobalWind);
@@ -68,7 +69,7 @@ void Management::BeginNewCycle(const time_t &now) {
         bool newCycleWillHeating = boilerTemperature <= adjustBoilerTemperature;
         float indoorTemperature = temperatureStrategy->GetIndoorTemperature(lastSensorValues);
         float outdoorTemperature = temperatureStrategy->GetOutdoorTemperature(lastSensorValues);
-        sprintf(additionalInfo, "Boiler: %.2f; Outdoor: %.2f; Indoor: %.2f", boilerTemperature, outdoorTemperature, indoorTemperature);
+        sprintf(additionalInfo, "Boiler: %.2f; Outdoor: %.2f; Indoor: %.2f; %.3f", boilerTemperature, outdoorTemperature, indoorTemperature, minVoltage);
         delete cycleInfo;
         cycleInfo = new CycleInfo(newCycleWillHeating, adjustBoilerTemperature, boilerTemperature, boilerResponseTime, now);
     } else {

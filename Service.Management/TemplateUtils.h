@@ -5,7 +5,8 @@
 #include "MqttPublisher.h"
 
 class TemplateUtils {
-    static std::string FillTemplate(SensorValues *sensorValues, CycleInfo *cycle, MqttPublisher* publisher, const std::string statusTemplate, char *additionalInfo, const time_t & now);
+    static std::string FillTemplate(SensorValues *sensorValues, CycleInfo *cycle, const std::string statusTemplate, char *additionalInfo, const time_t & now);
+    static void PublishStatus(SensorValues* sensorValues, CycleInfo* cycle, MqttPublisher* publisher, char* additionalInfo, const time_t& now);
 public:
     static void WriteCurrentStatus(SensorValues *sensorValues, CycleInfo *cycle, MqttPublisher* publisher, const std::string statusTemplate, char *additionalInfo, const time_t & now);
 };

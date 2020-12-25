@@ -159,3 +159,16 @@ bool Utils::CaseInSensStringCompare(const std::string& str1, const std::string& 
     return ((str1.size() >= pattern.size()) &&
             std::equal(str1.begin(), str1.end(), pattern.begin(), &CompareChar));
 }
+
+int Utils::SetupI2C(int addr) {
+    return wiringPiI2CSetup(addr);
+}
+
+uint16_t  Utils::ReadFromI2C(uint16_t  fd, uint8_t  reg) {
+    return wiringPiI2CReadReg16(fd, reg);
+}
+
+uint16_t Utils::WriteToI2C(uint16_t fd, uint8_t reg, uint16_t data) {
+    return wiringPiI2CWriteReg16(fd, reg, data);
+}
+
