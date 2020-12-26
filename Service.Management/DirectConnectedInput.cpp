@@ -16,7 +16,7 @@ void DirectConnectedInput::Start() {
         ss << "Thread for sensor " << sensor->GetSensorId() << " started.";
         Utils::WriteLogInfo(LOG_INFO, ss.str());
         while(_execute.load(std::memory_order_acquire)) {
-            std::this_thread::sleep_for(std::chrono::seconds(QUERY_INTERVAL));
+            std::this_thread::sleep_for(std::chrono::seconds(queryInterval));
             try {
                 DeviceResponce deviceResponce;
                 if(Query(deviceResponce)) {
