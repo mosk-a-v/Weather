@@ -51,6 +51,20 @@ void Management::StoreGlobalWeather() {
     delete weather;
     weather = nullptr;
 }
+float Management::ApplayLimitsToBoilerTemperature(float adjustBoilerTemperature, CycleStatictics* lastCycleStat) {
+    float const LimitToSecond = 1.0 / (60.0 * 60.0);
+    if(lastCycleStat->Result != Normal) {
+        return adjustBoilerTemperature;
+    }
+    float lastCycleLimit = LimitToSecond * (lastCycleStat->CycleLength);
+    if(adjustBoilerTemperature > lastCycleStat->BoilerRequired + lastCycleLimit) {
+        return lastCycleStat->BoilerRequired + lastCycleLimit;
+    }
+    else if(adjustBoilerTemperature < lastCycleStat->BoilerRequired - lastCycleLimit) {
+        return lastCycleStat->BoilerRequired - lastCycleLimit;
+    }
+    return adjustBoilerTemperature;
+}
 void Management::BeginNewCycle(const time_t &now) {
     CycleStatictics *lastCycleStat = cycleInfo->GetStatictics();
     SensorValues *lastSensorValues = sensorValues;
@@ -66,6 +80,7 @@ void Management::BeginNewCycle(const time_t &now) {
         float sun = sensorValues->GetLastSensorValue(GlobalSun);
         float wind = sensorValues->GetLastSensorValue(GlobalWind);
         float adjustBoilerTemperature = temperatureStrategy->GetBoilerTemperature(lastSensorValues, sun, wind);
+        adjustBoilerTemperature = ApplayLimitsToBoilerTemperature(adjustBoilerTemperature, lastCycleStat);
         bool newCycleWillHeating = boilerTemperature <= adjustBoilerTemperature;
         float indoorTemperature = temperatureStrategy->GetIndoorTemperature(lastSensorValues);
         float outdoorTemperature = temperatureStrategy->GetOutdoorTemperature(lastSensorValues);

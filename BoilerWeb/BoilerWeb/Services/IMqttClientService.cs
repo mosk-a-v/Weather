@@ -12,5 +12,6 @@ namespace BoilerWeb {
                                           IMqttApplicationMessageReceivedHandler,
                                           IApplicationMessagePublisher {
         event EventHandler<MQTTnet.MqttApplicationMessageReceivedEventArgs> OnMessageReceived;
+
     }
 }

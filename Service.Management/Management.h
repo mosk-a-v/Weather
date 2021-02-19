@@ -24,6 +24,7 @@ private:
     SensorId boilerSensorId = DirectBoiler;
     void BeginNewCycle(const time_t &now);
     void StoreGlobalWeather();
+    float ApplayLimitsToBoilerTemperature(float adjustBoilerTemperature, CycleStatictics* lastCycleStat);
 public:
     Management(Storage *storage, GlobalWeather *globalWeatherSystem);
     ~Management();

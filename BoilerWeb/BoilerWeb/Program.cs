@@ -18,9 +18,12 @@ namespace BoilerWeb
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
+                .ConfigureWebHostDefaults(webBuilder => {
                     webBuilder.UseStartup<Startup>();
-                });
+                })
+            .ConfigureLogging(builder => {
+                builder.AddDebug();
+                builder.AddConsole();
+            });
     }
 }
