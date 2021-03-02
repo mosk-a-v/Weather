@@ -17,7 +17,7 @@ void TemplateUtils::WriteCurrentStatus(SensorValues *sensorValues, CycleInfo *cy
         statusStream.close();
         */
     } catch(std::exception e) {
-        Utils::WriteLogInfo(LOG_ERR, "Status write exception.");
+        Utils::WriteLogInfo(LOG_WARNING, "Status write exception.", "");
     }
 }
 

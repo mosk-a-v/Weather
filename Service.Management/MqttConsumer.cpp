@@ -26,8 +26,8 @@ void MqttConsumer::Disconnect() {
             client->disconnect()->wait();
         } catch(std::exception &e) {
             std::stringstream ss;
-            ss << "Disconnect from " << topic << " error: " << e.what() << std::endl;
-            Utils::WriteLogInfo(LOG_ERR, ss.str());
+            ss << topic << ". Error: " << e.what();
+            Utils::WriteLogInfo(LOG_ERR, "Disconnect from Topic. Topic: ", ss.str());
         }
     }
     if(client != nullptr) {
@@ -46,8 +46,8 @@ std::string MqttConsumer::ReadMessage() {
         return msg->get_payload_str();
     } catch(std::exception &e) {
         std::stringstream ss;
-        ss << "Read " << topic << " response error: " << e.what() << std::endl;
-        Utils::WriteLogInfo(LOG_ERR, ss.str());
+        ss << topic << ". Error: " << e.what();
+        Utils::WriteLogInfo(LOG_ERR, "Error while read topic response. Topic: ", ss.str());
         Disconnect();
     }
     return std::string();

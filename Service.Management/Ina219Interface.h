@@ -1,5 +1,6 @@
 #pragma once
 #include "Common.h"
+#include "Utils.h"
 
 /* registers */
 #define INA219_ADDRESS  	0x40

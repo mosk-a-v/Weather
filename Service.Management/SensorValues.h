@@ -1,5 +1,6 @@
 #pragma once
 #include "Common.h"
+#include "Utils.h"
 
 class SensorValues {
     std::map<int, int> sensorIndex;

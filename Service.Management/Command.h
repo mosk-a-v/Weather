@@ -1,5 +1,6 @@
 #pragma once
 #include "Common.h"
+#include "Utils.h"
 #include "TemperatureStrategyBase.h"
 #include "DirectTemperatureStrategy.h"
 #include "NormalTemperatureStrategy.h"

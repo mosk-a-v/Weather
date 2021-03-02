@@ -1,6 +1,8 @@
 #pragma once
 #include "Common.h"
+#include "MqttPublisher.h"
 
+extern MqttPublisher logPublisher;
 class Utils {
 public:
     static float GetAdjustBoilerTemperature(float indoorTemperature, float requiredIndoorTemperature, float requiredBoilerTemperature);
@@ -11,7 +13,8 @@ public:
     static void SetupGPIO();
     static void SetGPIOValues(int pin, bool value);
     static std::time_t GetTime();
-    static void WriteLogInfo(int priority, std::string message);
+    static void WriteLogInfo(int priority, std::string message, std::string data);
+    static void PublishLogInfo(int priority, std::string message, std::string data);
     static std::string ReadFile(std::string fileName);
     static bool CompareChar(const char &c1, const char &c2);
     static bool CaseInSensStringCompare(const std::string& str1, const std::string& str2);

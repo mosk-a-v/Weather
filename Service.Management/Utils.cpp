@@ -79,7 +79,7 @@ std::time_t Utils::GetTime() {
     return std::time(0);
 }
 
-void Utils::WriteLogInfo(int priority, std::string message) {
+void Utils::WriteLogInfo(int priority, std::string message, std::string data) {
     std::lock_guard<std::mutex> lock(log_file_lock);
     sd_journal_print(priority, message.c_str());
 
@@ -114,10 +114,12 @@ void Utils::WriteLogInfo(int priority, std::string message) {
         break;
     }
     try {
+        std::stringstream messageStream;
+        messageStream << FormatDateTime(GetTime()) << ". " << prefix << ": " << message << data << std::endl;
         std::ofstream statusStream;
         statusStream.open(LOG_FILE_NAME, std::ofstream::out | std::ofstream::app);
         if(statusStream.is_open()) {
-            statusStream << FormatDateTime(GetTime()) << ". " << prefix << ": " << message << std::endl;
+            statusStream << messageStream.str();
         } else {
             std::stringstream ss;
             ss << "Log file open error. Badbit: '" << statusStream.badbit << "'";
@@ -129,6 +131,18 @@ void Utils::WriteLogInfo(int priority, std::string message) {
         ss << "Status write exception." << e.what();
         sd_journal_print(LOG_ERR, ss.str().c_str());
     }
+    if(priority < LOG_DEBUG) {
+        PublishLogInfo(priority, message, data);
+    }
+}
+
+void Utils::PublishLogInfo(int priority, std::string message, std::string data) {
+    nlohmann::json info;
+    info["Time"] = GetTime();
+    info["Priority"] = priority;
+    info["Text"] = message;
+    info["Data"] = data;
+    logPublisher.Publish(info.dump());
 }
 
 std::string Utils::ReadFile(std::string fileName) {
@@ -141,8 +155,8 @@ std::string Utils::ReadFile(std::string fileName) {
         return buffer.str();
     } catch(const std::exception &e) {
         std::stringstream ss;
-        ss << "File '" << fileName << "' read exception." << e.what();
-        Utils::WriteLogInfo(LOG_ERR, ss.str());
+        ss << fileName << "Exception: " << e.what();
+        Utils::WriteLogInfo(LOG_ERR, "File read exception. File: ", ss.str());
         return "";
     }
 }

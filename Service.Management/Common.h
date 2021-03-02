@@ -3,7 +3,6 @@
 #include "Constants.h"
 #include "CommonStruct.h"
 #include "ISensorInterface.h"
-#include "Utils.h"
 
 extern std::mutex management_lock;
 extern std::mutex sensor_power_lock;

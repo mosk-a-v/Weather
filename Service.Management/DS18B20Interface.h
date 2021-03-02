@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include "Common.h"
+#include "Utils.h"
 
 
 class DS18B20Interface : public ISensorInterface {

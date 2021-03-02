@@ -1,4 +1,5 @@
 #include "Common.h"
+#include "Utils.h"
 #include "GlobalWeather.h"
 #include "Management.h"
 #include "DirectConnectedInput.h"
@@ -18,6 +19,8 @@
 //  3. Installing eclipse/paho.mqtt c++ client https://unix.stackexchange.com/questions/527810/installing-eclipse-paho-mqtt-c-client-on-debian
 // mosquitto_pub -h 192.168.10.14 -t BOILER_COMMAND/JSON -m "{\"Command\":\"Direct\", \"Value\":29}"
 // rtl_433 -U -C si -R 91 -R 19 -F json 2>/dev/null  | mosquitto_pub -h 192.168.10.14 -i RTL_433 -l -t RTL_433/JSON
+const std::string LogTopic{"BOILER_LOG/JSON"};
+const std::string LogClientId{"boiler_log_publisher"};
 
 std::mutex management_lock;
 std::mutex sensor_power_lock;
@@ -27,6 +30,7 @@ std::string GlobalWeatherResponse;
 std::atomic<time_t> reset_time;
 std::vector<IInputInterface*> inputThreads;
 std::map<std::string, SensorInfo> *sensorsTable;
+MqttPublisher logPublisher(LogTopic, LogClientId);
 
 void StartInputThreads(Management* management, std::map<std::string, SensorInfo>* sensorsTable) {
     for(auto it = sensorsTable->begin(); it != sensorsTable->end(); ++it) {
@@ -76,15 +80,16 @@ int main(void) {
 
     sensorsTable = Storage::ReadSensorsTable();
     StartInputThreads(management, sensorsTable);
-    Utils::WriteLogInfo(LOG_INFO, "Service start.");
+    Utils::WriteLogInfo(LOG_INFO, "Service start.", "");
     while(true) {
         std::this_thread::sleep_for(std::chrono::seconds(60));
         if(!IsInputThreadsRunning()) {
             break;
         }
     }
-    Utils::WriteLogInfo(LOG_ERR, "Service stop.");
+    Utils::WriteLogInfo(LOG_ERR, "Service stop.", "");
     StopInputThreads();
+    
     delete storage;
     delete management;
     delete sensorsTable;

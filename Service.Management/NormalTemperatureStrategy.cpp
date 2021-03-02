@@ -54,9 +54,9 @@ float NormalTemperatureStrategy::GetRequiredIndoorTemperature() {
         return s.Hour == requiredDateTime->tm_hour && s.WeekDay == ((requiredDateTime->tm_wday + 6) % 7 + 1);
     });
     if(result == settingsTable->end()) {
-        std::stringstream message_stream;
-        message_stream << "Wrong Now. Hour: " << requiredDateTime->tm_hour << "; WeekDay:" << requiredDateTime->tm_wday << std::endl;
-        Utils::WriteLogInfo(LOG_INFO, message_stream.str());
+        std::stringstream ss;
+        ss << "Hour: " << requiredDateTime->tm_hour << "; WeekDay:" << requiredDateTime->tm_wday;
+        Utils::WriteLogInfo(LOG_ERR, "Wrong Now.", ss.str());
         return 20;
     } else {
         return result->Temperature;
@@ -114,9 +114,9 @@ float NormalTemperatureStrategy::GetControlValue(int sun, int wind, float outdoo
                                [sun, wind, outdoorTemperature, indoorTemperature](const ControlValue& c) -> bool {
         return c.Sun == sun && c.Wind == wind && c.Outdoor == outdoorTemperature && c.Indoor == indoorTemperature; });
     if(result == controlTable->end()) {
-        std::stringstream message_stream;
-        message_stream << "Wrong Temperature. Sun: " << sun << "; Wind:" << wind << "; Outdoor:" << outdoorTemperature << "; Indoor:" << indoorTemperature;
-        Utils::WriteLogInfo(LOG_INFO, message_stream.str());
+        std::stringstream ss;
+        ss << "Sun: " << sun << "; Wind:" << wind << "; Outdoor:" << outdoorTemperature << "; Indoor:" << indoorTemperature;
+        Utils::WriteLogInfo(LOG_ERR, "Wrong Temperature. ", ss.str());
         return 40;
     } else {
         return result->Boiler;

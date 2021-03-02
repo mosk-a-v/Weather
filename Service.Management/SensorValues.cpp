@@ -85,11 +85,19 @@ void SensorValues::AddSensorValue(SensorId id, float value, bool warning, time_t
     }
     if(lastSensorValues[sensorIndex] != DEFAULT_TEMPERATURE && fabs(lastSensorValues[sensorIndex] - value) > MAX_SENSOR_DEVIATION) {
         sensorWarnings[sensorIndex] = true;
+        std::stringstream ss;
+        ss << id;
+        Utils::WriteLogInfo(LOG_WARNING, "Warning for Sensor ", ss.str());
     }
     lastSensorResponseTime[sensorIndex] = time;
     lastSensorValues[sensorIndex] = value;
     if(!sensorWarnings[sensorIndex]) {
         sensorWarnings[sensorIndex] = warning;
+        if(warning) {
+            std::stringstream ss;
+            ss << id;
+            Utils::WriteLogInfo(LOG_WARNING, "Warning for Sensor ", ss.str());
+        }
     }
     if(minSensorValues[sensorIndex] > value) {
         minSensorValues[sensorIndex] = value;

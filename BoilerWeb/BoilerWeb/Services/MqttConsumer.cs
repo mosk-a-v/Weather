@@ -13,12 +13,15 @@ namespace BoilerWeb {
     public class MqttConsumer : IHostedService {
         const int QueueCapacity = 400;
         readonly IMqttClientService mqttClientService;
+        readonly ITelegramBotService telegramBotService;
         private readonly ILogger logger;
         BoilerInfoModel boilerInfoModel = new BoilerInfoModel { Sensors = new List<Sensor>() };
         DateTime lastFullModelRecieved = DateTime.MinValue;
         Queue<BoilerInfoModel> infoModelsHistory = new Queue<BoilerInfoModel>(QueueCapacity);
         Queue<BoilerInfoModel> voltageModelsHistory = new Queue<BoilerInfoModel>(QueueCapacity * 2);
         Dictionary<int, double> lastValues = new Dictionary<int, double>();
+        Dictionary<string, Action<MqttApplicationMessage>> topicHandlers = new Dictionary<string, Action<MqttApplicationMessage>>();
+        Dictionary<string, DateTime> logWarningsSendTime = new Dictionary<string, DateTime>();
 
         readonly ReaderWriterLockSlim readerWriterLockSlim;
 
@@ -53,10 +56,13 @@ namespace BoilerWeb {
             }
         }
 
-        public MqttConsumer(MqttClientServiceProvider provider, ILogger<MqttConsumer> logger) {
+        public MqttConsumer(MqttClientServiceProvider provider, ITelegramBotService telegramBotService, ILogger<MqttConsumer> logger) {
             this.readerWriterLockSlim = new ReaderWriterLockSlim();
             this.mqttClientService = provider.MqttClientService;
+            this.telegramBotService = telegramBotService;
             this.logger = logger;
+            this.topicHandlers.Add("BOILER_STATISTICS/JSON", ProcessCycleStatistics);
+            this.topicHandlers.Add("BOILER_LOG/JSON", ProcessLogInfo);
         }
 
         public Task StartAsync(CancellationToken cancellationToken) {
@@ -70,10 +76,32 @@ namespace BoilerWeb {
         }
 
         void MqttClientService_OnMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e) {
-            string json = e.ApplicationMessage.ConvertPayloadToString();
+            if(topicHandlers.TryGetValue(e.ApplicationMessage.Topic.ToUpper(), out Action<MqttApplicationMessage> handler)) {
+                handler(e.ApplicationMessage);
+            }
+        }
+        void ProcessLogInfo(MqttApplicationMessage applicationMessage) {
+            string json = applicationMessage.ConvertPayloadToString();
+            var model = JsonConvert.DeserializeObject<LogInfoModel>(json);
+            if(model.Priority == Priorities.LOG_WARNING) {
+                if(!logWarningsSendTime.TryGetValue(model.Text, out DateTime lastSended)) {
+                    lastSended = model.Time.ToLocalTime();
+                    logWarningsSendTime.Add(model.Text, lastSended);
+                } else {
+                    if(DateTime.Now.Subtract(lastSended).TotalMinutes < 30) {
+                        return;
+                    } else {
+                        logWarningsSendTime[model.Text] = model.Time.ToLocalTime();
+                    }
+                }
+            }
+            telegramBotService.SendMessage($"{model.Text} {model.Data}");
+        }
+        void ProcessCycleStatistics(MqttApplicationMessage applicationMessage) {
+            string json = applicationMessage.ConvertPayloadToString();
             try {
                 var model = JsonConvert.DeserializeObject<BoilerInfoModel>(json);
-                model.Sensors.Add(new Sensor() { 
+                model.Sensors.Add(new Sensor() {
                     SensorId = Sensor.SensorIdForBoilerRequired,
                     Last = model.BoilerRequired,
                     Time = model.CycleStart,
@@ -112,7 +140,6 @@ namespace BoilerWeb {
                 }
             } catch { }
         }
-
         void SaveValidValues(BoilerInfoModel model) {
             foreach(var sensor in model.Sensors) {
                 if(!sensor.IsInvalid || sensor.Last != BoilerInfoModel.DefaultValue) {

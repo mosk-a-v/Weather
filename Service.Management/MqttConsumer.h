@@ -1,6 +1,7 @@
 #pragma once
 #include "mqtt/async_client.h"
 #include "Common.h"
+#include "Utils.h"
 
 class MqttConsumer {
 private:

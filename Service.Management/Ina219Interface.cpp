@@ -18,8 +18,8 @@ float Ina219Interface::Read() {
     float value = getBusVoltage_V() * correctionCoefficient + shift;
     if(value < 0.140) {
         std::stringstream ss;
-        ss << "Sensor " << deviceId << " value error (value=" << value << ").";;
-        Utils::WriteLogInfo(LOG_ERR, ss.str());
+        ss << "Sensor " << GetSensorId() << " (value=" << value << "v).";;
+        Utils::WriteLogInfo(LOG_WARNING, "Sensor's value error. ", ss.str());
     }
     return value;
 }

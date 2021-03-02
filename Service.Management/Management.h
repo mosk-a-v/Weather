@@ -1,5 +1,6 @@
 #pragma once
 #include "Common.h"
+#include "Utils.h"
 #include "GlobalWeather.h"
 #include "Storage.h"
 #include "CycleInfo.h"

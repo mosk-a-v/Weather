@@ -1,5 +1,6 @@
 #pragma once
 #include "Common.h"
+#include "Utils.h"
 
 using json = nlohmann::json;
 class GlobalWeather {

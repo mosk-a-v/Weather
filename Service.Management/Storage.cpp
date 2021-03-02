@@ -78,10 +78,7 @@ Storage::~Storage() {
 }
 
 void Storage::LogException(std::exception &e) {
-    std::stringstream ss;
-    ss << "# ERR: SQLException in " << __FILE__;
-    ss << "# ERR: " << e.what() << std::endl;
-    Utils::WriteLogInfo(LOG_ERR, ss.str());
+    Utils::WriteLogInfo(LOG_WARNING, "SQLException", e.what());
 }
 
 void Storage::Connect() {
