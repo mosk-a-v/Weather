@@ -71,6 +71,7 @@ void Management::BeginNewCycle(const time_t &now) {
     storage->SaveCycleStatistics(lastCycleStat, lastSensorValues);
 
     sensorValues = new SensorValues();
+    sensorValues->CloneLastValues(lastSensorValues);
     StoreGlobalWeather();
     boilerSensorId = temperatureStrategy->GetBoilerSensorId(lastSensorValues);
     if(boilerSensorId != Undefined) {

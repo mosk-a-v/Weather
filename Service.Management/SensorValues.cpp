@@ -75,20 +75,22 @@ void SensorValues::AddSensorValue(SensorId id, float value, bool warning, time_t
     if(value == DEFAULT_TEMPERATURE) {
         return;
     }
-    if(avgSensorValues[sensorIndex] == DEFAULT_TEMPERATURE) {
+    if(lastSensorValues[sensorIndex] == DEFAULT_TEMPERATURE) {
         firstSensorResponseTime[sensorIndex] = time;
+        lastSensorResponseTime[sensorIndex] = time;
+        lastSensorValues[sensorIndex] = value;
         avgSensorValues[sensorIndex] = value;
         minSensorValues[sensorIndex] = value;
         maxSensorValues[sensorIndex] = value;
-    } else {
-        avgSensorValues[sensorIndex] += (time - lastSensorResponseTime[sensorIndex]) * value;
     }
-    if(lastSensorValues[sensorIndex] != DEFAULT_TEMPERATURE && fabs(lastSensorValues[sensorIndex] - value) > MAX_SENSOR_DEVIATION) {
+    if(fabs(lastSensorValues[sensorIndex] - value) > MAX_SENSOR_DEVIATION) {
         sensorWarnings[sensorIndex] = true;
         std::stringstream ss;
-        ss << id;
-        Utils::WriteLogInfo(LOG_WARNING, "Warning for Sensor ", ss.str());
+        ss << id << ": " << value << "; " << lastSensorValues[sensorIndex];
+        Utils::WriteLogInfo(LOG_WARNING, "Wrong value for Sensor ", ss.str());
+        return;
     }
+    avgSensorValues[sensorIndex] += (time - lastSensorResponseTime[sensorIndex]) * value;
     lastSensorResponseTime[sensorIndex] = time;
     lastSensorValues[sensorIndex] = value;
     if(!sensorWarnings[sensorIndex]) {
@@ -195,4 +197,19 @@ nlohmann::json SensorValues::ToJson() {
         result.push_back(value);
     }
     return result;
+}
+
+void SensorValues::CloneLastValues(SensorValues *lastValues) {
+    for(int i = 0; i < SENSORS_COUNT; i++) {
+        if(sensorWarnings[i]) {
+            continue;
+        }
+        lastSensorValues[i] = lastValues->lastSensorValues[i];
+        avgSensorValues[i] = lastValues->lastSensorValues[i];
+        minSensorValues[i] = lastValues->lastSensorValues[i];
+        maxSensorValues[i] = lastValues->lastSensorValues[i];
+        lastSensorResponseTime[i] = lastValues->lastSensorResponseTime[i];
+        firstSensorResponseTime[i] = lastValues->lastSensorResponseTime[i];
+        sensorWarnings[i] = false;
+    }
 }

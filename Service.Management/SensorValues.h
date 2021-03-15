@@ -26,5 +26,6 @@ public:
     std::string GetSensorColumns();
     std::string GetSensorValues();
     nlohmann::json ToJson();
+    void CloneLastValues(SensorValues* lastValues);
 };
 
