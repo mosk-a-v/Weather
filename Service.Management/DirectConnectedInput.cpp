@@ -13,10 +13,10 @@ void DirectConnectedInput::Start() {
     _execute.store(true, std::memory_order_release);
     _thd = std::thread([this]() {
         std::stringstream ss;
-        ss << "Thread for sensor " << sensor->GetSensorId() << " started.";
-        Utils::WriteLogInfo(LOG_INFO, ss.str());
+        ss << sensor->GetSensorId();
+        Utils::WriteLogInfo(LOG_DEBUG, "Thread for sensor started. SensorId: ", ss.str());
         while(_execute.load(std::memory_order_acquire)) {
-            std::this_thread::sleep_for(std::chrono::seconds(QUERY_INTERVAL));
+            std::this_thread::sleep_for(std::chrono::seconds(queryInterval));
             try {
                 DeviceResponce deviceResponce;
                 if(Query(deviceResponce)) {
@@ -24,9 +24,9 @@ void DirectConnectedInput::Start() {
                 }
             } catch(const std::exception &e) {
                 std::stringstream ss;
-                ss << "Thread for sensor " << sensor->GetSensorId() << " exception.";
+                ss << sensor->GetSensorId();
                 ss << e.what();
-                Utils::WriteLogInfo(LOG_INFO, ss.str());
+                Utils::WriteLogInfo(LOG_ERR, "Thread for sensor throw exception.  SensorId: ", ss.str());
             }
         }
     });
@@ -53,6 +53,11 @@ bool DirectConnectedInput::Query(DeviceResponce& responce) {
 
 DirectConnectedInput::DirectConnectedInput(Management *management, ISensorInterface *sensor) : IInputInterface(management) {
     this->sensor = sensor;
+}
+
+DirectConnectedInput::DirectConnectedInput(Management* management, ISensorInterface* sensor, int queryInterval) :
+    DirectConnectedInput(management, sensor) {
+    this->queryInterval = queryInterval;
 }
 
 DirectConnectedInput::~DirectConnectedInput() {

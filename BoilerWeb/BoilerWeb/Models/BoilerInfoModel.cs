@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace BoilerWeb {
-
     public struct BoilerInfoModel {
         public const int DefaultValue = -100;
 
@@ -23,6 +22,9 @@ namespace BoilerWeb {
     }
 
     public struct Sensor : ICloneable {
+        public const int SensorIdForBoilerRequired = 1000;
+        public const int SensorIdForBoilerState = 1001;
+
         public int SensorId { get; set; }
         public bool IsInvalid { get; set; }
         public double Average { get; set; }

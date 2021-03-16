@@ -2,6 +2,8 @@
 
 void TemplateUtils::WriteCurrentStatus(SensorValues *sensorValues, CycleInfo *cycle, MqttPublisher *publisher, const std::string statusTemplate, char *additionalInfo, const time_t & now) {
     try {
+        PublishStatus(sensorValues, cycle, publisher, additionalInfo, now);
+        /*
         std::ofstream statusStream;
         statusStream.open(OUTPUT_FILE_NAME, std::ofstream::out | std::ofstream::trunc);
         if(statusTemplate.length() < 10) {
@@ -10,21 +12,17 @@ void TemplateUtils::WriteCurrentStatus(SensorValues *sensorValues, CycleInfo *cy
                 "; BR: " << cycleStat->BoilerRequired << "; Delta: " << cycleStat->Delta << "; Status: " << cycleStat->IsHeating << std::endl;
             delete cycleStat;
         } else {
-            statusStream << FillTemplate(sensorValues, cycle, publisher, statusTemplate, additionalInfo, now);
+            statusStream << FillTemplate(sensorValues, cycle, statusTemplate, additionalInfo, now);
         }
         statusStream.close();
+        */
     } catch(std::exception e) {
-        Utils::WriteLogInfo(LOG_ERR, "Status write exception.");
+        Utils::WriteLogInfo(LOG_WARNING, "Status write exception.", "");
     }
 }
 
-std::string TemplateUtils::FillTemplate(SensorValues *sensorValues, CycleInfo *cycle, MqttPublisher* publisher, const std::string statusTemplate, char *additionalInfo, const time_t & now) {
-    std::stringstream ss;
-    ss << std::fixed;
-    ss.precision(1);
-    ss.imbue(std::locale(std::locale("ru_RU.utf8"), new IntegerNumPunct));
-
-    CycleStatictics *cycleStat = cycle->GetStatictics();
+void TemplateUtils::PublishStatus(SensorValues* sensorValues, CycleInfo* cycle, MqttPublisher* publisher, char* additionalInfo, const time_t& now) {
+    CycleStatictics* cycleStat = cycle->GetStatictics();
     nlohmann::json boilerStatistics;
     boilerStatistics["Delta"] = cycleStat->Delta;
     boilerStatistics["CycleStart"] = cycleStat->CycleStart;
@@ -34,7 +32,15 @@ std::string TemplateUtils::FillTemplate(SensorValues *sensorValues, CycleInfo *c
     boilerStatistics["AdditionalInfo"] = additionalInfo;
     boilerStatistics["Sensors"] = sensorValues->ToJson();
     publisher->Publish(boilerStatistics.dump());
+    delete cycleStat;
+}
 
+std::string TemplateUtils::FillTemplate(SensorValues *sensorValues, CycleInfo *cycle, const std::string statusTemplate, char *additionalInfo, const time_t & now) {
+    std::stringstream ss;
+    ss << std::fixed;
+    ss.precision(1);
+    ss.imbue(std::locale(std::locale("ru_RU.utf8"), new IntegerNumPunct));
+    CycleStatictics* cycleStat = cycle->GetStatictics();
     size_t paramStart = statusTemplate.find("%");
     size_t paramEnd = -1;
     while(paramStart != std::string::npos) {

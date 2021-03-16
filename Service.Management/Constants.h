@@ -10,7 +10,7 @@
 #define DEFAULT_TIME 0
 #define MAX_TEMPERATURE_DEVIATION 4
 #define OUTPUT_FILE_NAME "/media/NAS/web_boiler/index.html"
-#define LOG_FILE_NAME "/media/NAS/web_boiler/log.txt"
+#define LOG_FILE_NAME "/tmp/boiler_log.txt"
 #define READ_WAIT 5
 #define QUERY_INTERVAL 15
 #define RESET_WAIT_INTERVAL 2

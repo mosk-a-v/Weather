@@ -18,9 +18,9 @@ void CycleInfo::DetectLatency() {
         return;
     }
     if(isHeating) {
-        isLatencyPeriod = (delta < 0 && deltaForLastPeriod > 0 && fabs(delta) < deltaForLastPeriod);
+        isLatencyPeriod = (delta < 0 && deltaForLastPeriod > 0 && fabs(delta) < (2 * fabs(deltaForLastPeriod)));
     } else {
-        isLatencyPeriod = (delta > 0 && deltaForLastPeriod < 0 && fabs(delta) < deltaForLastPeriod);
+        isLatencyPeriod = (delta > 0 && deltaForLastPeriod < 0 && fabs(delta) < (2 * fabs(deltaForLastPeriod)));
     }
 }
 float CycleInfo::CalclateDeltaForLastPeriod(float boilerTemperature, const time_t& now) {

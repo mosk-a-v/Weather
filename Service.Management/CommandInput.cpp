@@ -12,8 +12,7 @@ Command* CommandInput::ParseCommand(std::string jsonStr) {
         }
         return new Command(text, value);
     } catch(...) {
-        std::string message = "Parse command response error. {" + jsonStr + "}";
-        Utils::WriteLogInfo(LOG_ERR, message);
+        Utils::WriteLogInfo(LOG_ERR, "Parse command response error. ", jsonStr);
         return nullptr;
     }
 }
@@ -39,7 +38,7 @@ void CommandInput::Start() {
     _thd = std::thread([this]() {
         std::stringstream ss;
         ss << "Thread for command client started.";
-        Utils::WriteLogInfo(LOG_INFO, ss.str());
+        Utils::WriteLogInfo(LOG_DEBUG, ss.str(), "");
         while(_execute.load(std::memory_order_acquire)) {
             auto command = ParseCommand(consumer.ReadMessage());
             if(command != nullptr) {

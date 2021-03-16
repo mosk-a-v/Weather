@@ -9,6 +9,7 @@ boilerinfo.chart.data.temperature = {};
 boilerinfo.chart.data.description = {};
 boilerinfo.chart.data.humidity = {};
 boilerinfo.chart.data.values = {};
+boilerinfo.chart.data.state = {};
 
 boilerinfo.chart.options.temperature.outdoor = {
     width: 450, height: 150,
@@ -38,6 +39,13 @@ boilerinfo.chart.options.humidity = {
 boilerinfo.chart.options.info = {
     width: 300, height: 150
 };
+boilerinfo.chart.options.state = {
+    width: 150, height: 150,
+    greenFrom: 0.16, greenTo: 0.4,
+    majorTicks: 0.1, minorTicks: 0.02,
+    max: 0.5, min: 0.1
+};
+
 
 boilerinfo.chart.drawOutdoorChart = function () {
     var chart = new google.visualization.Gauge(document.getElementById('outdoor_charts'));
@@ -64,6 +72,12 @@ boilerinfo.chart.drawInfoChart = function () {
     chart.draw(boilerinfo.chart.data.info, boilerinfo.chart.options.info);
     chart.container.children[0].style.width = chart.container.style.width;
 }
+boilerinfo.chart.drawStateChart = function () {
+    var chart = new google.visualization.Gauge(document.getElementById('state_charts'));
+    chart.draw(boilerinfo.chart.data.state, boilerinfo.chart.options.state);
+    chart.container.children[0].style.width = chart.container.style.width;
+}
+
 
 function drawChart() {
     var labels_outdoor = [['Label', 'Value']];
@@ -92,11 +106,17 @@ function drawChart() {
     boilerinfo.chart.data.info = google.visualization.arrayToDataTable(labels_info);
     boilerinfo.chart.data.values.info.forEach((item, index) => boilerinfo.chart.data.info.setValue(index, 1, (item === -100 ? undefined : item)));
 
+    var labels_state = [['Label', 'Value']];
+    boilerinfo.chart.data.description.state.forEach(x => labels_state.push([x, 0]));
+    boilerinfo.chart.data.state = google.visualization.arrayToDataTable(labels_state);
+    boilerinfo.chart.data.values.state.forEach((item, index) => boilerinfo.chart.data.state.setValue(index, 1, (item === -100 ? undefined : item)));
+
     boilerinfo.chart.drawOutdoorChart();
     boilerinfo.chart.drawIndoorChart();
     boilerinfo.chart.drawBoilerChart();
     boilerinfo.chart.drawHumidityChart();
     boilerinfo.chart.drawInfoChart();
+    boilerinfo.chart.drawStateChart();
 
     $("text:contains('(!)')").parents('svg').css({ 'border-color': 'red', 'border-style': 'solid', 'border-width': 'thin' });
 }

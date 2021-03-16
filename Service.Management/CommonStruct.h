@@ -26,7 +26,8 @@ enum SensorId {
     RadioKitchenHumidity = 30,
     GlobalSun = 100,
     GlobalWind = 101,
-    GlobalOutdoor = 102
+    GlobalOutdoor = 102,
+    ThermocoupleVoltage = 103
 };
 
 struct ControlValue {
@@ -105,16 +106,16 @@ public:
     bool UseForCalc;
     bool IsIndoor;
     bool IsOutdoor;
-    bool IsDirect;
+    std::string InterfaceName;
     float CorrectionCoefficient;
     float Shift;
 
-    SensorInfo(int id, bool isIndoor, bool isOutdoor, bool useForCalc, bool isDirect, float correctionCoefficient, float shift) {
+    SensorInfo(int id, bool isIndoor, bool isOutdoor, bool useForCalc, std::string interfaceName, float correctionCoefficient, float shift) {
         Id = (SensorId)id;
         IsIndoor = isIndoor;
         IsOutdoor = isOutdoor;
         UseForCalc = useForCalc;
-        IsDirect = isDirect;
+        InterfaceName = interfaceName;
         CorrectionCoefficient = correctionCoefficient;
         Shift = shift;
     }

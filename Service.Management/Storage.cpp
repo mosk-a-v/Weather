@@ -63,10 +63,10 @@ std::map<std::string, SensorInfo>* Storage::ReadSensorsTable() {
         bool useForCalc = it->at("UseForCalc");
         bool isIndoor = it->at("IsIndoor");
         bool isOutdoor = it->at("IsOutdoor");
-        bool isDirect = it->at("IsDirect");
+        std::string interfaceName = it->at("Interface");
         float correctionCoefficient = it->at("CorrectionCoefficient");
         float shift = it->at("Shift");
-        result->insert(std::pair<std::string, SensorInfo>(identifier, SensorInfo(id, isIndoor, isOutdoor, useForCalc, isDirect, correctionCoefficient, shift)));
+        result->insert(std::pair<std::string, SensorInfo>(identifier, SensorInfo(id, isIndoor, isOutdoor, useForCalc, interfaceName, correctionCoefficient, shift)));
     }
     return result;
 }
@@ -78,10 +78,7 @@ Storage::~Storage() {
 }
 
 void Storage::LogException(std::exception &e) {
-    std::stringstream ss;
-    ss << "# ERR: SQLException in " << __FILE__;
-    ss << "# ERR: " << e.what() << std::endl;
-    Utils::WriteLogInfo(LOG_ERR, ss.str());
+    Utils::WriteLogInfo(LOG_WARNING, "SQLException", e.what());
 }
 
 void Storage::Connect() {

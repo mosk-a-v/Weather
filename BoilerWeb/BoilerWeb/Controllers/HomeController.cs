@@ -36,31 +36,37 @@ namespace BoilerWeb.Controllers {
 
         [HttpGet]
         public IActionResult OutdoorHistory() {
-            var model = GetHistory(BoilerInfoDescription.OutdoorSensors);
+            var model = GetHistory(mqttConsumer.History, BoilerInfoDescription.OutdoorSensors);
             return View("History", model);
         }
 
         [HttpGet]
         public IActionResult IndoorHistory() {
-            var model = GetHistory(BoilerInfoDescription.IndoorSensors);
+            var model = GetHistory(mqttConsumer.History, BoilerInfoDescription.IndoorSensors);
             return View("History", model);
         }
 
         [HttpGet]
         public IActionResult BoilerHistory() {
-            var model = GetHistory(BoilerInfoDescription.BoilerSensors);
+            var model = GetHistory(mqttConsumer.History, BoilerInfoDescription.BoilerSensors);
             return View("History", model);
         }
 
         [HttpGet]
         public IActionResult HumidityHistory() {
-            var model = GetHistory(BoilerInfoDescription.HumiditySensors);
+            var model = GetHistory(mqttConsumer.History, BoilerInfoDescription.HumiditySensors);
             return View("History", model);
         }
 
         [HttpGet]
         public IActionResult InfoHistory() {
-            var model = GetHistory(BoilerInfoDescription.InfoSensors);
+            var model = GetHistory(mqttConsumer.History, BoilerInfoDescription.InfoSensors);
+            return View("History", model);
+        }
+
+        [HttpGet]
+        public IActionResult StateHistory() {
+            var model = GetHistory(mqttConsumer.VoltageHistory, BoilerInfoDescription.BoilerStateSensors);
             return View("History", model);
         }
 
@@ -82,9 +88,9 @@ namespace BoilerWeb.Controllers {
             return View();
         }
 
-        public BoilerHistoryModel GetHistory(Dictionary<int, string> description) {
-            var indexies = description.Select(x => x.Key).Where(x => x < 999).ToArray();
-            var sensors = mqttConsumer.History
+        public BoilerHistoryModel GetHistory(List<BoilerInfoModel> history ,Dictionary<int, string> description) {
+            var indexies = description.Select(x => x.Key).ToArray();
+            var sensors = history
                 .Select(x => new {
                     Sensors = x.Sensors.Where(s => indexies.Contains(s.SensorId)).ToList(),
                     Time = x.ReciveTime

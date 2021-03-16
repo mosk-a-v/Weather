@@ -1,4 +1,8 @@
 #include "MqttPublisher.h"
+class Utils {
+public:
+    static void WriteLogInfo(int priority, std::string message, std::string data);
+};
 
 MqttPublisher::MqttPublisher(std::string topic, std::string clientId) {
     this->topic = topic;
@@ -23,8 +27,8 @@ void MqttPublisher::Disconnect() {
         }
         catch (std::exception& e) {
             std::stringstream ss;
-            ss << "Disconnect from " << topic << " error: " << e.what() << std::endl;
-            Utils::WriteLogInfo(LOG_ERR, ss.str());
+            ss << topic << ". Error: " << e.what();
+            Utils::WriteLogInfo(LOG_ERR, "Disconnect from Topic. Topic: ", ss.str());
         }
     }
     if (client != nullptr) {
@@ -41,8 +45,8 @@ void MqttPublisher::Publish(std::string payload) {
     }
     catch (std::exception& e) {
         std::stringstream ss;
-        ss << "Publish to " << topic << " error: " << e.what() << std::endl;
-        Utils::WriteLogInfo(LOG_ERR, ss.str());
+        ss << topic << ". Error: " << e.what();
+        Utils::WriteLogInfo(LOG_ERR, "Publish to Topic. Topic: ", ss.str());
         Disconnect();
     }
 }

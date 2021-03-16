@@ -79,7 +79,7 @@ std::time_t Utils::GetTime() {
     return std::time(0);
 }
 
-void Utils::WriteLogInfo(int priority, std::string message) {
+void Utils::WriteLogInfo(int priority, std::string message, std::string data) {
     std::lock_guard<std::mutex> lock(log_file_lock);
     sd_journal_print(priority, message.c_str());
 
@@ -114,10 +114,12 @@ void Utils::WriteLogInfo(int priority, std::string message) {
         break;
     }
     try {
+        std::stringstream messageStream;
+        messageStream << FormatDateTime(GetTime()) << ". " << prefix << ": " << message << data << std::endl;
         std::ofstream statusStream;
         statusStream.open(LOG_FILE_NAME, std::ofstream::out | std::ofstream::app);
         if(statusStream.is_open()) {
-            statusStream << FormatDateTime(GetTime()) << ". " << prefix << ": " << message << std::endl;
+            statusStream << messageStream.str();
         } else {
             std::stringstream ss;
             ss << "Log file open error. Badbit: '" << statusStream.badbit << "'";
@@ -129,6 +131,18 @@ void Utils::WriteLogInfo(int priority, std::string message) {
         ss << "Status write exception." << e.what();
         sd_journal_print(LOG_ERR, ss.str().c_str());
     }
+    if(priority < LOG_DEBUG) {
+        PublishLogInfo(priority, message, data);
+    }
+}
+
+void Utils::PublishLogInfo(int priority, std::string message, std::string data) {
+    nlohmann::json info;
+    info["Time"] = GetTime();
+    info["Priority"] = priority;
+    info["Text"] = message;
+    info["Data"] = data;
+    logPublisher.Publish(info.dump());
 }
 
 std::string Utils::ReadFile(std::string fileName) {
@@ -141,8 +155,8 @@ std::string Utils::ReadFile(std::string fileName) {
         return buffer.str();
     } catch(const std::exception &e) {
         std::stringstream ss;
-        ss << "File '" << fileName << "' read exception." << e.what();
-        Utils::WriteLogInfo(LOG_ERR, ss.str());
+        ss << fileName << "Exception: " << e.what();
+        Utils::WriteLogInfo(LOG_ERR, "File read exception. File: ", ss.str());
         return "";
     }
 }
@@ -159,3 +173,16 @@ bool Utils::CaseInSensStringCompare(const std::string& str1, const std::string& 
     return ((str1.size() >= pattern.size()) &&
             std::equal(str1.begin(), str1.end(), pattern.begin(), &CompareChar));
 }
+
+int Utils::SetupI2C(int addr) {
+    return wiringPiI2CSetup(addr);
+}
+
+uint16_t  Utils::ReadFromI2C(uint16_t  fd, uint8_t  reg) {
+    return wiringPiI2CReadReg16(fd, reg);
+}
+
+uint16_t Utils::WriteToI2C(uint16_t fd, uint8_t reg, uint16_t data) {
+    return wiringPiI2CWriteReg16(fd, reg, data);
+}
+

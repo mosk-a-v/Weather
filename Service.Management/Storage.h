@@ -1,5 +1,6 @@
 #pragma once
 #include "Common.h"
+#include "Utils.h"
 #include "SensorValues.h"
 
 class Storage {

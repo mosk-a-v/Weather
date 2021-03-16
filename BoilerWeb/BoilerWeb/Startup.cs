@@ -19,16 +19,23 @@ namespace BoilerWeb {
 
         private void MapConfiguration() {
             MapBrokerHostSettings();
+            MapTelegramBotSettings();
         }
 
         private void MapBrokerHostSettings() {
-            BrokerHostSettings brokerHostSettings = new BrokerHostSettings();
+            var brokerHostSettings = new BrokerHostSettings();
             Configuration.GetSection(nameof(BrokerHostSettings)).Bind(brokerHostSettings);
             AppSettingsProvider.BrokerHostSettings = brokerHostSettings;
+        }
+        private void MapTelegramBotSettings() {
+            var telegramBotSettings = new TelegramBotSettings();
+            Configuration.GetSection(nameof(telegramBotSettings)).Bind(telegramBotSettings);
+            AppSettingsProvider.TelegramBotSettings = telegramBotSettings;
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
+            services.AddTelegramBotHostedService();
             services.AddMqttClientHostedService();
             services.AddSingleton<MqttConsumer>();
             services.AddSingleton<MqttPublisher>();

@@ -14,7 +14,7 @@ namespace BoilerWeb {
         };
 
         public static Dictionary<int, string> BoilerSensors = new Dictionary<int, string> {
-            {7, "Провод" }, { 3, "Радио"}, { 1000, "Требуется"}
+            {7, "Провод" }, { 3, "Радио"}, { Sensor.SensorIdForBoilerRequired, "Требуется"}
         };
 
         public static Dictionary<int, string> HumiditySensors = new Dictionary<int, string> {
@@ -23,6 +23,10 @@ namespace BoilerWeb {
 
         public static Dictionary<int, string> InfoSensors = new Dictionary<int, string> {
             { 100, "Солнце"}, {101, "Ветер" }
+        };
+
+        public static Dictionary<int, string> BoilerStateSensors = new Dictionary<int, string> {
+            { 103, "Напряжение" }
         };
     }
 }

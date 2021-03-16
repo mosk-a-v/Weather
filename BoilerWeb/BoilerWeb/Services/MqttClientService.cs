@@ -31,7 +31,7 @@ namespace BoilerWeb {
         }
 
         public async Task HandleConnectedAsync(MqttClientConnectedEventArgs eventArgs) {
-            await mqttClient.SubscribeAsync("BOILER_STATISTICS/JSON");
+            await mqttClient.SubscribeAsync("#");
         }
 
         public Task HandleDisconnectedAsync(MqttClientDisconnectedEventArgs eventArgs) {

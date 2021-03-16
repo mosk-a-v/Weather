@@ -17,6 +17,7 @@
         boilerinfo.chart.data.description.boiler = @Html.Raw(Json.Serialize(BoilerWeb.BoilerInfoDescription.BoilerSensors.OrderBy(x => x.Key).Select(x => Model.Sensors.FirstOrDefault(s=>s.SensorId==x.Key).Warning? $"(!) {x.Value}" : x.Value)));
         boilerinfo.chart.data.description.humidity = @Html.Raw(Json.Serialize(BoilerWeb.BoilerInfoDescription.HumiditySensors.OrderBy(x => x.Key).Select(x => Model.Sensors.FirstOrDefault(s=>s.SensorId==x.Key).Warning? $"(!) {x.Value}" : x.Value)));
         boilerinfo.chart.data.description.info = @Html.Raw(Json.Serialize(BoilerWeb.BoilerInfoDescription.InfoSensors.OrderBy(x => x.Key).Select(x => Model.Sensors.FirstOrDefault(s=>s.SensorId==x.Key).Warning? $"(!) {x.Value}" : x.Value)));
+        boilerinfo.chart.data.description.state = @Html.Raw(Json.Serialize(BoilerWeb.BoilerInfoDescription.BoilerStateSensors.OrderBy(x => x.Key).Select(x => Model.Sensors.FirstOrDefault(s=>s.SensorId==x.Key).Warning? $"(!) {x.Value}" : x.Value)));
 
         boilerinfo.chart.data.values.outdoor = @Html.Raw(Json.Serialize(Model.Sensors
                                               .Where(si=>BoilerWeb.BoilerInfoDescription.OutdoorSensors.Keys.Contains(si.SensorId))
@@ -38,6 +39,10 @@
                                               .Where(si=>BoilerWeb.BoilerInfoDescription.InfoSensors.Keys.Contains(si.SensorId))
                                               .OrderBy(si => si.SensorId)
                                               .Select(si=>Math.Round(si.Last, 1))));
+        boilerinfo.chart.data.values.state = @Html.Raw(Json.Serialize(Model.Sensors
+                                              .Where(si=>BoilerWeb.BoilerInfoDescription.BoilerStateSensors.Keys.Contains(si.SensorId))
+                                              .OrderBy(si => si.SensorId)
+                                              .Select(si=>Math.Round(si.Last, 3))));
         boilerinfo.chart.data.requiredBoiler = @(Math.Round(Model.BoilerRequired, 1));
     </script>
 }
@@ -73,8 +78,9 @@
     </tr>
     <tr>
         <td>
-            <div style="display: flex; width: 600px; margin: auto;">
+            <div style="display: flex; width: 750px; margin: auto;">
                 <div class="charts-group" style="width: 450px; height: 180px;" id="boiler_charts" onclick="location.href='@Url.Action("BoilerHistory")';" ></div>
+                <div class="charts-group" style="width: 150px; height: 180px;" id="state_charts" onclick="location.href='@Url.Action("StateHistory")';" > </div>
                 <div style="width: 150px; height: 150px;">
                     @if(Model.IsBoilerOn) {
                         <img src="~/PNG/fire.png" width="120" height="120" alt="" loading="lazy" style="margin-top: 15px;">

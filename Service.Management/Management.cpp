@@ -51,24 +51,41 @@ void Management::StoreGlobalWeather() {
     delete weather;
     weather = nullptr;
 }
+float Management::ApplayLimitsToBoilerTemperature(float adjustBoilerTemperature, CycleStatictics* lastCycleStat) {
+    float const LimitToSecond = 1.0 / (60.0 * 60.0);
+    if(lastCycleStat->Result != Normal) {
+        return adjustBoilerTemperature;
+    }
+    float lastCycleLimit = LimitToSecond * (lastCycleStat->CycleLength);
+    if(adjustBoilerTemperature > lastCycleStat->BoilerRequired + lastCycleLimit) {
+        return lastCycleStat->BoilerRequired + lastCycleLimit;
+    }
+    else if(adjustBoilerTemperature < lastCycleStat->BoilerRequired - lastCycleLimit) {
+        return lastCycleStat->BoilerRequired - lastCycleLimit;
+    }
+    return adjustBoilerTemperature;
+}
 void Management::BeginNewCycle(const time_t &now) {
     CycleStatictics *lastCycleStat = cycleInfo->GetStatictics();
     SensorValues *lastSensorValues = sensorValues;
     storage->SaveCycleStatistics(lastCycleStat, lastSensorValues);
 
     sensorValues = new SensorValues();
+    sensorValues->CloneLastValues(lastSensorValues);
     StoreGlobalWeather();
     boilerSensorId = temperatureStrategy->GetBoilerSensorId(lastSensorValues);
     if(boilerSensorId != Undefined) {
         float boilerTemperature = lastSensorValues->GetLastSensorValue(boilerSensorId);
+        float minVoltage = lastSensorValues->GetMinSensorValue(ThermocoupleVoltage);
         time_t boilerResponseTime = lastSensorValues->GetLastSensorResponseTime(boilerSensorId);
         float sun = sensorValues->GetLastSensorValue(GlobalSun);
         float wind = sensorValues->GetLastSensorValue(GlobalWind);
         float adjustBoilerTemperature = temperatureStrategy->GetBoilerTemperature(lastSensorValues, sun, wind);
+        adjustBoilerTemperature = ApplayLimitsToBoilerTemperature(adjustBoilerTemperature, lastCycleStat);
         bool newCycleWillHeating = boilerTemperature <= adjustBoilerTemperature;
         float indoorTemperature = temperatureStrategy->GetIndoorTemperature(lastSensorValues);
         float outdoorTemperature = temperatureStrategy->GetOutdoorTemperature(lastSensorValues);
-        sprintf(additionalInfo, "Boiler: %.2f; Outdoor: %.2f; Indoor: %.2f", boilerTemperature, outdoorTemperature, indoorTemperature);
+        sprintf(additionalInfo, "Boiler: %.2f; Outdoor: %.2f; Indoor: %.2f; %.3f", boilerTemperature, outdoorTemperature, indoorTemperature, minVoltage);
         delete cycleInfo;
         cycleInfo = new CycleInfo(newCycleWillHeating, adjustBoilerTemperature, boilerTemperature, boilerResponseTime, now);
     } else {

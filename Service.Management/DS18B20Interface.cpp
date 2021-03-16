@@ -33,8 +33,8 @@ void DS18B20Interface::ResetSensor() {
     std::this_thread::sleep_for(std::chrono::seconds(RESET_WAIT_INTERVAL));
     Utils::SetGPIOValues(SENSOR_POWER_PIN, false);
     std::stringstream ss;
-    ss << "Sensor " << deviceId << " reset.";
-    Utils::WriteLogInfo(LOG_ERR, ss.str());
+    ss << deviceId;
+    Utils::WriteLogInfo(LOG_WARNING, "Device reset. Device: ", ss.str());
 }
 float DS18B20Interface::Read() {
     FileOpen();
@@ -55,8 +55,8 @@ float DS18B20Interface::Read() {
         }
     } catch(const std::exception &e) {
         std::stringstream ss;
-        ss << "Error reading from device " << deviceId << ". Detail: " << e.what();
-        Utils::WriteLogInfo(LOG_ERR, ss.str());
+        ss << deviceId << ". " << e.what();
+        Utils::WriteLogInfo(LOG_WARNING, "Error reading from device. DeviceId and details: ", ss.str());
     }
     CloseFile();
     return temp;

@@ -52,8 +52,8 @@ bool Rtl433Input::ParseMessage(DeviceResponce& responce, std::string jsonStr) {
             return false;
         }
     } catch(...) {
-        std::string message = "Parse rtl_433 response error. {" + jsonStr + "}";
-        Utils::WriteLogInfo(LOG_ERR, message);
+        std::string message = "{" + jsonStr + "}";
+        Utils::WriteLogInfo(LOG_DEBUG, "Parse rtl_433 response error. ", message);
         return false;
     }
 }
@@ -79,9 +79,7 @@ void Rtl433Input::Start() {
     };
     _execute.store(true, std::memory_order_release);
     _thd = std::thread([this]() {
-        std::stringstream ss;
-        ss << "Thread for rtl_433 client started.";
-        Utils::WriteLogInfo(LOG_INFO, ss.str());
+        Utils::WriteLogInfo(LOG_DEBUG, "Thread for rtl_433 client started.", "" );
         while(_execute.load(std::memory_order_acquire)) {
             DeviceResponce deviceResponce, prevDeviceResponce;
             if(ParseMessage(deviceResponce, consumer.ReadMessage())) {
