@@ -71,8 +71,16 @@ time_t SensorValues::GetLastSensorResponseTime(SensorId id) {
 }
 
 void SensorValues::AddSensorValue(SensorId id, float value, bool warning, time_t time) {
+    AddSensorValue(id, value, warning, time, true);
+}
+
+void SensorValues::AddSpecialSensorValue(SensorId id, float value, time_t time) {
+    AddSensorValue(id, value, false, time, false);
+}
+
+void SensorValues::AddSensorValue(SensorId id, float value, bool warning, time_t time, bool checkDeviation) {
     int sensorIndex = GetSensorIndex(id);
-    if(value == DEFAULT_TEMPERATURE) {
+    if (value == DEFAULT_TEMPERATURE) {
         return;
     }
     if(lastSensorValues[sensorIndex] == DEFAULT_TEMPERATURE) {
@@ -83,7 +91,7 @@ void SensorValues::AddSensorValue(SensorId id, float value, bool warning, time_t
         minSensorValues[sensorIndex] = value;
         maxSensorValues[sensorIndex] = value;
     }
-    if(fabs(lastSensorValues[sensorIndex] - value) > MAX_SENSOR_DEVIATION) {
+    if(checkDeviation && fabs(lastSensorValues[sensorIndex] - value) > MAX_SENSOR_DEVIATION) {
         sensorWarnings[sensorIndex] = true;
         std::stringstream ss;
         ss << id << ": " << value << "; " << lastSensorValues[sensorIndex];

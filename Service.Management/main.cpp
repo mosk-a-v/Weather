@@ -18,7 +18,7 @@
 //  2. Setup PIPE between rtl_433 & Mosquitto Broker https://tech.sid3windr.be/2017/03/getting-your-currentcost-433mhz-data-into-openhab-using-an-rtl-sdr-dongle-and-mqtt/
 //  3. Installing eclipse/paho.mqtt c++ client https://unix.stackexchange.com/questions/527810/installing-eclipse-paho-mqtt-c-client-on-debian
 // mosquitto_pub -h 192.168.10.14 -t BOILER_COMMAND/JSON -m "{\"Command\":\"Direct\", \"Value\":29}"
-// rtl_433 -U -C si -R 91 -R 19 -F json 2>/dev/null  | mosquitto_pub -h 192.168.10.14 -i RTL_433 -l -t RTL_433/JSON
+// rtl_433 -M utc -C si -F json  | mosquitto_pub -h 192.168.10.14 -i RTL_433 -l -t RTL_433/JSON
 const std::string LogTopic{"BOILER_LOG/JSON"};
 const std::string LogClientId{"boiler_log_publisher"};
 

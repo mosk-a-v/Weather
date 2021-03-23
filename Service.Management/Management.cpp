@@ -45,9 +45,9 @@ void Management::ProcessCommand(Command *command) {
 }
 void Management::StoreGlobalWeather() {
     CurrentWeather *weather = globalWeatherSystem->GetWeather();
-    sensorValues->AddSensorValue(GlobalSun, weather->GetSun(), false, weather->LastUpdateTime);
-    sensorValues->AddSensorValue(GlobalWind, weather->GetWind(), false, weather->LastUpdateTime);
-    sensorValues->AddSensorValue(GlobalOutdoor, weather->GetTemperature(), false, weather->LastUpdateTime);
+    sensorValues->AddSpecialSensorValue(GlobalSun, weather->GetSun(), weather->LastUpdateTime);
+    sensorValues->AddSpecialSensorValue(GlobalWind, weather->GetWind(), weather->LastUpdateTime);
+    sensorValues->AddSpecialSensorValue(GlobalOutdoor, weather->GetTemperature(), weather->LastUpdateTime);
     delete weather;
     weather = nullptr;
 }

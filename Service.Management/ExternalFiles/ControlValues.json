@@ -4,28 +4,28 @@
     "Wind": 0,
     "Indoor": 20,
     "Outdoor": 20,
-    "Boiler": 20
+    "Boiler": 18
   },
   {
     "Sun": 0,
     "Wind": 0,
     "Indoor": 20,
     "Outdoor": 10,
-    "Boiler": 28
+    "Boiler": 24
   },
   {
     "Sun": 0,
     "Wind": 0,
     "Indoor": 20,
     "Outdoor": 0,
-    "Boiler": 36
+    "Boiler": 37
   },
   {
     "Sun": 0,
     "Wind": 0,
     "Indoor": 20,
     "Outdoor": -10,
-    "Boiler": 42
+    "Boiler": 43
   },
   {
     "Sun": 0,
@@ -46,14 +46,14 @@
     "Wind": 0,
     "Indoor": 18,
     "Outdoor": 20,
-    "Boiler": 18
+    "Boiler": 15
   },
   {
     "Sun": 0,
     "Wind": 0,
     "Indoor": 18,
     "Outdoor": 10,
-    "Boiler": 25
+    "Boiler": 21
   },
   {
     "Sun": 0,
@@ -67,7 +67,7 @@
     "Wind": 0,
     "Indoor": 18,
     "Outdoor": -10,
-    "Boiler": 39
+    "Boiler": 40
   },
   {
     "Sun": 0,
@@ -88,14 +88,14 @@
     "Wind": 0,
     "Indoor": 22,
     "Outdoor": 20,
-    "Boiler": 20
+    "Boiler": 21
   },
   {
     "Sun": 0,
     "Wind": 0,
     "Indoor": 22,
     "Outdoor": 10,
-    "Boiler": 31
+    "Boiler": 27
   },
   {
     "Sun": 0,
@@ -109,7 +109,7 @@
     "Wind": 0,
     "Indoor": 22,
     "Outdoor": -10,
-    "Boiler": 45
+    "Boiler": 46
   },
   {
     "Sun": 0,

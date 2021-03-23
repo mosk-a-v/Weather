@@ -33,17 +33,17 @@ bool Rtl433Input::ParseMessage(DeviceResponce& responce, std::string jsonStr) {
             responce.Value = js.at("temperature_C");
             responce.Time = js.at("time");
             responce.Humidity = -1;
-            auto battery = js.find("battery");
+            auto battery = js.find("battery_ok");
             auto humidity = js.find("humidity");
             if(battery != js.end()) {
-                std::string status = *battery;
-                responce.Battery = (status.find("OK") != std::string::npos);
+                double status = js.at("battery_ok");
+                responce.Battery = (status == 1);
             } else {
                 responce.Battery = true;
             }
             if(humidity != js.end()) {
                 std::string mod = js.at("model");
-                if(mod != "inFactory sensor") {
+                if (mod != "inFactory sensor") {
                     responce.Humidity = *humidity;
                 }
             }
@@ -59,8 +59,8 @@ bool Rtl433Input::ParseMessage(DeviceResponce& responce, std::string jsonStr) {
 }
 Rtl433Input::Rtl433Input(Management * management, std::map<std::string, SensorInfo> *sensorsTable) : IInputInterface(management) {
     this->sensorsTable = sensorsTable;
-    this->models.push_back("inFactory sensor");
-    this->models.push_back("Nexus Temperature/Humidity");
+    this->models.push_back("inFactory-TH");
+    this->models.push_back("Nexus-TH");
 }
 Rtl433Input::~Rtl433Input() {
     if(_execute.load(std::memory_order_acquire)) {
