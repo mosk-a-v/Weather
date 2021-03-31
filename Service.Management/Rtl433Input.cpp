@@ -16,14 +16,10 @@ bool Rtl433Input::ParseMessage(DeviceResponce& responce, std::string jsonStr) {
         if(modelItr == js.end()) {
             return false;
         }
-        bool supported = false;
-        for(auto it = models.begin(); it != models.end(); ++it) {
-            if(Utils::CaseInSensStringCompare(*it, *modelItr)) {
-                supported = true;
-                break;
-            }
-        }
-        if(!supported) {
+        std::string mn = *modelItr;
+        std::string model_name = boost::algorithm::to_lower_copy(mn);
+        auto model_info = models.find(model_name);
+        if(model_info == models.end()) {
             return false;
         }
         int id = js.at("id");
@@ -38,12 +34,15 @@ bool Rtl433Input::ParseMessage(DeviceResponce& responce, std::string jsonStr) {
             if(battery != js.end()) {
                 double status = js.at("battery_ok");
                 responce.Battery = (status == 1);
+                if (!responce.Battery) {
+                    std::string message = "{" + jsonStr + "}";
+                    Utils::WriteLogInfo(LOG_DEBUG, "Batter false. ", message);
+                }
             } else {
                 responce.Battery = true;
             }
             if(humidity != js.end()) {
-                std::string mod = js.at("model");
-                if (mod != "inFactory sensor") {
+                if(model_info->second) {
                     responce.Humidity = *humidity;
                 }
             }
@@ -57,10 +56,10 @@ bool Rtl433Input::ParseMessage(DeviceResponce& responce, std::string jsonStr) {
         return false;
     }
 }
-Rtl433Input::Rtl433Input(Management * management, std::map<std::string, SensorInfo> *sensorsTable) : IInputInterface(management) {
+Rtl433Input::Rtl433Input(Management* management, std::map<std::string, SensorInfo>* sensorsTable) : IInputInterface(management) {
     this->sensorsTable = sensorsTable;
-    this->models.push_back("inFactory-TH");
-    this->models.push_back("Nexus-TH");
+    this->models.insert(std::pair<std::string, bool>("infactory-th", false));
+    this->models.insert(std::pair<std::string, bool>("nexus-th", true));
 }
 Rtl433Input::~Rtl433Input() {
     if(_execute.load(std::memory_order_acquire)) {
