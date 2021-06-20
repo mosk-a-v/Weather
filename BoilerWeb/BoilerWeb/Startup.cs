@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,12 +24,14 @@ namespace BoilerWeb {
 
         private void MapBrokerHostSettings() {
             var brokerHostSettings = new BrokerHostSettings();
-            Configuration.GetSection(nameof(BrokerHostSettings)).Bind(brokerHostSettings);
+            Configuration.GetSection(nameof(BrokerHostSettings))
+                .Bind(brokerHostSettings);
             AppSettingsProvider.BrokerHostSettings = brokerHostSettings;
         }
         private void MapTelegramBotSettings() {
             var telegramBotSettings = new TelegramBotSettings();
-            Configuration.GetSection(nameof(telegramBotSettings)).Bind(telegramBotSettings);
+            Configuration.GetSection(nameof(telegramBotSettings))
+                         .Bind(telegramBotSettings);
             AppSettingsProvider.TelegramBotSettings = telegramBotSettings;
         }
 

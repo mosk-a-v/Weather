@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <UserSecretsId>93109739-9e9d-4605-8b6f-34e38cbdb537</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
