@@ -21,7 +21,7 @@
 #define	BOILER_STATUS_PIN 17
 #define	SENSOR_POWER_PIN 27
 #define TEMPLATE_FILE_NAME "/media/NAS/web_boiler/boiler_status.html"
-#define SENSORS_COUNT 20
+#define SENSORS_COUNT 25
 #define HOST "tcp://192.168.10.19:3307"
 #define USER "boiler"
 #define PASSWORD "fruPrld7uj"

@@ -27,7 +27,9 @@ enum SensorId {
     GlobalSun = 100,
     GlobalWind = 101,
     GlobalOutdoor = 102,
-    ThermocoupleVoltage = 103
+    ThermocoupleVoltage = 103,
+    OtherKithen = 104,
+    OtherBoiler = 105
 };
 
 struct ControlValue {

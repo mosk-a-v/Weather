@@ -24,6 +24,8 @@ SensorValues::SensorValues() {
     sensorIndex[RadioKitchen] = 16;
     sensorIndex[RadioKitchenHumidity] = 17;
     sensorIndex[ThermocoupleVoltage] = 18;
+    sensorIndex[OtherKithen] = 19;
+    sensorIndex[OtherBoiler] = 20;
 
     for(int i = 0; i < SENSORS_COUNT; i++) {
         lastSensorValues[i] = DEFAULT_TEMPERATURE;
